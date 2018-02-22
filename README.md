@@ -1,6 +1,6 @@
 # Caplets
 
-[bettercap](/bettercap/bettercap)'s interactive sessions can be scripted with `.cap` files, or `caplets`, the following are a few basic examples, look at this repo for more.
+[bettercap](https://github.com/bettercap/bettercap)'s interactive sessions can be scripted with `.cap` files, or `caplets`, the following are a few basic examples, look at this repo for more.
 
 #### http-req-dump.cap
 
