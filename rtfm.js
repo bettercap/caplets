@@ -14,9 +14,9 @@ function onRequest(req, res) {
 
 function onResponse(req, res) {
     if (res.ContentType.indexOf("image/jpeg") != -1) {
-        res.Status = 200;
-        res.Headers     = "Connection: close";
-        res.Body = readFile("caplets/www/rtfm_cat.jpg");
+        res.Status  = 200;
+        res.Headers = "Connection: close";
+        res.Body    = readFile("caplets/www/rtfm_cat.jpg");
         log("RTFM! " + req.Hostname + req.Path + ( req.Query ? "?" + req.Query : ''));
     }
 }
