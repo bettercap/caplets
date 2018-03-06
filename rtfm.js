@@ -1,19 +1,17 @@
 
 function onRequest(req, res) {
-    // clear caching headers
-    for( var i = 0; i < req.Headers.length; ) {
-        var header = req.Headers[i];
-        if (header.Name == "If-Modified-Since" || header.Name == "If-None-Match") {
-            req.Headers.splice(i, 1);
-        }
-        else {
-            i++;
-        }
-    }
+    req.Path = req.Path.replace('-you-did-not-rtfm', '');
 }
 
 function onResponse(req, res) {
-    if (res.ContentType.indexOf("image/jpeg") != -1) {
+    if (res.ContentType.indexOf("text/html") == 0) {
+        var body = res.ReadBody();
+        res.Body = body.replace(
+            /\.jpg/gi,
+          '-you-did-not-rtfm.jpg'
+        );
+    }
+    else if (res.ContentType.indexOf("image/jpeg") != -1) {
         res.Status  = 200;
         res.Headers = "Connection: close";
         res.Body    = readFile("caplets/www/rtfm_cat.jpg");
