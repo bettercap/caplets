@@ -1,0 +1,4 @@
+gps on
+
+# https://www.waveshare.com/wiki/GSM/GPRS/GNSS_HAT
+!echo "AT+CGNSPWR=1\nAT+CGNSTST=1" > /dev/ttyUSB0
