@@ -7,8 +7,8 @@ function onResponse(req, res) {
     if (res.ContentType.indexOf("text/html") == 0) {
         var body = res.ReadBody();
         res.Body = body.replace(
-            /\.jpg/gi,
-          '-you-did-not-rtfm.jpg'
+            /\.(jpg|jpeg|png|gif|bmp)/gi,
+            '-you-did-not-rtfm.$1'
         );
     }
     else if (res.ContentType.indexOf("image/jpeg") != -1) {
