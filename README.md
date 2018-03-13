@@ -203,8 +203,8 @@ Put a wifi interface in monitor mode and listen for frames in order to detect Wi
 set $ {by}{fw}{env.iface.name}{reset} {bold}» {reset}
 set ticker.commands clear; wifi.show
 
-# uncomment to disable channel hopping
-# set wifi.recon.channel 1
+# uncomment to only hop on these channels:
+# wifi.recon.channel 1,2,3
 
 wifi.recon on
 ticker on
@@ -229,7 +229,7 @@ net.sniff on
 # since we need to capture the handshake, we can't hop
 # through channels but we need to stick to the one we're
 # interested in otherwise the sniffer might lose packets.
-set wifi.recon.channel 1
+wifi.recon.channel 1
 
 wifi.recon on
 

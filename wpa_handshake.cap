@@ -10,7 +10,7 @@ net.sniff on
 # since we need to capture the handshake, we can't hop
 # through channels but we need to stick to the one we're
 # interested in otherwise the sniffer might lose packets.
-set wifi.recon.channel 1
+wifi.recon.channel 1
 
 # this will enable the wifi recon
 set ticker.commands clear; wifi.show
