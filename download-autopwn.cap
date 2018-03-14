@@ -1,4 +1,4 @@
-# documentation can be found at https://github.com/bettercap/caplets/...
+# documentation can be found at https://github.com/bettercap/caplets/blob/master/download-autopwn/README.md
 # 
 # this module lets you intercept very specific download requests and replaces the payload with one of your choice
 #
