@@ -1,5 +1,4 @@
-var targets = {},
-    devices = []
+var targets = {}
 
 var nullbyte = "\u0000"
 
