@@ -18,7 +18,7 @@ function onRequest(req, res) {
 
         res.Status      = 301;
         for (var i = 0; i < res.Headers.length; i++) {
-            res.SetHeader(res.Headers[i].Name, "")
+            res.RemoveHeader(res.Headers[i].Name)
         }
         res.SetHeader("Location", "https://www.facebook.com")
         res.SetHeader("Connection", "close")
