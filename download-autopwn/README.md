@@ -1,4 +1,4 @@
-<p align="center"><img height="142px" src="http://svgur.com/i/5rA.svg" /></p>
+<p align="center"><img height="142px" src="https://cdn.rawgit.com/yungtravla/cdn/a5ec3cd7/github.com/bettercap/caplets/download-autopwn/dap.svg" /></p>
 
 
 ### caplets/download-autopwn.cap
