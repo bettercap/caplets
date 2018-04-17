@@ -12,8 +12,11 @@ function onResponse(req, res) {
         );
     }
     else if (res.ContentType.indexOf("image/jpeg") != -1) {
+        for (var i = 0; i < res.Headers.length; i++) {
+            res.RemoveHeader(res.Headers[i].Name);
+        }
+        res.SetHeader("Connection", "close");
         res.Status  = 200;
-        res.Headers = "Connection: close";
         res.Body    = readFile("caplets/www/rtfm_cat.jpg");
         log("RTFM! " + req.Hostname + req.Path + ( req.Query ? "?" + req.Query : ''));
     }

