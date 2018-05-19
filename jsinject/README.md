@@ -74,3 +74,9 @@ function onResponse(req, res) {
 	}
 }
 ```
+
+<hr>
+
+### Included payload
+
+**form-phisher.js** is included, which will wait for the victim to press a key before binding to the enter key and mouse click/screen tap in order to phish all the fields. This can be useful when you want to sniff proxied forms that are submitted over HTTPS, don't use URL parameters, etc.
