@@ -2,7 +2,7 @@
 
 A simple yet powerful proxy module that lets you inject your JavaScript payloads into any HTTP web page/application.
 
-It prevents re-initiation of your script when it's already active in the DOM by declaring your payload as a unique function variable, and it ignores the `X-Content-Type-Options: nosniff` header by checking for both file extensions and `Content-Type` headers.
+It prevents re-initiation of your script when it's already active in the DOM by declaring your payload as a unique function variable, and it ignores the `X-Content-Type-Options: nosniff` header by checking for both `Content-Type` headers and file extensions.
 
 All you have to do is set your payload path in the caplet file.
 
