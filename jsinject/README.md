@@ -78,4 +78,4 @@ function onResponse(req, res) {
 
 ### Included payload
 
-<a href="./payloads/form-phisher.js">form-phisher.js</a> is included, which will wait for the victim to press a key before binding to the enter key, mouse click/screen tap and submit event in order to phish all the fields. This can be useful when you want to sniff proxied forms that are submitted over HTTPS, don't use URL parameters, etc.
+<b><a href="./payloads/form-phisher.js">form-phisher.js</a></b> is included, which will wait for the victim to press a key before binding to the enter key, mouse click/screen tap and submit event in order to phish all the fields. This can be useful when you want to sniff proxied forms that are submitted over HTTPS, don't use URL parameters, etc.
