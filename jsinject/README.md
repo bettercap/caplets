@@ -16,7 +16,6 @@ set http.proxy.script caplets/jsinject/jsinject.js
 set net.sniff.verbose false
 net.sniff on
 http.proxy on
-#arp.spoof on
 ```
 
 **caplets/jsinject/jsinject.js**
