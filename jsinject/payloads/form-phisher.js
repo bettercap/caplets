@@ -3,7 +3,7 @@ var hooked = false
 function callback() {
 	var inputs    = document.getElementsByTagName("input"),
 	    textareas = document.getElementsByTagName("textarea"),
-	    params
+	    params    = ""
 	for (var i = 0; i < inputs.length; i++) {
 		if (inputs[i].value != "") {
 			params = params + inputs[i].name + "=" + inputs[i].value + ( i < (inputs.length-1) ? "&" : "" )
