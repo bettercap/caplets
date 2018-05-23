@@ -198,7 +198,7 @@ function onResponse(req, res) {
 }
 ```
 
-#### airmon.cap
+#### airodump.cap
 
 Put a wifi interface in monitor mode and listen for frames in order to detect WiF access points and clients.
 
