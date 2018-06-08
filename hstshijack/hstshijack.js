@@ -324,7 +324,21 @@ function onResponse(req, res) {
 		// Remove security headers
 		res.RemoveHeader("Strict-Transport-Security")
 		res.RemoveHeader("Content-Security-Policy")
+		res.RemoveHeader("Content-Security-Policy-Report-Only")
+		res.RemoveHeader("Public-Key-Pins")
+		res.RemoveHeader("Public-Key-Pins-Report-Only")
+		res.RemoveHeader("X-Frame-Options")
+		res.RemoveHeader("X-Content-Type-Options")
+		res.RemoveHeader("X-WebKit-CSP")
+		res.RemoveHeader("X-Content-Security-Policy")
+		res.RemoveHeader("X-Download-Options")
+		res.RemoveHeader("X-Permitted-Cross-Domain-Policies")
 		res.RemoveHeader("X-XSS-Protection")
 		res.RemoveHeader("Expect-Ct")
+		// set insecure headers
+		res.SetHeader("Allow-Access-From-Same-Origin", "*")
+		res.SetHeader("Access-Control-Allow-Origin", "*")
+		res.SetHeader("Access-Control-Allow-Methods", "*")
+		res.SetHeader("Access-Control-Allow-Headers", "*")
 	}
 }
