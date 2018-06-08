@@ -297,19 +297,19 @@ function onResponse(req, res) {
 		}
 		// Inject payload(s)
 		if (custom_payloads.length > 0) {
-			for (var i = 0; i < custom_payloads.length; i++) {
-				custom_payload_host = custom_payloads[i].replace(/\:.*/, "")
-				custom_payload_path = custom_payloads[i].replace(/.*\:/, "")
+			for (var a = 0; a < custom_payloads.length; a++) {
+				custom_payload_host = custom_payloads[a].replace(/\:.*/, "")
+				custom_payload_path = custom_payloads[a].replace(/.*\:/, "")
 				regexp = wildcardToRegexp(custom_payload_host)
 				if ( req.Hostname.match(regexp) ) {
 					custom_payload = readFile(custom_payload_path)
-					// Obfuscate payload if required
+					// Obfsucate payload if required
 					obfuscation_variables = custom_payload.match(/obf_[a-z\_]*/ig) || []
-					for (var i = 0; i < obfuscation_variables.length; i++) {
-						regexp = new RegExp(obfuscation_variables[i], "ig")
+					for (var b = 0; b < obfuscation_variables.length; b++) {
+						regexp = new RegExp(obfuscation_variables[b], "ig")
 						custom_payload = custom_payload.replace( regexp, randomString( 8 + Math.random() * 16 ) )
 					}
-					payload = payload.replace("{{custom_payload}}", custom_payload + "\n{{custom_payload}}")
+					payload = payload.replace("{{custom_payload}}", "{{custom_payload}}\n" + custom_payload)
 				}
 			}
 		}
