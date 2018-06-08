@@ -1,4 +1,4 @@
-# Documentation can be found at https://github.com/bettercap/caplets/...
+# Documentation can be found at https://github.com/bettercap/caplets/blob/master/hstshijack/README.md
 
 set hstshijack.log             caplets/hstshijack/ssl.log
 set hstshijack.payload         caplets/hstshijack/payloads/hstshijack-payload.js
