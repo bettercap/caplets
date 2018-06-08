@@ -5,8 +5,8 @@ var payload,
     payload_container = "" + 
     	"if (!self.{{session_id}}) {\n" + 
     		"var {{session_id}} = function() {\n" + 
-    			"{{custom_payload}}\n" + 
     			"{{payload}}\n" + 
+    			"{{custom_payload}}\n" + 
     		"}\n" + 
     		"{{session_id}}();\n" + 
     	"}\n"
@@ -309,7 +309,7 @@ function onResponse(req, res) {
 						regexp = new RegExp(obfuscation_variables[b], "ig")
 						custom_payload = custom_payload.replace( regexp, randomString( 8 + Math.random() * 16 ) )
 					}
-					payload = payload.replace("{{custom_payload}}", "{{custom_payload}}\n" + custom_payload)
+					payload = payload.replace("{{custom_payload}}", custom_payload + "\n{{custom_payload}}")
 				}
 			}
 		}
