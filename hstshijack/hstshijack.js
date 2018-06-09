@@ -367,5 +367,4 @@ function onResponse(req, res) {
 		res.SetHeader("Access-Control-Allow-Methods", "*")
 		res.SetHeader("Access-Control-Allow-Headers", "*")
 	}
-	console.log(res.Body)
 }
