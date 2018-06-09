@@ -107,4 +107,6 @@ form.onsubmit = function() {
 }
 ```
 
-The following POST request will be sniffed by bettercap, but not proxied. This can save time when writing JavaScript payloads.
+The following POST request will be sniffed by bettercap, but not proxied. 
+
+Any instance of `obf_path_callback` will be replaced with the callback path that bettercap listens for (this can save time when writing JavaScript payloads).
