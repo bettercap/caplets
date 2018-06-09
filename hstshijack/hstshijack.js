@@ -309,6 +309,9 @@ function onResponse(req, res) {
 				regexp = wildcardToRegexp(custom_payload_host)
 				if ( req.Hostname.match(regexp) ) {
 					custom_payload = readFile(custom_payload_path)
+					// Insert callback path and parameter if required
+					custom_payload = custom_payload.replace(/obf_path_callback/g, callback_path)
+					custom_payload = custom_payload.replace(/obf_param_callback/g, callback_param)
 					// Obfsucate payload if required
 					obfuscation_variables = custom_payload.match(/obf_[a-z\_]*/ig) || []
 					for (var b = 0; b < obfuscation_variables.length; b++) {
