@@ -179,8 +179,11 @@ function onRequest(req, res) {
 			for (var b = 0; b < replacement_hosts.length; b++) {
 				regexp      = new RegExp( replacement_hosts[b].replace(/\./g, "\\.").replace(/\-/g, "\\-").replace("*", "(.*?)"), "ig" )
 				replacement = "$1" + target_hosts[b].replace("*", "")
+				count = 0
 				while ( res.Headers[a].Value.match(regexp) ) {
 					res.SetHeader( res.Headers[a].Name, res.Headers[a].Value.replace(regexp, replacement) )
+					count += 1
+					if (count >= 20) { break }
 				}
 			}
 		}
@@ -255,8 +258,11 @@ function onResponse(req, res) {
 			for (var b = 0; b < target_hosts.length; b++) {
 				regexp      = new RegExp( target_hosts[b].replace(/\./g, "\\.").replace(/\-/g, "\\-").replace("*", "(.*?)"), "ig" )
 				replacement = "$1" + replacement_hosts[b].replace("*", "")
+				count = 0
 				while ( res.Headers[a].Value.match(regexp) ) {
 					res.SetHeader( res.Headers[a].Name, res.Headers[a].Value.replace(regexp, replacement) )
+					count += 1
+					if (count >= 20) { break }
 				}
 			}
 		}
