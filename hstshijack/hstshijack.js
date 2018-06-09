@@ -165,7 +165,6 @@ function onLoad() {
 }
 
 function onRequest(req, res) {
-	configure()
 	// Handle callbacks first
 	if ( req.Path == "/" + callback_path ) {
 		var callback_data = atob(req.Query)
@@ -243,7 +242,6 @@ function onRequest(req, res) {
 }
 
 function onResponse(req, res) {
-	configure()
 	// Handle SSL log first
 	location = res.GetHeader("Location", "")
 	if ( location.match(/^https:\/\//i) ) {
