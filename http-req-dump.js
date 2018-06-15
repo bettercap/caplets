@@ -26,9 +26,11 @@ function BOLD(s) {
 
 function dumpHeaders(req) {
     log( "> " + BOLD(G("Headers")) );
-    for( var i = 0; i < req.Headers.length; i++ ) {
-        var header = req.Headers[i];
-        log( "  " + B(header.Name) + " : " + DIM(header.Value) );
+    headers = req.Headers.split("\r\n");
+    for (var i = 0; i < headers.length; i++) {
+        header_name = headers[i].replace(/:.*/, "");
+        header_value = headers[i].replace(/.*?: /, "");
+        log( "  " + B(header_name) + " : " + DIM(header_value) );
     }
 }
 
@@ -44,7 +46,7 @@ function dumpForm(req) {
     log( "  > " + BOLD(G("Form")) );
 
     var form = req.ParseForm();
-    for( var key in form ) {
+    for (var key in form) {
         log( "   " + B(key) + " : " + Y(form[key]) );
     }
 }
@@ -59,9 +61,9 @@ function dumpJSON(req) {
 }
 
 function pad(num, size, fill) {
-    var s = ""+num;
+    var s = "" + num;
 
-    while( s.length < size ) {
+    while (s.length < size) {
         s = fill + s;
     }
 
@@ -70,68 +72,65 @@ function pad(num, size, fill) {
 
 function toHex(n) {
     var hex = "0123456789abcdef";
-    var h = hex[(0xF0 & n) >> 4] + hex[0x0F & n]; 
-    return pad(h, 2, '0');
+    var h = hex[(0xF0 & n) >> 4] + hex[0x0F & n];
+    return pad(h, 2, "0");
 }
 
-function isPrint(c){
-    if( !c ) { return false; }
+function isPrint(c) {
+    if (!c) { return false; }
     var code = c.charCodeAt(0);
-    return ( code > 31 ) && ( code < 127 );
+    return (code > 31) && (code < 127);
 }
 
 function dumpHex(raw, linePad) {
     var DataSize = raw.length;
     var Bytes = 16;
 
-    for( var address = 0; address < DataSize; address++ ) {
-        var saddr = pad(address, 8, '0');
-        var shex  = '';
-        var sprint = '';
+    for (var address = 0; address < DataSize; address++) {
+        var saddr = pad(address, 8, "0");
+        var shex = "";
+        var sprint = "";
 
         var end = address + Bytes;
-        for( var i = address; i < end; i++ ) {
-            if( i < DataSize ) {
-                shex += toHex(raw.charCodeAt(i)) + ' ';
-                sprint += isPrint(raw[i]) ? raw[i] : '.';
+        for (var i = address; i < end; i++) {
+            if (i < DataSize) {
+                shex += toHex(raw.charCodeAt(i)) + " ";
+                sprint += isPrint(raw[i]) ? raw[i] : ".";
             } else {
-                shex   += '   ';
-                sprint += ' ';
+                shex += "   ";
+                sprint += " ";
             }
         }
 
         address = end;
 
-        log( linePad + G(saddr) + '  ' + shex + ' ' + sprint );
+        log( linePad + G(saddr) + "  " + shex + " " + sprint );
     }
 }
 
 function dumpRaw(req) {
     var body = req.ReadBody();
 
-    log( "  > " + BOLD(G("Body")) + " " + DIM("("+body.length + " bytes)") + "\n" );
+    log( "  > " + BOLD(G("Body")) + " " + DIM("(" + body.length + " bytes)") + "\n" );
 
     dumpHex(body, "    ");
 }
 
 function onRequest(req, res) {
-    log( BOLD(req.Client) + " > " + B(req.Method) + " " + req.Hostname + req.Path + ( req.Query ? "?" + req.Query : '') );
+    log( BOLD(req.Client) + " > " + B(req.Method) + " " + req.Hostname + req.Path + (req.Query ? "?" + req.Query : "") );
 
     dumpHeaders(req);
 
-    if( req.ContentType ) {
+    if (req.ContentType) {
         log();
 
-        if( req.ContentType.indexOf("text/plain") != -1 ) {
+        if (req.ContentType.indexOf("text/plain") != -1) {
             dumpPlain(req);
-        }
-        else if( req.ContentType.indexOf("application/x-www-form-urlencoded") != -1 ) {
+        } else if (req.ContentType.indexOf("application/x-www-form-urlencoded") != -1) {
             dumpForm(req);
-        }
-        else if( req.ContentType.indexOf("application/json") != -1 ) {
+        } else if (req.ContentType.indexOf("application/json") != -1) {
             dumpJSON(req);
-        }
-        else {
+        } else {
             dumpRaw(req);
         }
     }

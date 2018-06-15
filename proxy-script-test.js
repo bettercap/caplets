@@ -6,8 +6,10 @@ function onLoad() {
 // called before a request is proxied
 function onRequest(req, res) {
     if( req.Path == "/test-page" ){
-        for (var i = 0; i < res.Headers.length; i++) {
-            res.RemoveHeader(res.Headers[i].Name);
+        headers = res.Headers.split("\r\n");
+        for (var i = 0; i < headers.length; i++) {
+            header_name = headers[i].replace(/:.*/, "");
+            res.RemoveHeader(header_name);
         }
         res.SetHeader("Server", "bettercap");
         res.SetHeader("Connection", "close");
@@ -27,8 +29,10 @@ function onRequest(req, res) {
 // called after a request is proxied and there's a response
 function onResponse(req, res) {
     if( res.Status == 404 ){
-        for (var i = 0; i < res.Headers.length; i++) {
-            res.RemoveHeader(res.Headers[i].Name);
+        headers = res.Headers.split("\r\n");
+        for (var i = 0; i < headers.length; i++) {
+            header_name = headers[i].replace(/:.*/, "");
+            res.RemoveHeader(header_name);
         }
         res.SetHeader("Server", "bettercap");
         res.SetHeader("Connection", "close");
