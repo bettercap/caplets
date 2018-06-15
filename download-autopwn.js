@@ -30,8 +30,7 @@ function onResponse(req, res) {
 	var requestedFileName = req.Path.replace(/.*\//g, "")
 	if ( requestedFileName.indexOf(".") != -1 ) {
 		var userAgent = req.GetHeader("User-Agent", ""),
-		    extension,
-		    headerCount = req.Headers.length
+		    extension
 		// Iterate through targets
 		for ( var t = 0; t < Object.keys(targets).length; t++ ) {
 			// Check if User-Agent is a target
