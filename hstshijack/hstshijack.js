@@ -288,7 +288,7 @@ function onResponse(req, res) {
 				// Hijack meta tag redirection
 				for (var b = 0; b < target_hosts.length; b++) {
 					regexp  = new RegExp( target_hosts[b].replace(/\./g, "\\.").replace(/\-/g, "\\-").replace("*", "([a-z][a-z0-9\\-\\.]*)"), "ig" )
-					matches = meta_tags[a].match(regexp)
+					matches = meta_tags[a].match(regexp) || []
 					for (var c = 0; c < matches.length; c++) {
 						host_regexp      = wildcardToRegexp(target_hosts[b])
 						host_replacement = "$1" + replacement_hosts[b].replace("*", "")
