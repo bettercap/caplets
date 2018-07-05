@@ -355,7 +355,6 @@ function onResponse(req, res) {
 		res.RemoveHeader("X-XSS-Protection")
 		res.RemoveHeader("Expect-Ct")
 		// Set insecure headers
-		res.SetHeader("Allow-Access-From-Same-Origin", "*")
 		res.SetHeader("Access-Control-Allow-Origin", "*")
 		res.SetHeader("Access-Control-Allow-Methods", "*")
 		res.SetHeader("Access-Control-Allow-Headers", "*")
