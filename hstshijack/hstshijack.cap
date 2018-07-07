@@ -2,7 +2,7 @@
 
 set hstshijack.log             caplets/hstshijack/ssl.log
 set hstshijack.payload         caplets/hstshijack/payloads/hstshijack-payload.js
-set hstshijack.ignore          github.com,*.github.com
+set hstshijack.ignore          *
 set hstshijack.targets         facebook.com,*.facebook.com
 set hstshijack.replacements    facedook.com,*.facedook.com
 set hstshijack.blockscripts    facebook.com,*.facebook.com
