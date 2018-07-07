@@ -261,10 +261,10 @@ function onResponse(req, res) {
 				regexp = wildcardToRegexp(target_hosts[b])
 				if ( !req.Hostname.match(regexp) ) {
 					ignored = true
+					i = ignore_hosts.length
+					log_debug("(" + green + "hstshijack" + reset + ") Ignored response from " + req.Hostname + ".")
 				}
 			}
-			i = ignore_hosts.length
-			log_debug("(" + green + "hstshijack" + reset + ") Ignored response from " + req.Hostname + ".")
 		}
 	}
 	// Hijack this response if required
