@@ -7,7 +7,7 @@
 ```sh
 set hstshijack.log             caplets/hstshijack/ssl.log
 set hstshijack.payload         caplets/hstshijack/payloads/hstshijack-payload.js
-set hstshijack.ignore          github.com,*.github.com
+set hstshijack.ignore          *
 set hstshijack.targets         blockchain.info,*.blockchain.info
 set hstshijack.replacements    blockchian.info,*.blockchian.info
 #set hstshijack.blockscripts    domain.com,*.domain.com
