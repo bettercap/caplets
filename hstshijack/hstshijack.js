@@ -42,7 +42,7 @@ function randomString(length) {
 function wildcardToRegexp(string) {
 	string = string.replace(/\./g, "\\.")
 	string = string.replace(/\-/g, "\\-")
-	string = string.replace("*", "([a-z][a-z0-9\\-\\.]*)")
+	string = string.replace("*", "([a-z0-9\\-][a-z0-9\\-\\.]*)")
 	return new RegExp("^" + string + "$", "ig")
 }
 
@@ -63,19 +63,19 @@ function configure() {
 	block_script_hosts.indexOf("*") > -1 ? log_warn("(" + green + "hstshijack" + reset + ") Blocking scripts on every host will break most sites.") : ""
 	custom_payloads.length < 1 ? log_warn("(" + green + "hstshijack" + reset + ") Not setting a custom payload will cause many sites to break or alert the user.") : ""
 	for (var i = 0; i < ignore_hosts.length; i++) {
-		!ignore_hosts[i].match(/^[^0-9\-\.][\*]*[a-z0-9\-\.]*[a-z]+$/ig) ? log_fatal("(" + green + "hstshijack" + reset + ") Invalid hstshijack.ignore value (got " + ignore_hosts[i] + ").") : ""
+		!ignore_hosts[i].match(/^[^\.][\*]*[a-z0-9\-\.]*[a-z]+$/ig) ? log_fatal("(" + green + "hstshijack" + reset + ") Invalid hstshijack.ignore value (got " + ignore_hosts[i] + ").") : ""
 	}
 	for (var i = 0; i < target_hosts.length; i++) {
-		!target_hosts[i].match(/^[^0-9\-\.][\*]*[a-z0-9\-\.]*[a-z]+$/ig) ? log_fatal("(" + green + "hstshijack" + reset + ") Invalid hstshijack.targets value (got " + target_hosts[i] + ").") : ""
+		!target_hosts[i].match(/^[^\.][\*]*[a-z0-9\-\.]*[a-z]+$/ig) ? log_fatal("(" + green + "hstshijack" + reset + ") Invalid hstshijack.targets value (got " + target_hosts[i] + ").") : ""
 	}
 	for (var i = 0; i < replacement_hosts.length; i++) {
-		!replacement_hosts[i].match(/^[^0-9\-\.][\*]*[a-z0-9\-\.]*[a-z]+$/ig) ? log_fatal("(" + green + "hstshijack" + reset + ") Invalid hstshijack.replacements value (got " + replacement_hosts[i] + ").") : ""
+		!replacement_hosts[i].match(/^[^\.][\*]*[a-z0-9\-\.]*[a-z]+$/ig) ? log_fatal("(" + green + "hstshijack" + reset + ") Invalid hstshijack.replacements value (got " + replacement_hosts[i] + ").") : ""
 	}
 	for (var i = 0; i < block_script_hosts.length; i++) {
-		!block_script_hosts[i].match(/^[^0-9\-\.][\*]*[a-z0-9\-\.]*[a-z]+$/ig) ? log_fatal("(" + green + "hstshijack" + reset + ") Invalid hstshijack.blockscripts value (got " + block_script_hosts[i] + ").") : ""
+		!block_script_hosts[i].match(/^[^\.][\*]*[a-z0-9\-\.]*[a-z]+$/ig) ? log_fatal("(" + green + "hstshijack" + reset + ") Invalid hstshijack.blockscripts value (got " + block_script_hosts[i] + ").") : ""
 	}
 	for (var i = 0; i < custom_payloads.length; i++) {
-		!custom_payloads[i].match(/^[^0-9\-\.][\*]*[a-z0-9\-\.]*[\:].{1,}$/) ? log_fatal("(" + green + "hstshijack" + reset + ") Invalid hstshijack.custompayloads value (got " + custom_payloads[i] + ").") : ""
+		!custom_payloads[i].match(/^[^\.][\*]*[a-z0-9\-\.]*[\:].{1,}$/) ? log_fatal("(" + green + "hstshijack" + reset + ") Invalid hstshijack.custompayloads value (got " + custom_payloads[i] + ").") : ""
 		custom_payload_path = custom_payloads[i].replace(/.*\:/, "")
 		if ( !readFile(custom_payload_path) ) {
 			log_fatal("(" + green + "hstshijack" + reset + ") Could not read a path in hstshijack.custompayloads (got " + custom_payload_path + ").")
