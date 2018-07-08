@@ -324,7 +324,7 @@ function onResponse(req, res) {
 		}
 		// Strip meta tag redirection
 		if ( res.Body.match(/<meta(.*?)http\-equiv=(\'|\")refresh(\'|\")/ig) ) {
-			var meta_tags = res.Body.match(/<meta(.*?)http\-equiv=(\'|\")refresh(\'|\")(.*?)(\/|)\s*>/ig) || []
+			var meta_tags = res.Body.match(/<meta(.*?)http\-equiv=(\'|\")refresh(\'|\")(.*?)(\/\s*|)>/ig) || []
 			for (var a = 0; a < meta_tags.length; a++) {
 				if ( meta_tags[a].match(/https:\/\//ig) ) {
 					replacement = meta_tags[a].replace(/https:\/\//ig, "http://")
