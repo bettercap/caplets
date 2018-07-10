@@ -178,7 +178,7 @@ function onRequest(req, res) {
 		if (callback_log[i]["client"] == req.Client) {
 			regexp = wildcardToRegexp(callback_log[i]["spoofed"])
 			if ( req.Hostname.match(regexp) ) {
-				regexp      = new RegExp( callback_log[i]["spoofed"].replace("*", "(.*?)") + "()", "i" )
+				regexp      = new RegExp( callback_log[i]["spoofed"].replace(/\./g, "\\.").replace(/\-/g, "\\-").replace("*", "(.*?)") + "()", "i" )
 				replacement = "$1" + callback_log[i]["original"].replace("*", "")
 				new_host    = req.Hostname.replace(regexp, replacement)
 				res.Status  = 301
