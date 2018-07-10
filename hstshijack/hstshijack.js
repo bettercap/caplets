@@ -175,9 +175,6 @@ function onRequest(req, res) {
 	ignored = false
 	// Redirect client to the real host if a phishing callback was received
 	for ( var i = 0; i < Object.keys(callback_log).length; i++ ) {
-		console.log(callback_log[i]["client"])
-		console.log(callback_log[i]["spoofed"])
-		console.log(callback_log[i]["original"])
 		if (callback_log[i]["client"] == req.Client) {
 			regexp = wildcardToRegexp(callback_log[i]["spoofed"])
 			if ( req.Hostname.match(regexp) ) {
