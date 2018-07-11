@@ -318,13 +318,14 @@ function onResponse(req, res) {
 			if ( req.Hostname.match(regexp) ) {
 				ignored = true
 				for (var b = 0; b < target_hosts.length; b++) {
-					if ( req.Hostname.match(regexp) ) {
-						ignored = false
-						b = target_hosts.length
-					}
+					regexp = wildcardToRegexp(target_hosts[b])
+					req.Hostname.match(regexp) ? ignored = false : ""
+					regexp = wildcardToRegexp(replacement_hosts[b])
+					req.Hostname.match(regexp) ? ignored = false : ""
+					!ignored ? b = target_hosts.length : ""
 				}
 				for (var b = 0; b < custom_payloads.length; b++) {
-					custom_payload_host = custom_payloads[a].replace(/\:.*/, "")
+					custom_payload_host = custom_payloads[b].replace(/\:.*/, "")
 					regexp = wildcardToRegexp(custom_payload_host)
 					if ( req.Hostname.match(regexp) ) {
 						ignored = false
@@ -333,8 +334,8 @@ function onResponse(req, res) {
 				}
 				if (ignored) {
 					log_debug("(" + green + "hstshijack" + reset + ") Ignored response from " + req.Hostname + ".")
-					a = ignore_hosts.length
 				}
+				a = ignore_hosts.length
 			}
 		}
 	}
