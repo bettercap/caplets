@@ -236,6 +236,16 @@ function onRequest(req, res) {
 					}
 				}
 			}
+			console.log("\n  Request Headers:\n")
+			req_headers = req.Headers.split("\r\n")
+			for (var i = 0; i < req_headers.length; i++) {
+				console.log("    " + green + req_headers[i] + reset)
+			}
+			console.log("  Request Query:\n")
+			console.log("    " + green + req.Query + reset)
+			console.log("\n  Request Body:\n")
+			console.log( "    " + green + req.ReadBody() + reset )
+			console.log("    " + green + req.Body + reset + "\n")
 		} else {
 			req_headers = req.Headers.split("\r\n")
 			// Patch spoofed hostnames in headers
