@@ -26,7 +26,7 @@ http.proxy   on
 
 This module injects HTML & JS files with a payload (<a href="./payloads/hstshijack-payload.js">**hstshijack-payload.js**</a>). This payload communicates with the bettercap sniffer, revealing all URLs that are discovered in the injected document.
 
-This is done in separate and asynchronous requests so that bettercap can adjust the host and path for each request, and then send a HEAD request in order to learn each host's response to a HTTP request for the given path.
+This is done in separate and asynchronous requests so that bettercap can adjust the host and path for each request, and then send a HEAD request in order to learn each host's response headers for a HTTP request.
 
 ### SSL log
 
