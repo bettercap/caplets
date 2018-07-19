@@ -51,7 +51,7 @@ function onCommand(cmd) {
 		all_hosts = extractHosts()
 		console.log()
 		for (var i = 0; i < all_hosts.length; i++) {
-			enumerated_hosts.indexOf(all_hosts[i]) == -1 ? console.log(yellow + all_hosts[i] + reset) : ""
+			enumerated_hosts.indexOf(all_hosts[i]) == -1 ? console.log("  " + yellow + all_hosts[i] + reset) : ""
 		}
 		console.log()
 		enumerated_hosts = all_hosts
