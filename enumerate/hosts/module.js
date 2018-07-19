@@ -17,18 +17,24 @@ function configure() {
 }
 
 function extractHosts() {
-	data = readFile( env("events.stream.output") )
-	all_hosts = data.replace(/.*\033\[33m(https:\/\/|)/g, "").replace(/\033\[0m.*/g, "").replace(/ .*/g, "").replace(/\[.*\].*\n/g, "").split("\n")
-	individual_hosts = []
-	for (var i = 0; i < all_hosts.length; i++) {
-		individual_hosts.indexOf(all_hosts[i]) == -1 ? individual_hosts.push(all_hosts[i]) : ""
+	logs = readFile( env("events.stream.output") ).split("\n")
+	extracted_hosts = []
+	for (var i = 0; i < logs.length; i++) {
+		if ( logs[i].match(/\[.*?net\.sniff.*?\]/i) ) {
+			host = logs[i].replace(/.*\033\[33m(https:\/\/|)/g, "").replace(/\033\[0m.*/g, "").replace(/ .*/g, "")
+			extracted_hosts.indexOf(host) == -1 ? extracted_hosts.push(host) : ""
+		}
 	}
-	return individual_hosts
+	return extracted_hosts
 }
 
-function saveHosts(hosts) {
-	data = hosts.join("\n")
-	writeFile( env("enumerate.hosts.output"), data )
+function saveHosts() {
+	saved_hosts = readFile( env("enumerate.hosts.output") ).split("\n")
+	all_hosts = extractHosts()
+	for (var i = 0; i < all_hosts.length; i++) {
+		saved_hosts.indexOf(all_hosts[i]) == -1 ? saved_hosts.push(all_hosts[i]) : ""
+	}
+	writeFile( env("enumerate.hosts.output"), saved_hosts.join("\n") )
 }
 
 function onCommand(cmd) {
@@ -39,7 +45,7 @@ function onCommand(cmd) {
 			console.log("  " + yellow + enumerated_hosts[i] + reset)
 		}
 		console.log()
-		saveHosts( extractHosts() )
+		saveHosts()
 	}
 	if (cmd == "enumerate.hosts.new") {
 		all_hosts = extractHosts()
@@ -49,7 +55,7 @@ function onCommand(cmd) {
 		}
 		console.log()
 		enumerated_hosts = all_hosts
-		saveHosts( extractHosts() )
+		saveHosts()
 	}
 }
 
@@ -62,5 +68,5 @@ function onLoad() {
 }
 
 function onRequest(req, res) {
-	saveHosts( extractHosts() )
+	saveHosts()
 }
