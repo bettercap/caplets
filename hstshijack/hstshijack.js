@@ -160,6 +160,7 @@ function onCommand(cmd) {
 		showModule()
 		return true
 	}
+	return true
 }
 
 function onLoad() {
