@@ -61,8 +61,8 @@ function onCommand(cmd) {
 
 function onLoad() {
 	console.log("\n" + bold + "  Commands" + reset + "\n")
-	console.log("    " + yellow + "enumerate.hosts.all" + reset + " : List all enumerated hosts of this session.")
-	console.log("    " + yellow + "enumerate.hosts.new" + reset + " : List enumerated hosts of this session that were not listed yet.\n")
+	console.log("    " + yellow + "enumerate.hosts.all" + reset + " : List all enumerated hosts.")
+	console.log("    " + yellow + "enumerate.hosts.new" + reset + " : List enumerated hosts that were not yet listed in this session.\n")
 	configure()
 	log_info("(" + green + "enumerate.hosts" + reset + ") Module successfully loaded.")
 }
