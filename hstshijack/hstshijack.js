@@ -158,6 +158,7 @@ function showModule() {
 function onCommand(cmd) {
 	if (cmd == "hstshijack.show") {
 		showModule()
+		return true
 	}
 }
 
