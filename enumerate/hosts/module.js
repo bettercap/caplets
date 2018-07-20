@@ -46,6 +46,7 @@ function onCommand(cmd) {
 		}
 		console.log()
 		saveHosts()
+		return true
 	}
 	if (cmd == "enumerate.hosts.new") {
 		all_hosts = extractHosts()
@@ -56,6 +57,7 @@ function onCommand(cmd) {
 		console.log()
 		enumerated_hosts = all_hosts
 		saveHosts()
+		return true
 	}
 }
 
