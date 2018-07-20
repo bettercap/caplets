@@ -184,7 +184,7 @@ The `caplets/beef.inject.js` proxy script file:
 ```javascript
 function onLoad() {
     console.log( "BeefInject loaded." );
-    console.log("targets: " + env['arp.spoof.targets']);
+    console.log("targets: " + env('arp.spoof.targets'));
 }
 
 function onResponse(req, res) {
