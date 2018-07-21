@@ -10,6 +10,8 @@ function configure() {
 	if ( !readFile( env("enumerate.hosts.output") ) ) {
 		log_info("(" + green + "enumerate.hosts" + reset + ") " + bold + "enumerate.hosts.output" + reset + " file was not found, creating one ...")
 		writeFile( env("enumerate.hosts.output"), "" )
+	} else {
+		enumerated_hosts = readFile( env("enumerate.hosts.output") ).split("\n")
 	}
 	if ( !readFile( env("events.stream.output") ) ) {
 		log_error("Error: " + bold + "events.stream.output" + reset + " file not found (got " + env("events.stream.output") + ")")
@@ -35,27 +37,27 @@ function saveHosts() {
 		saved_hosts.indexOf(all_hosts[i]) == -1 ? saved_hosts.push(all_hosts[i]) : ""
 	}
 	writeFile( env("enumerate.hosts.output"), saved_hosts.join("\n") )
+	enumerated_hosts = saved_hosts
 }
 
 function onCommand(cmd) {
 	if (cmd == "enumerate.hosts.all") {
-		enumerated_hosts = extractHosts()
+		saveHosts()
 		console.log()
 		for (var i = 0; i < enumerated_hosts.length; i++) {
 			console.log("  " + yellow + enumerated_hosts[i] + reset)
 		}
 		console.log()
-		saveHosts()
 		return true
 	}
 	if (cmd == "enumerate.hosts.new") {
-		all_hosts = extractHosts()
+		new_hosts = extractHosts()
 		console.log()
-		for (var i = 0; i < all_hosts.length; i++) {
-			enumerated_hosts.indexOf(all_hosts[i]) == -1 ? console.log("  " + yellow + all_hosts[i] + reset) : ""
+		for (var i = 0; i < new_hosts.length; i++) {
+			enumerated_hosts.indexOf(new_hosts[i]) == -1 ? console.log("  " + yellow + new_hosts[i] + reset) : ""
 		}
 		console.log()
-		enumerated_hosts = all_hosts
+		enumerated_hosts = new_hosts
 		saveHosts()
 		return true
 	}
@@ -63,8 +65,8 @@ function onCommand(cmd) {
 
 function onLoad() {
 	console.log("\n" + bold + "  Commands" + reset + "\n")
-	console.log("    " + yellow + "enumerate.hosts.all" + reset + " : List all enumerated hosts.")
-	console.log("    " + yellow + "enumerate.hosts.new" + reset + " : List enumerated hosts that were not yet listed in this session.\n")
+	console.log("    " + yellow + "enumerate.hosts.all" + reset + " : Enumerate all hosts.")
+	console.log("    " + yellow + "enumerate.hosts.new" + reset + " : Enumerate new hosts.\n")
 	configure()
 	log_info("(" + green + "enumerate.hosts" + reset + ") Module successfully loaded.")
 }
