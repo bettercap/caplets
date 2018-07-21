@@ -28,29 +28,6 @@ This module injects HTML & JS files with a payload (<a href="./payloads/hstshija
 
 This is done in separate and asynchronous requests so that bettercap can adjust the host and path for each request, and then send a HEAD request in order to learn each host's response headers for a HTTP request.
 
-### SSL log
-
-If a host responds with a HTTPS redirect, the module saves this host in the SSL log, and bettercap will from then on spoof SSL connections for this host when possible.
-
-### Hostname spoofing
-
-In the <a href="./hstshijack.cap">**caplet file**</a> you can assign comma separated domains to the `hstshijack.targets` variable. _(wildcard allowed)_
-
-For every hostname you assign to `hstshijack.targets` you must assign a replacement domain to the `hstshijack.replacements` variable.
-
-Example:
-
-```sh
-set hstshijack.targets       blockchain.info,*.blockchain.info
-set hstshijack.replacements  blockchian.info,*.blockchian.info
-```
-
-You can try to make them as unnoticeable or obvious as you like, but your options are limited here.
-
-### Block scripts
-
-In the <a href="./hstshijack.cap">**caplet file**</a> you can block JavaScript on hosts by assigning them to the `hstshijack.blockscripts` variable. _(wildcard allowed)_ 
-
 ### Custom payloads
 
 You can also inject your own JavaScript payload(s) into HTML & JS files from targeted hosts by assigning them to the `hstshijack.custompayloads` variable.
@@ -105,9 +82,31 @@ form.onsubmit = function() {
   req.send()
 }
 ```
+<sup>Note: Any instance of `obf_path_callback` will be replaced with the callback path.</sup>
 
-The following POST request will be sniffed by bettercap, but not proxied. 
+The code above will send a POST request that will be sniffed by bettercap, but not proxied. 
 
-As soon as bettercap receives a callback, any request from the client for a spoofed hostname will immediately be redirected to the legitimate hostname, and any request for that targeted hostname will no longer be spoofed for this particular client.
+As soon as bettercap receives a silent callback, any request for the targeted host will no longer be spoofed for that client.
 
-Note: Any instance of `obf_path_callback` will be replaced with the callback path that bettercap listens for (this can save time when writing JavaScript payloads).
+### Block scripts
+
+In the <a href="./hstshijack.cap">**caplet file**</a> you can block JavaScript on hosts by assigning them to the `hstshijack.blockscripts` variable. _(wildcard allowed)_ 
+
+### SSL log
+
+If a host responds with a HTTPS redirect, the module saves this host in the SSL log, and bettercap will from then on spoof SSL connections for this host when possible.
+
+### Hostname spoofing
+
+In the <a href="./hstshijack.cap">**caplet file**</a> you can assign comma separated domains to the `hstshijack.targets` variable. _(wildcard allowed)_
+
+For every hostname you assign to `hstshijack.targets` you must assign a replacement domain to the `hstshijack.replacements` variable.
+
+Example:
+
+```sh
+set hstshijack.targets       blockchain.info,*.blockchain.info
+set hstshijack.replacements  blockchian.info,*.blockchian.info
+```
+
+You can try to make them as unnoticeable or obvious as you like, but your options are limited here.
