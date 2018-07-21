@@ -24,9 +24,9 @@ http.proxy   on
 
 ### Core payload
 
-This module injects HTML & JS files with a payload (<a href="./payloads/hstshijack-payload.js">**hstshijack-payload.js**</a>). This payload communicates with the bettercap sniffer, revealing all URLs that are discovered in the injected document.
+This module injects HTML & JS files with a payload (<a href="./payloads/hstshijack-payload.js">**hstshijack-payload.js**</a>) that communicates with this module, revealing all URLs that are discovered in the injected document.
 
-This is done in separate and asynchronous requests so that bettercap can adjust the host and path for each request, and then send a HEAD request in order to learn each host's response headers for a HTTP request.
+This is done in separate and asynchronous requests so that the bettercap proxy can adjust the host and path for each request, and send a HEAD request to learn each host's response headers for a HTTP request.
 
 ### Custom payloads
 
@@ -44,9 +44,9 @@ Once the payload is injected into a page, you can technically phish any data unl
 
 ### Obfuscation
 
-You can write custom payloads that are automatically obfuscated by the module.
+Your custom payloads are automatically obfuscated by the module.
 
-Basically every word that was found beginning with `obf_` will be obfuscated.
+Any instance beginning with `obf_` will be obfuscated.
 
 
 Example: 
@@ -82,7 +82,7 @@ form.onsubmit = function() {
   req.send()
 }
 ```
-<sup>Note: Any instance of `obf_path_callback` will be replaced with the callback path.</sup>
+<sup>Note: Every instance of `obf_path_callback` will be replaced with the callback path & every instance of `obf_path_ssl_log` will be replaced with the SSL log path.</sup>
 
 The code above will send a POST request that will be sniffed by bettercap, but not proxied. 
 
