@@ -57,7 +57,6 @@ function onCommand(cmd) {
 			enumerated_hosts.indexOf(new_hosts[i]) == -1 ? console.log("  " + yellow + new_hosts[i] + reset) : ""
 		}
 		console.log()
-		enumerated_hosts = new_hosts
 		saveHosts()
 		return true
 	}
