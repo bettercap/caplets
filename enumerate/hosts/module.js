@@ -10,8 +10,6 @@ function configure() {
 	if ( !readFile( env("enumerate.hosts.output") ) ) {
 		log_info("(" + green + "enumerate.hosts" + reset + ") " + bold + "enumerate.hosts.output" + reset + " file was not found, creating one ...")
 		writeFile( env("enumerate.hosts.output"), "" )
-	} else {
-		enumerated_hosts = readFile( env("enumerate.hosts.output") ).split("\n")
 	}
 	if ( !readFile( env("events.stream.output") ) ) {
 		log_error("Error: " + bold + "events.stream.output" + reset + " file not found (got " + env("events.stream.output") + ")")
@@ -30,46 +28,63 @@ function extractHosts() {
 	return extracted_hosts
 }
 
-function saveHosts() {
+function compareHosts(old_hosts, new_hosts) {
+	difference = []
+	for (var i = 0; i < new_hosts.length; i++) {
+		old_hosts.indexOf(new_hosts[i]) == -1 ? difference.push(new_hosts[i]) : ""
+	}
+	return difference
+}
+
+function saveHosts(new_hosts) {
 	saved_hosts = readFile( env("enumerate.hosts.output") ).split("\n")
-	all_hosts = extractHosts()
-	for (var i = 0; i < all_hosts.length; i++) {
-		saved_hosts.indexOf(all_hosts[i]) == -1 ? saved_hosts.push(all_hosts[i]) : ""
+	for (var i = 0; i < new_hosts.length; i++) {
+		saved_hosts.indexOf(new_hosts[i]) == -1 ? saved_hosts.push(new_hosts[i]) : ""
 	}
 	writeFile( env("enumerate.hosts.output"), saved_hosts.join("\n") )
-	enumerated_hosts = saved_hosts
+}
+
+function printHosts(hosts) {
+	console.log()
+	for (var i = 0; i < hosts.length; i++) {
+		console.log("  " + yellow + hosts[i] + reset)
+		enumerated_hosts.indexOf(hosts[i]) == -1 ? enumerated_hosts.push(hosts[i]) : ""
+	}
+	console.log()
 }
 
 function onCommand(cmd) {
 	if (cmd == "enumerate.hosts.all") {
-		saveHosts()
-		console.log()
-		for (var i = 0; i < enumerated_hosts.length; i++) {
-			console.log("  " + yellow + enumerated_hosts[i] + reset)
-		}
-		console.log()
+		saved_hosts = readFile( env("enumerate.hosts.output") ).split("\n")
+		printHosts(saved_hosts)
 		return true
 	}
 	if (cmd == "enumerate.hosts.new") {
-		new_hosts = extractHosts()
-		console.log()
-		for (var i = 0; i < new_hosts.length; i++) {
-			enumerated_hosts.indexOf(new_hosts[i]) == -1 ? console.log("  " + yellow + new_hosts[i] + reset) : ""
+		new_hosts = compareHosts( enumerated_hosts, extractHosts() )
+		printHosts(new_hosts)
+		return true
+	}
+	if ( cmd.match(/enumerate\.hosts\.regexp ./) ) {
+		regexp = new RegExp( cmd.replace("enumerate.hosts.regexp ", "") )
+		saved_hosts = readFile( env("enumerate.hosts.output") ).split("\n")
+		found_hosts = []
+		for (var i = 0; i < saved_hosts.length; i++) {
+			saved_hosts[i].match(regexp) ? found_hosts.push(saved_hosts[i]) : ""
 		}
-		console.log()
-		saveHosts()
+		printHosts(found_hosts)
+		return true
+	}
+	if (cmd == "enumerate.hosts.save") {
+		saveHosts( extractHosts() )
 		return true
 	}
 }
 
 function onLoad() {
 	console.log("\n" + bold + "  Commands" + reset + "\n")
-	console.log("    " + yellow + "enumerate.hosts.all" + reset + " : Enumerate all hosts.")
-	console.log("    " + yellow + "enumerate.hosts.new" + reset + " : Enumerate new hosts.\n")
+	console.log("       " + yellow + "enumerate.hosts.all" + reset + " : Enumerate all hosts.")
+	console.log("       " + yellow + "enumerate.hosts.new" + reset + " : Enumerate new hosts.")
+	console.log("    " + yellow + "enumerate.hosts.regexp" + reset + " : Enumerate hosts with regexp value.\n")
 	configure()
 	log_info("(" + green + "enumerate.hosts" + reset + ") Module successfully loaded.")
-}
-
-function onRequest(req, res) {
-	saveHosts()
 }
