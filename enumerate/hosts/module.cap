@@ -1,9 +1,9 @@
 # enumerate.hosts
-set enumerate.hosts.output caplets/enumerate/hosts/hosts.log
+set enumerate.hosts.output caplets/enumerate/hosts/session1.hosts.log
 
 # events.stream
 events.stream off
-set events.stream.output caplets/enumerate/hosts/events.stream.output
+set events.stream.output caplets/enumerate/hosts/session1.events.stream.output
 events.stream on
 
 # net.sniff
@@ -14,3 +14,8 @@ net.sniff on
 set http.proxy.script caplets/enumerate/hosts/module.js
 set http.proxy.port 8022
 http.proxy on
+
+# ticker
+set ticker.commands enumerate.hosts.save
+set ticker.period 60
+ticker on
