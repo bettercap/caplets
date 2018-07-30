@@ -53,12 +53,14 @@ function saveHosts(new_hosts) {
 
 function printHosts(hosts) {
 	if (hosts.length != 0) {
-		console.log()
+		log_string = ""
+
 		for (var i = 0; i < hosts.length; i++) {
-			console.log("  " + yellow + hosts[i] + reset)
+			log_string += "  " + yellow + hosts[i] + reset + "\n"
 			enumerated_hosts.indexOf(hosts[i]) == -1 ? enumerated_hosts.push(hosts[i]) : ""
 		}
-		console.log()
+
+		console.log("\n" + log_string)
 	} else {
 		console.log("\n  No hosts to display.\n")
 	}
