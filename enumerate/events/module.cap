@@ -1,6 +1,6 @@
 # events.stream
 events.stream off
-set events.stream.output caplets/enumerate/events/session1.events.stream.output
+set events.stream.output enumerate/events/session1.events.stream.output
 events.stream on
 
 # net.sniff
@@ -8,6 +8,6 @@ set net.sniff.verbose false
 net.sniff on
 
 # http.proxy
-set http.proxy.script caplets/enumerate/events/module.js
+set http.proxy.script enumerate/events/module.js
 set http.proxy.port 8023
 http.proxy on

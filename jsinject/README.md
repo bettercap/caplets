@@ -6,13 +6,13 @@ It prevents re-initiation of your script when it's already active in the DOM by 
 
 All you have to do is set your payload path in the caplet file.
 
-**caplets/jsinject/jsinject.cap**
+**jsinject/jsinject.cap**
 
 ```sh
 # Set the path to your JavaScript payload
-set jsinject.payload caplets/jsinject/payloads/form-phisher.js
+set jsinject.payload jsinject/payloads/form-phisher.js
 
-set http.proxy.script caplets/jsinject/jsinject.js
+set http.proxy.script jsinject/jsinject.js
 set net.sniff.verbose false
 net.sniff on
 http.proxy on

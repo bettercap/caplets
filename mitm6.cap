@@ -4,7 +4,7 @@ set dhcp6.spoof.domains microsoft.com, google.com
 
 # every request http request to the spoofed hosts will come to us
 # let's give em some contents
-set http.server.path caplets/www
+set http.server.path www
 
 # serve files
 http.server on

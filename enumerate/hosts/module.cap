@@ -1,9 +1,9 @@
 # enumerate.hosts
-set enumerate.hosts.output caplets/enumerate/hosts/session1.hosts.log
+set enumerate.hosts.output enumerate/hosts/session1.hosts.log
 
 # events.stream
 events.stream off
-set events.stream.output caplets/enumerate/hosts/session1.events.stream.output
+set events.stream.output enumerate/hosts/session1.events.stream.output
 events.stream on
 
 # net.sniff
@@ -11,7 +11,7 @@ set net.sniff.verbose false
 net.sniff on
 
 # http.proxy
-set http.proxy.script caplets/enumerate/hosts/module.js
+set http.proxy.script enumerate/hosts/module.js
 set http.proxy.port 8022
 http.proxy on
 

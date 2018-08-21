@@ -9,5 +9,5 @@ function onRequest(req, res) {
     res.SetHeader("Connection", "close");
     res.Status      = 200;
     res.ContentType = "text/html";
-    res.Body        =  readFile("caplets/www/index.html");
+    res.Body        =  readFile("www/index.html");
 }

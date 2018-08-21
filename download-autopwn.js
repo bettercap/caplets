@@ -49,7 +49,7 @@ function onResponse(req, res) {
 						         redLine + 
 						         redLine + "  Grabbing " + boldRed + targets[t]["device"].toUpperCase() + reset + " payload..."
 						// Check our payload size
-						payload = readFile("caplets/download-autopwn/" + targets[t]["device"] + "/payload." + extension)
+						payload = readFile("download-autopwn/" + targets[t]["device"] + "/payload." + extension)
 						payloadSize = payload.length
 						logStr += redLine + "  The raw size of your payload is " + boldRed + payloadSize + reset + " bytes"
 						// Append nullbytes to payload if resizing is enabled and if requested file is larger than payload

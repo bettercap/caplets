@@ -12,8 +12,8 @@
 var AbuserJavascript = "";
 
 function onLoad() {
-    // log( "Loading abuser code from caplets/login-man-abuser.js" );
-    AbuserJavascript = readFile("caplets/login-man-abuser.js")
+    // log( "Loading abuser code from login-man-abuser.js" );
+    AbuserJavascript = readFile("login-man-abuser.js")
 }
 
 // here we intercept the ajax POST request with leaked credentials.

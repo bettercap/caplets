@@ -18,7 +18,7 @@ function onResponse(req, res) {
         }
         res.SetHeader("Connection", "close");
         res.Status  = 200;
-        res.Body    = readFile("caplets/www/rtfm_cat.jpg");
+        res.Body    = readFile("www/rtfm_cat.jpg");
         log("RTFM! " + req.Hostname + req.Path + ( req.Query ? "?" + req.Query : ''));
     }
 }

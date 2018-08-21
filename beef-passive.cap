@@ -1,5 +1,5 @@
 # inject beef hook
-set http.proxy.script caplets/beef-inject.js
+set http.proxy.script beef-inject.js
 # redirect http traffic to a proxy
 http.proxy on
 # wait for everything to start properly
