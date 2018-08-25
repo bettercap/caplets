@@ -4,6 +4,7 @@
 
 set http.proxy.script web-override.js
 http.proxy on
+https.proxy on
 arp.spoof on
 events.clear
 
