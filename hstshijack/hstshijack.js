@@ -237,7 +237,7 @@ function onRequest(req, res) {
 					Object.keys(callback_log).length > 0 ? new_index = Object.keys(callback_log).length + 1 : ""
 					callback_log[new_index] = {
 						"client"   : req.Client,
-						"spoofed"  : replacement_hosts[i]
+						"spoofed"  : replacement_hosts[i],
 						"original" : target_hosts[i]
 					}
 				}
