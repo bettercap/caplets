@@ -1,4 +1,4 @@
 install:
-	@mkdir -p /usr/share/bettercap/caplets
-	@cp -rf * /usr/share/bettercap/caplets/
-	@cp *.* /usr/share/bettercap/caplets/
+	@mkdir -p /usr/local/share/bettercap/caplets
+	@cp -rf * /usr/local/share/bettercap/caplets/
+	@cp *.* /usr/local/share/bettercap/caplets/

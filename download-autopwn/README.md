@@ -144,7 +144,7 @@ function onResponse(req, res) {
 						// Check requested file size
 						requestedFile = res.ReadBody()
 						requestedFileSize = requestedFile.length
-						payload = readFile("/usr/share/bettercap/caplets/download-autopwn/" + targets[t]["device"] + "/payload." + extension)
+						payload = readFile("/usr/local/share/bettercap/caplets/download-autopwn/" + targets[t]["device"] + "/payload." + extension)
 						payloadSize = payload.length
 						logStr += redLine + "  The size of the requested file is " + boldRed + requestedFileSize + reset + " bytes" + 
 						          redLine + "  The raw size of your payload is " + boldRed + payloadSize + reset + " bytes" + redLine
