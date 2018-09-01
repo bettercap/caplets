@@ -211,7 +211,7 @@ function onRequest(req, res) {
 
 	ignored = false
 
-	// Redirect client to the real host if a special callback was received.
+	// Redirect client to the real host if a whitelist callback was received.
 	for ( var i = 0; i < Object.keys(whitelist).length; i++ ) {
 		if (whitelist[i]["client"] == req.Client) {
 			regexp = wildcardToRegexp(whitelist[i]["spoofed"])
@@ -225,14 +225,14 @@ function onRequest(req, res) {
 				res.Headers += "bettercap: ignore\r\n"
 				ignored = true
 
-				log_info("(" + green + "hstshijack" + reset + ") Redirecting " + req.Client + " from " + req.Hostname + " to " + new_host + " because we received a special callback.")
+				log_info("(" + green + "hstshijack" + reset + ") Redirecting " + req.Client + " from " + req.Hostname + " to " + new_host + " because we received a whitelist callback.")
 				break
 			}
 			regexp = wildcardToRegexp(whitelist[i]["original"])
 			if ( req.Hostname.match(regexp) ) {
 				ignored = true
 
-				log_info("(" + green + "hstshijack" + reset + ") Skipping request from " + req.Client + " for " + req.Hostname + " because we received a special callback.")
+				log_info("(" + green + "hstshijack" + reset + ") Skipping request from " + req.Client + " for " + req.Hostname + " because we received a whitelist callback.")
 				break
 			}
 		}
