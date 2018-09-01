@@ -526,13 +526,7 @@ function onResponse(req, res) {
 			res.SetHeader( "Location", location.replace(/https:\/\//, "http://") )
 			log_debug("(" + green + "hstshijack" + reset + ") Stripped SSL from location header.")
 		}
-	
-	
-	
-	
-	
-	
-	
+
 		// Replace hosts in headers.
 		for (var a = 0; a < target_hosts.length; a++) {
 			regexp  = new RegExp( "(.*?)" + target_hosts[a].replace(/\./g, "\\.").replace(/\-/g, "\\-").replace("*", "") + "(.*?)", "ig" )
