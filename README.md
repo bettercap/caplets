@@ -55,7 +55,7 @@ ticker on
 set dns.spoof.domains microsoft.com, google.com
 set dhcp6.spoof.domains microsoft.com, google.com
 
-# every request http request to the spoofed hosts will come to us
+# every http request to the spoofed hosts will come to us
 # let's give em some contents
 set http.server.path www
 
