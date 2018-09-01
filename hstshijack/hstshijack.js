@@ -6,16 +6,16 @@ var ssl_log = [],
 
 var payload,
     payload_path,
-    payload_container = `
-    	if (!self.{{session_id}}) {
-    		var {{session_id}} = function() {
-    				{{variables}}
-    				{{payload}}
-    				{{custom_payload}}
-    		}
-    		{{session_id}}();
-    	}
-    `
+    payload_container = "\
+    	if (!self.{{session_id}}) {\
+    		var {{session_id}} = function() {\
+    				{{variables}}\
+    				{{payload}}\
+    				{{custom_payload}}\
+    		}\
+    		{{session_id}}();\
+    	}\
+    "
 
 var ignore_hosts       = [],
     target_hosts       = [],
