@@ -70,11 +70,11 @@ function resetPayload() {
 	payload = payload.replace("obf_path_ssl_log", ssl_log_path)
 	payload = payload.replace( "{{variables}}", "{{variables}}\nvar " + var_replacement_hosts + " = [\"" + replacement_hosts.join("\",\"") + "\"]\n" )
 	payload = payload.replace( "{{variables}}", "var " + var_target_hosts + " = [\"" + target_hosts.join("\",\"") + "\"]" )
+	payload = payload.replace(/obf_var_replacement_hosts/g, var_replacement_hosts)
+	payload = payload.replace(/obf_var_target_hosts/g, var_target_hosts)
 
 	// Obfuscate core payload.
 	if (obfuscation) {
-		payload = payload.replace(/obf_var_replacement_hosts/g, var_replacement_hosts)
-		payload = payload.replace(/obf_var_target_hosts/g, var_target_hosts)
 		obfuscation_variables = payload.match(/obf_[a-z\_]*/ig) || []
 		for (var i = 0; i < obfuscation_variables.length; i++) {
 			regexp = new RegExp(obfuscation_variables[i], "ig")
