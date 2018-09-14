@@ -30,6 +30,8 @@ var callback_path,
     var_target_hosts,
     var_replacement_hosts
 
+var math_seed
+
 var red    = "\033[31m",
     yellow = "\033[33m",
     green  = "\033[32m",
@@ -37,6 +39,11 @@ var red    = "\033[31m",
     reset  = "\033[0m"
 
 /* Declare functions */
+
+function randomFloat() {
+	r = Math.sin(math_seed++) * 10000
+	return r - Math.floor(r)
+}
 
 function randomString(length) {
 	var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
@@ -184,6 +191,9 @@ function onCommand(cmd) {
 }
 
 function onLoad() {
+	math_seed = new Date().getMilliseconds()
+	Math.random = function() { return randomFloat() }
+
 	log_info("(" + green + "hstshijack" + reset + ") Generating random variable names for this session ...")
 	session_id            = randomString( 8 + Math.random() * 16 )
 	callback_path         = randomString( 8 + Math.random() * 16 )
