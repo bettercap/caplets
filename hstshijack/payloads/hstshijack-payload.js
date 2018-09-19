@@ -5,7 +5,7 @@ XMLHttpRequest.prototype.open = function(obf_var_method, obf_var_url, obf_var_as
 	for (obf_var_i = 0; obf_var_i < obf_var_target_hosts.length; obf_var_i++) {
 		obf_var_path = obf_var_url.replace(/.*(\/.*)\s*$/, "$1")
 		obf_var_url = obf_var_url.replace(/^\s*http(s|):\/\//i, "").replace(/:433/, "").replace(/\/.*/, "").replace(/\s*$/, "")
-		obf_var_regexp = new RegExp("^" + obf_var_target_hosts[obf_var_i].replace(/\-/g, "\\-").replace("*.", "([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?.)+").replace(/\./g, "\\.") + "$", "i")
+		obf_var_regexp = new RegExp("^" + obf_var_target_hosts[obf_var_i].replace(/\-/g, "\\-").replace("*.", "((?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?.)+)").replace(/\./g, "\\.") + "$", "i")
 		if (obf_var_url.match(obf_var_regexp)) {
 			obf_var_replacement = "$1" + obf_var_replacement_hosts[obf_var_i].replace("*.", "")
 			obf_var_url = obf_var_url.replace(obf_var_regexp, obf_var_replacement)
