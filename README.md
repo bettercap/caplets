@@ -2,6 +2,12 @@
 
 [bettercap](https://github.com/bettercap/bettercap)'s interactive sessions can be scripted with `.cap` files, or `caplets`, the following are a few basic examples, look at this repo for more.
 
+To install / update the caplets on your computer:
+
+    git clone https://github.com/bettercap/caplets.git
+    cd caplets
+    sudo make install
+
 #### http-req-dump.cap
 
 Execute an ARP spoofing attack on the whole network (by default) or on a host (using `-eval` as described), intercept HTTP and HTTPS requests with the `http.proxy` and `https.proxy` modules and dump them using the `http-req-dumsp.js` proxy script.
