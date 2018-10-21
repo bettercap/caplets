@@ -24,7 +24,7 @@ function randomString(length) {
 }
 
 function configure() {
-	payload_path = env("jsinject.payload").replace(/\s/g, "")
+	payload_path = env["jsinject.payload"].replace(/\s/g, "")
 	payload = readFile(payload_path)
 	payload = payload_container.replace("{{payload}}", payload).replace(/\{\{session_id\}\}/g, session_id)
 }
