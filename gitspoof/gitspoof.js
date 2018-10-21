@@ -7,7 +7,7 @@ var red    = "\033[31m",
     reset  = "\033[0m"
 
 function onLoad() {
-    env("gitspoof.repo") ? gitspoof_repo = env("gitspoof.repo") : gitspoof_repo = env("iface.ipv4");
+    env["gitspoof.repo"] ? gitspoof_repo = env["gitspoof.repo"] : gitspoof_repo = env["iface.ipv4"];
     log( "Gitspoof loaded" );
     log(green +"Git redirect to repo: " + yellow + gitspoof_repo + "/" + reset);
 }
