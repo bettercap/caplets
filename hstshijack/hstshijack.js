@@ -120,15 +120,15 @@ function configure() {
 		encode = false
 	}
 	// Preload custom payloads.
-	preloaded_payloads = {}
+	p = {}
 	for (var i = 0; i < custom_payloads.length; i++) {
 		!custom_payloads[i].match(/^(?:\*|(?:(?:\*\.|)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{1,63}))):.+?$/) ? log_fatal("(" + green + "hstshijack" + reset + ") Invalid hstshijack.custompayloads value (got " + custom_payloads[i] + ").") : ""
-		custom_payload_host = custom_payloads[i].replace(/\:.*/, "")
-		custom_payload_path = custom_payloads[i].replace(/.*\:/, "")
-		if ( !readFile(custom_payload_path) ) {
-			log_fatal("(" + green + "hstshijack" + reset + ") Could not read a path in hstshijack.custompayloads (got " + custom_payload_path + ").")
+		host = custom_payloads[i].replace(/\:.*/, "")
+		path = custom_payloads[i].replace(/.*\:/, "")
+		if ( !readFile(path) ) {
+			log_fatal("(" + green + "hstshijack" + reset + ") Could not read a path in hstshijack.custompayloads (got " + path + ").")
 		}
-		custom_payload = readFile(custom_payload_path)
+		custom_payload = readFile(path)
 		custom_payload = custom_payload.replace(/obf_path_whitelist/g, whitelist_path)
 		custom_payload = custom_payload.replace(/obf_path_callback/g, callback_path)
 		if (obfuscate) {
@@ -138,11 +138,13 @@ function configure() {
 				custom_payload = custom_payload.replace( regexp, randomString( 8 + Math.random() * 16 ) )
 			}
 		}
-		preloaded_payloads[custom_payload_host] = {
-			"payload": custom_payload
+		if (p[host]) {
+			p[host] = { "payload": p[host].payload + "\n" + custom_payload }
+		} else {
+			p[host] = { "payload": custom_payload }
 		}
 	}
-	custom_payloads = preloaded_payloads
+	custom_payloads = p
 	// Read core payload.
 	if ( !readFile(payload_path) ) {
 		log_fatal("(" + green + "hstshijack" + reset + ") Could not read payload in " + bold + "hstshijack.payload" + reset + " (got " + payload_path + ").")
