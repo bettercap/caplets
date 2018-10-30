@@ -202,7 +202,7 @@ function isPrint(c) {
 }
 
 function onRequest(req, res) {
-    log("[" + G("http-req-dump") + "] " + BLACK_RED("http") + " " + req.Client + " " + BLACK_BLUE(req.Method) + " " + GREY("http://") + Y(req.Hostname) + req.Path + (req.Query != "" ? GREY("?" + req.Query) : ""));
+    log("[" + G("http-req-dump") + "] " + BLACK_RED(req.Scheme) + " " + req.Client + " " + BLACK_BLUE(req.Method) + " " + GREY(req.Scheme + "://") + Y(req.Hostname) + req.Path + (req.Query != "" ? GREY("?" + req.Query) : ""));
 
     dumpHeaders(req);
 
