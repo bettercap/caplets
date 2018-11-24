@@ -288,11 +288,11 @@ function onRequest(req, res) {
 						}
 						new_host = req.Hostname.replace(regexp, replacement)
 						res.Headers += "Location: https://" + new_host + req.Path + "\r\n"
+						res.Status = 301
 						break
 					}
 				}
 				res.Headers += "bettercap: ignore\r\n"
-				res.Status = 301
 				ignored = true
 
 				log_info("(" + green + "hstshijack" + reset + ") Redirecting " + req.Client + " from " + req.Hostname + " to " + new_host + " because we received a whitelist callback.")
