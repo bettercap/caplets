@@ -582,7 +582,7 @@ function onResponse(req, res) {
 					if ( req.Hostname.match(regexp) ) {
 						// Insert special callback paths.
 						injection = payload.replace("{{custom_payload}}", Object.keys(custom_payloads)[a].payload + "\n{{custom_payload}}")
-						log_debug("(" + green + "hstshijack" + reset + ") Attempting to inject " + bold + custom_payload_path + reset + " into document from " + bold + req.Hostname + reset + ".")
+						log_debug("(" + green + "hstshijack" + reset + ") Attempting to inject payload(s) into document from " + bold + req.Hostname + reset + ".")
 					}
 				}
 			}
