@@ -263,8 +263,8 @@ function onRequest(req, res) {
 
 	// Redirect client to the real host if a whitelist callback was received.
 	if (whitelist[req.Client]) {
-		whitelisted_hosts = whitelist[req.Client].hosts.split(",")
-		for (var a = 0; a < whitelisted_hosts; a++) {
+		whitelisted_hosts = whitelist[req.Client].split(",")
+		for (var a = 0; a < whitelisted_hosts.length; a++) {
 			var regexp
 			if ( whitelisted_hosts[a].indexOf("*") > -1 ) {
 				regexp = toWholeWildcardRegexp(whitelisted_hosts[a])
@@ -272,7 +272,7 @@ function onRequest(req, res) {
 				regexp = toWholeRegexp(whitelisted_hosts[a])
 			}
 			if ( req.Hostname.match(regexp) ) {
-				new_host = ""
+				var new_host
 				for (var b = 0; b < replacement_hosts.length; b++) {
 					if ( replacement_hosts.indexOf("*") > -1 ) {
 						regexp = toWholeWildcardRegexp(replacement_hosts[b])
@@ -280,19 +280,19 @@ function onRequest(req, res) {
 						regexp = toWholeRegexp(replacement_hosts[b])
 					}
 					if ( req.Hostname.match(regexp) ) {
-						replacement = ""
+						var replacement
 						if (replacement_hosts[b].indexOf("*") > -1) {
 							replacement = "$1" + target_hosts[b].original.replace("*.", "")
 						} else {
 							replacement = target_hosts[b].original
 						}
 						new_host = req.Hostname.replace(regexp, replacement)
-						res.Headers += "Location: https://" + new_host + req.Path + "\r\n"
+						res.SetHeader( "Location", "https://" + new_host + req.Path + ( req.Query != "" ? ("?" + req.Query) : "" ) )
 						res.Status = 301
 						break
 					}
 				}
-				res.Headers += "bettercap: ignore\r\n"
+				res.SetHeader("bettercap", "ignore")
 				ignored = true
 
 				log_info("(" + green + "hstshijack" + reset + ") Redirecting " + req.Client + " from " + req.Hostname + " to " + new_host + " because we received a whitelist callback.")
