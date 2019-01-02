@@ -88,7 +88,7 @@ form.onsubmit = function() {
   req.send()
 }
 ```
-<sup>Note: Every instance of `obf_path_callback` will be replaced with the callback path & every instance of `obf_path_ssl_log` will be replaced with the SSL log path.</sup>
+<sup>Note: Every instance of `obf_path_callback` will be replaced with the callback path, every instance of `obf_path_whitelist` will be replaced with the whitelist path, and every instance of `obf_path_ssl_log` will be replaced with the SSL log path.</sup>
 
 The code above will send a POST request that will be sniffed by bettercap, but not proxied. 
 
