@@ -718,6 +718,9 @@ function onResponse(req, res) {
 		res.SetHeader("Access-Control-Allow-Origin", "*")
 		res.SetHeader("Access-Control-Allow-Methods", "*")
 		res.SetHeader("Access-Control-Allow-Headers", "*")
+		res.SetHeader("Cache-Control", "no-cache, no-store, must-revalidate")
+		res.SetHeader("Expires", "Fri, 20 Apr 2018 04:20:00 GMT")
+		res.SetHeader("Pragma", "no-cache")
 
 	}
 
