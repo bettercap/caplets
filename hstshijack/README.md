@@ -24,13 +24,13 @@ dns.spoof   on
 
 ### Core payload
 
-This module injects HTML & JS files with a payload (<a href="./payloads/hstshijack-payload.js">**hstshijack-payload.js**</a>) that communicates with this module, revealing all URLs that are discovered in the injected document.
+This module injects HTML & JS files with a payload (<a href="./payloads/hstshijack-payload.js">**hstshijack-payload.js**</a>) that communicates with bettercap, revealing all URLs that were discovered in the injected document.
 
-This is done in separate and asynchronous requests so that the bettercap proxy can adjust the host and path for each request, and send a HEAD request to learn each host's response headers for a HTTP request.
+This is done in separate and asynchronous requests so that the bettercap proxy can adjust the host and path for each request, in order to send a HEAD request to learn each host's response to a HTTP request.
 
 ### Custom payloads
 
-You can also inject your own JavaScript payload(s) into HTML & JS files from targeted hosts by assigning them to the `hstshijack.custompayloads` variable.
+You can also inject your own JavaScript payloads into HTML & JS files from targeted hosts by assigning them to the `hstshijack.custompayloads` variable.
 
 Example:
 
@@ -63,7 +63,7 @@ Will be injected as:
 
 ```js
 function jfIleNwmKoa() {
-  alert("Random variable: AsjZnJWklwMNqshCaloE")
+  alert("Random variable: AsjZnJW")
 }
 
 jfIleNwmKoa()
@@ -77,7 +77,7 @@ To enable payload encoding, set `hstshijack.encode` to `true`.
 
 ### Silent callbacks
 
-You can write custom payloads that communicate with bettercap without alerting the host.
+You can write custom payloads that send data to bettercap without alerting the host.
 
 Example of a silent callback:
 
