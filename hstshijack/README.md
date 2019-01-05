@@ -126,7 +126,7 @@ form.onsubmit = function() {
 }
 ```
 
-When the bettercap proxy receives such a request, it will stop attacking clients on that (original/spoofed) host. If a spoofed location is requested that was whitelisted, the client will then be redirected to the intended location.
+When the bettercap proxy receives such a request, it will stop attacking clients on the requested (original and spoofed) host. If a spoofed location is requested that was whitelisted, the client will then be redirected to the intended location.
 
 Note that if the hostnames you are whitelisting are HSTS preloaded, you have to send the whitelist callback to the spoofed hostnames, otherwise the browser will enforce a HTTPS connection, and bettercap will not be able to intercept the requests.
 
