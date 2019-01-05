@@ -418,9 +418,9 @@ function onRequest(req, res) {
 						if ( req.Hostname.match(regexp) ) {
 							var replacement
 							if (replacement_hosts[b].indexOf("*") > -1) {
-								replacement = "$1" + target_hosts[b].original.replace("*.", "")
+								replacement = "$1" + target_hosts[b].replace("*.", "")
 							} else {
-								replacement = target_hosts[b].original
+								replacement = target_hosts[b]
 							}
 							new_host = req.Hostname.replace(regexp, replacement)
 							res.SetHeader( "Location", "https://" + new_host + req.Path + ( req.Query != "" ? ("?" + req.Query) : "" ) )
