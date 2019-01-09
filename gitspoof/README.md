@@ -1,7 +1,7 @@
 # Caplet for exploiting CVE-2018-11235
 
 This caplet is intercepting http/https git clone attempts and
-redirecting them to local http server that serves a malicous
+redirecting them to local http server that serves a malicious
 repository leading to exploitation of CVE-2018-11235 on vulnerable
 client.
 
