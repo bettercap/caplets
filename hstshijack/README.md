@@ -30,7 +30,7 @@ This is done in separate and asynchronous requests so that the bettercap proxy c
 
 ### Custom payloads
 
-You can also inject your own JavaScript payloads into HTML & JS files from targeted hosts by assigning them to the `hstshijack.custompayloads` variable.
+You can also inject your own JavaScript payloads into HTML & JS files from specific hosts by assigning them to the `hstshijack.custompayloads` variable.
 
 Example:
 
@@ -40,14 +40,11 @@ hstshijack.custompayloads *:hstshijack/payloads/sslstrip.js,google.com:hstshijac
 
 Once the payload is injected into a page, you can technically phish any data unless the client navigates to a URL that either has strict transport security rules enforced by their browser, or the URL was not stripped due to JavaScript security.
 
-<a href="./payloads/sslstrip.js">**sslstrip.js**</a> is included, which strips the `s` from all `https://` instances in `<a href="...` tags.
+<a href="./payloads/sslstrip.js">**sslstrip.js**</a> is included, which strips the `s` from all `https` instances in `<a>`, `<form>` and `<iframe>` elements.
 
 ### Obfuscation
 
-Your custom payloads are automatically obfuscated by the module.
-
-Any instance beginning with `obf_` will be obfuscated.
-
+By setting `hstshijack.obfuscate` to `true`, any instance in your payloads beginning with `obf_` will be obfuscated automatically.
 
 Example: 
 
@@ -126,7 +123,7 @@ form.onsubmit = function() {
 }
 ```
 
-When the bettercap proxy receives such a request, it will stop attacking clients on the requested (original and spoofed) host. If a spoofed location is requested that was whitelisted, the client will then be redirected to the intended location.
+When the bettercap proxy receives such a request, it will stop attacking clients on the requested (original and spoofed) host(s). If a spoofed location is requested that was whitelisted, the client will then be redirected to the intended location.
 
 Note that if the hostnames you are whitelisting are HSTS preloaded, you have to send the whitelist callback to the spoofed hostnames, otherwise the browser will enforce a HTTPS connection, and bettercap will not be able to intercept the requests.
 
