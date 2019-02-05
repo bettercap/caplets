@@ -140,11 +140,12 @@ function configure() {
 			if (obfuscate) {
 				obfuscation_variables = custom_payload.match(/obf_[a-z\_]*/ig) || []
 				for (var b = 0; b < obfuscation_variables.length; b++) {
-					regexp = new RegExp(obfuscation_variables[b], "ig")
+					regexp = new RegExp(obfuscation_variables[b], "g")
 					custom_payload = custom_payload.replace( regexp, randomString( 8 + Math.random() * 16 ) )
 				}
 			}
 
+			// Escape dollar signs for regexp replacement
 			if (p[host]) {
 				p[host] = { "payload": p[host].payload + "\n" + custom_payload.replace(/\$/g, "$$$$$$$$") }
 			} else {
@@ -172,7 +173,7 @@ function configure() {
 	if (obfuscate) {
 		obfuscation_variables = payload.match(/obf_[a-z\_]*/ig) || []
 		for (var i = 0; i < obfuscation_variables.length; i++) {
-			regexp = new RegExp(obfuscation_variables[i], "ig")
+			regexp = new RegExp(obfuscation_variables[i], "g")
 			payload = payload.replace( regexp, randomString( 8 + Math.random() * 16 ) )
 		}
 	}
