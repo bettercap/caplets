@@ -63,7 +63,7 @@ function randomString(length) {
 function toRegexp(string) {
 	string = string.replace(/\./g, "\\.")
 	string = string.replace(/\-/g, "\\-")
-	return new RegExp("([^a-z0-9\\-\\.]|^)" + string + "([^a-z0-9\\-\\.]|$)", "ig")
+	return new RegExp("([^a-z0-9-.]|^)" + string + "([^a-z0-9\\-\\.]|$)", "ig")
 }
 
 function toWholeRegexp(string) {
@@ -76,7 +76,7 @@ function toWildcardRegexp(string) {
 	string = string.replace(/\-/g, "\\-")
 	string = string.replace("*.", "((?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?.)+)")
 	string = string.replace(/\./g, "\\.")
-	return new RegExp(string + "([^a-z0-9\\-\\.]|$)", "ig")
+	return new RegExp(string + "([^a-z0-9-.]|$)", "ig")
 }
 
 function toWholeWildcardRegexp(string) {
