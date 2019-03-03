@@ -63,7 +63,7 @@ function randomString(length) {
 function toRegexp(string) {
 	string = string.replace(/\./g, "\\.")
 	string = string.replace(/\-/g, "\\-")
-	return new RegExp("([^a-z0-9\\-\\.]|^)" + string + "([^a-z0-9\\-\\.]|$)", "ig")
+	return new RegExp("([^a-z0-9-.]|^)" + string + "([^a-z0-9\\-\\.]|$)", "ig")
 }
 
 function toWholeRegexp(string) {
@@ -76,7 +76,7 @@ function toWildcardRegexp(string) {
 	string = string.replace(/\-/g, "\\-")
 	string = string.replace("*.", "((?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?.)+)")
 	string = string.replace(/\./g, "\\.")
-	return new RegExp(string + "([^a-z0-9\\-\\.]|$)", "ig")
+	return new RegExp(string + "([^a-z0-9-.]|$)", "ig")
 }
 
 function toWholeWildcardRegexp(string) {
@@ -108,13 +108,13 @@ function configure() {
 		}
 	}
 	for (var i = 0; i < target_hosts.length; i++) {
-		!target_hosts[i].match(/^(?:\*$|(?:(?:\*\.|)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{1,63})))$/ig) ? log_fatal("[" + green + "hstshijack" + reset + "] Invalid hstshijack.targets value (got " + target_hosts[i] + ").") : ""
+		!target_hosts[i].match(/^(?:\*\.[a-z0-9]{1,63}(?:[.]?[a-z0-9]{1,63})*$|(?:(?:\*\.|)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{1,63})))$/ig) ? log_fatal("[" + green + "hstshijack" + reset + "] Invalid hstshijack.targets value (got " + target_hosts[i] + ").") : ""
 	}
 	for (var i = 0; i < replacement_hosts.length; i++) {
-		!replacement_hosts[i].match(/^(?:\*$|(?:(?:\*\.|)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{1,63})))$/ig) ? log_fatal("[" + green + "hstshijack" + reset + "] Invalid hstshijack.replacements value (got " + replacement_hosts[i] + ").") : ""
+		!replacement_hosts[i].match(/^(?:\*\.[a-z0-9]{1,63}(?:[.]?[a-z0-9]{1,63})*$|(?:(?:\*\.|)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{1,63})))$/ig) ? log_fatal("[" + green + "hstshijack" + reset + "] Invalid hstshijack.replacements value (got " + replacement_hosts[i] + ").") : ""
 	}
 	for (var i = 0; i < block_script_hosts.length; i++) {
-		!block_script_hosts[i].match(/^(?:\*$|(?:(?:\*\.|)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{1,63})))$/ig) ? log_fatal("[" + green + "hstshijack" + reset + "] Invalid hstshijack.blockscripts value (got " + block_script_hosts[i] + ").") : ""
+		!block_script_hosts[i].match(/^(?:\*\.[a-z]+$|(?:(?:\*\.|)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{1,63})))$/ig) ? log_fatal("[" + green + "hstshijack" + reset + "] Invalid hstshijack.blockscripts value (got " + block_script_hosts[i] + ").") : ""
 	}
 	if (obfuscate == "false") {
 		obfuscate = false
@@ -140,11 +140,12 @@ function configure() {
 			if (obfuscate) {
 				obfuscation_variables = custom_payload.match(/obf_[a-z\_]*/ig) || []
 				for (var b = 0; b < obfuscation_variables.length; b++) {
-					regexp = new RegExp(obfuscation_variables[b], "ig")
+					regexp = new RegExp(obfuscation_variables[b], "g")
 					custom_payload = custom_payload.replace( regexp, randomString( 8 + Math.random() * 16 ) )
 				}
 			}
 
+			// Escape dollar signs for regexp replacement
 			if (p[host]) {
 				p[host] = { "payload": p[host].payload + "\n" + custom_payload.replace(/\$/g, "$$$$$$$$") }
 			} else {
@@ -172,7 +173,7 @@ function configure() {
 	if (obfuscate) {
 		obfuscation_variables = payload.match(/obf_[a-z\_]*/ig) || []
 		for (var i = 0; i < obfuscation_variables.length; i++) {
-			regexp = new RegExp(obfuscation_variables[i], "ig")
+			regexp = new RegExp(obfuscation_variables[i], "g")
 			payload = payload.replace( regexp, randomString( 8 + Math.random() * 16 ) )
 		}
 	}

