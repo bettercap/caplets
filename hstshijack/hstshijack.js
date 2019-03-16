@@ -45,6 +45,30 @@ var red      = "\033[31m",
 
 /* Declare functions */
 
+function validateDN(dn)
+{
+	if (dn == '*')
+		return true; // "*" is considered valid, for any domain
+	var parts = dn.split('.');
+	if (parts.length < 2)
+		return false; // no dots in domain name, and not "*", invalid
+	for (var i = 0; i < parts.length; i++) 
+	{
+		var part = parts[i];
+		if (part.length == 0 || part[0] == '-' || part[part.length-1] == '-')
+			return false; // part is either empty (".." in dn), or starts or ends with hyphen, invalid
+		if (i == 0 && part == '*')
+			continue; // first part allowed to be * (as in *.com)
+		for (var j = 0; j < part.length; j++)
+		{
+			var c = part.charCodeAt(j);
+			if (c < 128 && c != 45 && !(c >= 97 && c <= 122) && !(c >= 48 && c <= 57))
+				return false; // character is ascii, and not in [a-z0-9-]
+		}
+	}
+	return true;
+}
+
 function randomFloat() {
 	r = Math.sin(math_seed++) * 10000
 	return r - Math.floor(r)
@@ -103,18 +127,16 @@ function configure() {
 	target_hosts.indexOf("*") != -1                 ? log_fatal("[" + green + "hstshijack" + reset + "] Invalid hstshijack.targets value (got *).") : ""
 	replacement_hosts.indexOf("*") != -1            ? log_fatal("[" + green + "hstshijack" + reset + "] Invalid hstshijack.replacements value (got *).") : ""
 	for (var i = 0; i < ignore_hosts.length; i++) {
-		if (ignore_hosts[i] != "*") {
-			!ignore_hosts[i].match(/^(?:\*$|(?:(?:\*\.|)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{1,63})))$/ig) ? log_fatal("[" + green + "hstshijack" + reset + "] Invalid hstshijack.ignore value (got " + ignore_hosts[i] + ").") : ""
-		}
+			!validateDN(ignore_hosts[i]) ? log_fatal("[" + green + "hstshijack" + reset + "] Invalid hstshijack.ignore value (got " + ignore_hosts[i] + ").") : ""
 	}
 	for (var i = 0; i < target_hosts.length; i++) {
-		!target_hosts[i].match(/^(?:\*\.[a-z0-9]{1,63}(?:[.]?[a-z0-9]{1,63})*$|(?:(?:\*\.|)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{1,63})))$/ig) ? log_fatal("[" + green + "hstshijack" + reset + "] Invalid hstshijack.targets value (got " + target_hosts[i] + ").") : ""
+		!validateDN(target_hosts[i]) ? log_fatal("[" + green + "hstshijack" + reset + "] Invalid hstshijack.targets value (got " + target_hosts[i] + ").") : ""
 	}
 	for (var i = 0; i < replacement_hosts.length; i++) {
-		!replacement_hosts[i].match(/^(?:\*\.[a-z0-9]{1,63}(?:[.]?[a-z0-9]{1,63})*$|(?:(?:\*\.|)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{1,63})))$/ig) ? log_fatal("[" + green + "hstshijack" + reset + "] Invalid hstshijack.replacements value (got " + replacement_hosts[i] + ").") : ""
+		!validateDN(replacement_hosts[i]) ? log_fatal("[" + green + "hstshijack" + reset + "] Invalid hstshijack.replacements value (got " + replacement_hosts[i] + ").") : ""
 	}
 	for (var i = 0; i < block_script_hosts.length; i++) {
-		!block_script_hosts[i].match(/^(?:\*\.[a-z]+$|(?:(?:\*\.|)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{1,63})))$/ig) ? log_fatal("[" + green + "hstshijack" + reset + "] Invalid hstshijack.blockscripts value (got " + block_script_hosts[i] + ").") : ""
+		!validateDN(block_script_hosts[i]) ? log_fatal("[" + green + "hstshijack" + reset + "] Invalid hstshijack.blockscripts value (got " + block_script_hosts[i] + ").") : ""
 	}
 	if (obfuscate == "false") {
 		obfuscate = false
@@ -125,12 +147,14 @@ function configure() {
 	// Preload custom payloads.
 	p = {}
 	for (var a = 0; a < custom_payloads.length; a++) {
-		if ( !custom_payloads[a].match(/^(?:\*|(?:(?:\*\.|)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{1,63}))):.+?$/) ) {
+		var custom_payload_item = custom_payloads[a].split(":");
+
+		if (custom_payload_item.length != 2 || !validateDN(custom_payload_item[0])) {
 			log_fatal("[" + green + "hstshijack" + reset + "] Invalid hstshijack.custompayloads value (got " + custom_payloads[a] + ").")
 		}
 
-		host = custom_payloads[a].replace(/[:].*/, "")
-		path = custom_payloads[a].replace(/.*[:]/, "")
+		host = custom_payload_item[0];
+		path = custom_payload_item[1];
 
 		if ( !readFile(path) ) {
 			log_error("[" + green + "hstshijack" + reset + "] Could not read a path in hstshijack.custompayloads (got " + path + ").")
