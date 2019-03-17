@@ -103,9 +103,7 @@ function configure() {
 	target_hosts.indexOf("*") != -1                 ? log_fatal("[" + green + "hstshijack" + reset + "] Invalid hstshijack.targets value (got *).") : ""
 	replacement_hosts.indexOf("*") != -1            ? log_fatal("[" + green + "hstshijack" + reset + "] Invalid hstshijack.replacements value (got *).") : ""
 	for (var i = 0; i < ignore_hosts.length; i++) {
-		if (ignore_hosts[i] != "*") {
-			!ignore_hosts[i].match(/^(?:\*$|(?:(?:\*\.|)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{1,63})))$/ig) ? log_fatal("[" + green + "hstshijack" + reset + "] Invalid hstshijack.ignore value (got " + ignore_hosts[i] + ").") : ""
-		}
+		!ignore_hosts[i].match(/^(?:\*$|\*\.[a-z]{1,63}|(?:(?:\*\.|)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{1,63})))$/ig) ? log_fatal(on_blue + "hstshijack" + reset + " Invalid hstshijack.ignore value (got " + ignore_hosts[i] + ").") : ""
 	}
 	for (var i = 0; i < target_hosts.length; i++) {
 		!target_hosts[i].match(/^(?:\*\.[a-z0-9]{1,63}(?:[.]?[a-z0-9]{1,63})*$|(?:(?:\*\.|)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{1,63})))$/ig) ? log_fatal("[" + green + "hstshijack" + reset + "] Invalid hstshijack.targets value (got " + target_hosts[i] + ").") : ""
