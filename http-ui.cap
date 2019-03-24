@@ -1,10 +1,10 @@
 # api listening on http://127.0.0.1:8081/ and ui to http://127.0.0.1
 set api.rest.address 127.0.0.1
 set api.rest.port 8081
-set https.server.address 127.0.0.1
-set https.server.port 80
+set http.server.address 127.0.0.1
+set http.server.port 80
 # default installation path of the ui
-set https.server.path /usr/local/share/bettercap/ui
+set http.server.path /usr/local/share/bettercap/ui
 
 # !!! CHANGE THESE !!!
 set api.rest.username user
@@ -12,4 +12,4 @@ set api.rest.password pass
 
 # go!
 api.rest on
-https.server on
+http.server on
