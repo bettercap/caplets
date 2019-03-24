@@ -15,7 +15,7 @@ set api.rest.username user
 set api.rest.password pass
 
 # change this too :)
-set https.server.path /home/evilsocket/gocode/src/github.com/bettercap/ui/dist/ui
+set https.server.path /usr/local/share/bettercap/ui
 
 # go!
 api.rest on
