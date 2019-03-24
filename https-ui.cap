@@ -1,4 +1,4 @@
-# api listening to https://0.0.0.0:8083/ and ui to https://0.0.0.0
+# api listening on https://0.0.0.0:8083/ and ui on https://0.0.0.0
 set api.rest.address 0.0.0.0
 set api.rest.port 8083
 set https.server.address 0.0.0.0
@@ -9,13 +9,12 @@ set https.server.certificate ~/.bettercap-https.cert.pem
 set https.server.key ~/.bettercap-https.key.pem 
 set api.rest.certificate ~/.bettercap-https.cert.pem
 set api.rest.key ~/.bettercap-https.key.pem 
+# default installation path of the ui
+set https.server.path /usr/local/share/bettercap/ui
 
 # !!! CHANGE THESE !!!
 set api.rest.username user
 set api.rest.password pass
-
-# change this too :)
-set https.server.path /usr/local/share/bettercap/ui
 
 # go!
 api.rest on
