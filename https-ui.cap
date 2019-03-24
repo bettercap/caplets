@@ -1,0 +1,22 @@
+# api listening to https://0.0.0.0:8083/ and ui to https://0.0.0.0
+set api.rest.address 0.0.0.0
+set api.rest.port 8083
+set https.server.address 0.0.0.0
+set https.server.port 443
+
+# make sure both use the same https certificate so api requests won't fail
+set https.server.certificate ~/.bettercap-https.cert.pem
+set https.server.key ~/.bettercap-https.key.pem 
+set api.rest.certificate ~/.bettercap-https.cert.pem
+set api.rest.key ~/.bettercap-https.key.pem 
+
+# !!! CHANGE THESE !!!
+set api.rest.username user
+set api.rest.password pass
+
+# change this too :)
+set https.server.path /home/evilsocket/gocode/src/github.com/bettercap/ui/dist/ui
+
+# go!
+api.rest on
+https.server on
