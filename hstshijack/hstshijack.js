@@ -618,6 +618,10 @@ function onResponse(req, res) {
 			}
 		}
 
+	/* Attack meta tag CSP restrictions */
+
+		res.Body = res.Body.replace(/http-equiv=('|")Content-Security-Policy('|")/ig, "http-equiv=$1Content-Insecure-Policy$2")
+
 	/* JavaScript */
 
 		// Block scripts on this host if required.
@@ -700,7 +704,6 @@ function onResponse(req, res) {
 
 		// Remove security headers.
 		res.RemoveHeader("Strict-Transport-Security")
-		res.RemoveHeader("Content-Security-Policy")
 		res.RemoveHeader("Content-Security-Policy-Report-Only")
 		res.RemoveHeader("Public-Key-Pins")
 		res.RemoveHeader("Public-Key-Pins-Report-Only")
@@ -714,6 +717,7 @@ function onResponse(req, res) {
 		res.RemoveHeader("Expect-Ct")
 
 		// Set insecure headers.
+		res.SetHeader("Content-Security-Policy", "default-src * 'unsafe-inline' 'unsafe-eval'; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src * 'unsafe-inline'; img-src * data: blob: 'unsafe-inline'; frame-src *; style-src * 'unsafe-inline';")
 		res.SetHeader("Access-Control-Allow-Origin", "*")
 		res.SetHeader("Access-Control-Allow-Methods", "*")
 		res.SetHeader("Access-Control-Allow-Headers", "*")
