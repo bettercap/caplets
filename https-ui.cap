@@ -12,7 +12,9 @@ set api.rest.key ~/.bettercap-https.key.pem
 # default installation path of the ui
 set https.server.path /usr/local/share/bettercap/ui
 
-include ui-creds
+# !!! CHANGE THESE !!!
+set api.rest.username user
+set api.rest.password pass
 
 # go!
 api.rest on
