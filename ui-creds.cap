@@ -1,0 +1,3 @@
+# !!! CHANGE THESE !!!
+set api.rest.username user
+set api.rest.password pass

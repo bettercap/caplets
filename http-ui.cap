@@ -6,9 +6,7 @@ set http.server.port 80
 # default installation path of the ui
 set http.server.path /usr/local/share/bettercap/ui
 
-# !!! CHANGE THESE !!!
-set api.rest.username user
-set api.rest.password pass
+include ui-creds
 
 # go!
 api.rest on
