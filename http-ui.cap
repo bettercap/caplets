@@ -10,6 +10,10 @@ set http.server.path /usr/local/share/bettercap/ui
 set api.rest.username user
 set api.rest.password pass
 
+# print api credentials
+get api.rest.username
+get api.rest.password
+
 # go!
 api.rest on
 http.server on
