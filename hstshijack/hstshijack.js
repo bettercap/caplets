@@ -804,7 +804,7 @@ function onResponse(req, res) {
 		location = res.GetHeader("Location", "")
 		if (location != "") {
 			stripped_location = location.replace(/(http)s:\/\//i, "$1://").replace(/:443($|[/?#])/, "$1")
-			res.SetHeader( "Location",  )
+			res.SetHeader("Location", stripped_location)
 			log_debug(on_blue + "hstshijack" + reset + " Stripped SSL from location header.")
 		}
 
