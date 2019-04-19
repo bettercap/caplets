@@ -5,7 +5,7 @@ var ssl_log = [],
     whitelist = {}
 
 var payload,
-	payload_container = new String(
+    payload_container = new String(
     	"if (!self.{{session_id}}) {\n" + 
     	"	self.{{session_id}} = function() {\n" + 
     	"		var obf_var_callback_log_121737 = [];\n" + 
