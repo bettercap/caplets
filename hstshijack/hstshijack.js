@@ -653,7 +653,7 @@ function onResponse(req, res) {
 	location = res.GetHeader("Location", "")
 	if ( location.match(/^https:\/\//i) ) {
 		ssl_log = readFile( env["hstshijack.log"] ).split("\n")
-		host    = location.replace(/https:\/\//, "").replace(/\/.*/, "")
+		host    = location.replace(/https:\/\//i, "").replace(/[:/?#].*)/i, "")
 		if ( ssl_log.indexOf(host) == -1 ) {
 			ssl_log.push(host)
 			writeFile( env["hstshijack.log"], ssl_log.join("\n") )
@@ -825,8 +825,6 @@ function onResponse(req, res) {
 		res.RemoveHeader("Public-Key-Pins-Report-Only")
 		res.RemoveHeader("X-Frame-Options")
 		res.RemoveHeader("X-Content-Type-Options")
-		// res.RemoveHeader("X-WebKit-CSP")
-		// res.RemoveHeader("X-Content-Security-Policy")
 		res.RemoveHeader("X-Download-Options")
 		res.RemoveHeader("X-Permitted-Cross-Domain-Policies")
 		res.RemoveHeader("X-XSS-Protection")
