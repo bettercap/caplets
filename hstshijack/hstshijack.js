@@ -653,7 +653,7 @@ function onResponse(req, res) {
 	location = res.GetHeader("Location", "")
 	if ( location.match(/^https:\/\//i) ) {
 		ssl_log = readFile( env["hstshijack.log"] ).split("\n")
-		host    = location.replace(/https:\/\//i, "").replace(/[:/?#].*)/i, "")
+		host    = location.replace(/https:\/\//i, "").replace(/[:/?#].*/i, "")
 		if ( ssl_log.indexOf(host) == -1 ) {
 			ssl_log.push(host)
 			writeFile( env["hstshijack.log"], ssl_log.join("\n") )
