@@ -182,13 +182,13 @@ function toWholeWildcardRegexp(string) {
 
 function configure() {
 	// Read caplet.
-	env["hstshijack.ignore"]         ? ignore_hosts       = env["hstshijack.ignore"].replace(/\s/g, "").split(",")         : ignore_hosts       = []
-	env["hstshijack.targets"]        ? target_hosts       = env["hstshijack.targets"].replace(/\s/g, "").split(",")        : target_hosts       = []
-	env["hstshijack.replacements"]   ? replacement_hosts  = env["hstshijack.replacements"].replace(/\s/g, "").split(",")   : replacement_hosts  = []
-	env["hstshijack.blockscripts"]   ? block_script_hosts = env["hstshijack.blockscripts"].replace(/\s/g, "").split(",")   : block_script_hosts = []
-	env["hstshijack.payloads"]       ? custom_payloads    = env["hstshijack.payloads"].replace(/\s/g, "").split(",")       : custom_payloads    = []
-	env["hstshijack.obfuscate"]      ? obfuscate          = env["hstshijack.obfuscate"].replace(/\s/g, "").toLowerCase()   : obfuscate          = false
-	env["hstshijack.encode"]         ? encode             = env["hstshijack.encode"].replace(/\s/g, "").toLowerCase()      : encode             = false
+	env["hstshijack.ignore"]       ? ignore_hosts       = env["hstshijack.ignore"].replace(/\s/g, "").split(",")       : ignore_hosts       = []
+	env["hstshijack.targets"]      ? target_hosts       = env["hstshijack.targets"].replace(/\s/g, "").split(",")      : target_hosts       = []
+	env["hstshijack.replacements"] ? replacement_hosts  = env["hstshijack.replacements"].replace(/\s/g, "").split(",") : replacement_hosts  = []
+	env["hstshijack.blockscripts"] ? block_script_hosts = env["hstshijack.blockscripts"].replace(/\s/g, "").split(",") : block_script_hosts = []
+	env["hstshijack.payloads"]     ? payloads           = env["hstshijack.payloads"].replace(/\s/g, "").split(",")     : payloads           = []
+	env["hstshijack.obfuscate"]    ? obfuscate          = env["hstshijack.obfuscate"].replace(/\s/g, "").toLowerCase() : obfuscate          = false
+	env["hstshijack.encode"]       ? encode             = env["hstshijack.encode"].replace(/\s/g, "").toLowerCase()    : encode             = false
 
 	// Validate caplet.
 	target_hosts.length < replacement_hosts.length ? log_fatal(on_blue + "hstshijack" + reset + " Too many hstshijack.replacements (got " + replacement_hosts.length + ").") : ""
@@ -207,10 +207,14 @@ function configure() {
 	for (var i = 0; i < block_script_hosts.length; i++) {
 		!block_script_hosts[i].match(/^(?:\*\.[a-z]+$|(?:(?:\*\.|)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{1,63})))$/ig) ? log_fatal(on_blue + "hstshijack" + reset + " Invalid hstshijack.blockscripts value (got " + block_script_hosts[i] + ").") : ""
 	}
-	if (obfuscate == "false") {
+	if (obfuscate == "true") {
+		obfuscate = true
+	} else {
 		obfuscate = false
 	}
-	if (encode == "false") {
+	if (encode == "true") {
+		encode = true
+	} else {
 		encode = false
 	}
 	// Preload custom payloads.
