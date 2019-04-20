@@ -278,8 +278,12 @@ function configure() {
 		&& !replacement_hosts[i].match(/^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+\*$/i) 
 		? log_fatal(on_blue + "hstshijack" + reset + " Invalid hstshijack.replacements value (got " + replacement_hosts[i] + ").") 
 		: ""
-		if ( target_hosts[i].match(/\*/g).length != replacement_hosts[i].match(/\*/g).length ) {
-			log_fatal(on_blue + "hstshijack" + reset + " Invalid hstshijack.targets or hstshijack.replacements value, wildcards do not match (got " + target_hosts[i] + " and " + replacement_hosts[i] + ").")
+		if (target_hosts[i].match(/\*/g) || replacement_hosts[i].match(/\*/g)) {
+			target_host_wildcard_count      = target_hosts[i].match(/\*/g).length      || 0
+			replacement_host_wildcard_count = replacement_hosts[i].match(/\*/g).length || 0
+			if (target_host_wildcard_count != replacement_host_wildcard_count) {
+				log_fatal(on_blue + "hstshijack" + reset + " Invalid hstshijack.targets or hstshijack.replacements value, wildcards do not match (got " + target_hosts[i] + " and " + replacement_hosts[i] + ").")
+			}
 		}
 	}
 	for (var i = 0; i < block_script_hosts.length; i++) {
