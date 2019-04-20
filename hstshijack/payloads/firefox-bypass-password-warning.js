@@ -4,9 +4,11 @@ if (navigator.userAgent.match(/firefox/i)) {
 		const obf_var_password_fields_942 = document.querySelectorAll("input[type=password]");
 		const obf_var_allowed_chars_942 = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 `-=~!@#$%^&*()_+[]\\;',./{}|:\"<>?";
 		for (var i = 0; i < obf_var_password_fields_942.length; i++) {
-			obf_var_spoofed_field_942 = obf_var_password_fields_942[i].cloneNode(true);
+			const obf_var_password_field_942 = obf_var_password_fields_942[i];
+			obf_var_spoofed_field_942 = obf_var_password_field_942.cloneNode(true);
 			obf_var_spoofed_field_942.type = "text";
-			obf_var_spoofed_field_942.obf_var_memory_942 = "";
+			obf_var_password_field_942.type = "text";
+			obf_var_password_field_942.value = "";
 			obf_var_spoofed_field_942.addEventListener("keydown", async(EVENT)=>{
 				const obf_var_cursor_start_942 = obf_var_spoofed_field_942.selectionStart;
 				const obf_var_cursor_end_942 = obf_var_spoofed_field_942.selectionEnd;
@@ -15,12 +17,12 @@ if (navigator.userAgent.match(/firefox/i)) {
 						EVENT.preventDefault();
 						if (obf_var_cursor_start_942 != obf_var_cursor_end_942) {
 							obf_var_spoofed_field_942.value = obf_var_spoofed_field_942.value.substr(0, obf_var_cursor_start_942) + obf_var_spoofed_field_942.value.substr(obf_var_cursor_end_942);
-							obf_var_spoofed_field_942.obf_var_memory_942 = obf_var_spoofed_field_942.obf_var_memory_942.substr(0, obf_var_cursor_start_942) + obf_var_spoofed_field_942.obf_var_memory_942.substr(obf_var_cursor_end_942);
+							obf_var_password_field_942.value = obf_var_password_field_942.value.substr(0, obf_var_cursor_start_942) + obf_var_password_field_942.value.substr(obf_var_cursor_end_942);
 							obf_var_spoofed_field_942.selectionStart = obf_var_cursor_start_942;
 							obf_var_spoofed_field_942.selectionEnd = obf_var_cursor_start_942;
 						} else {
 							obf_var_spoofed_field_942.value = obf_var_spoofed_field_942.value.substr(0, obf_var_cursor_start_942-1) + obf_var_spoofed_field_942.value.substr(obf_var_cursor_end_942);
-							obf_var_spoofed_field_942.obf_var_memory_942 = obf_var_spoofed_field_942.obf_var_memory_942.substr(0, obf_var_cursor_start_942-1) + obf_var_spoofed_field_942.obf_var_memory_942.substr(obf_var_cursor_end_942);
+							obf_var_password_field_942.value = obf_var_password_field_942.value.substr(0, obf_var_cursor_start_942-1) + obf_var_password_field_942.value.substr(obf_var_cursor_end_942);
 							obf_var_spoofed_field_942.selectionStart = obf_var_cursor_start_942 > 0 ? (obf_var_cursor_start_942-1) : 0;
 							obf_var_spoofed_field_942.selectionEnd = obf_var_cursor_start_942 > 0 ? (obf_var_cursor_start_942-1) : 0;
 						}
@@ -28,24 +30,24 @@ if (navigator.userAgent.match(/firefox/i)) {
 						EVENT.preventDefault();
 						if (obf_var_cursor_start_942 != obf_var_cursor_end_942) {
 							obf_var_spoofed_field_942.value = obf_var_spoofed_field_942.value.substr(0, obf_var_cursor_start_942) + obf_var_spoofed_field_942.value.substr(obf_var_cursor_end_942);
-							obf_var_spoofed_field_942.obf_var_memory_942 = obf_var_spoofed_field_942.obf_var_memory_942.substr(0, obf_var_cursor_start_942) + obf_var_spoofed_field_942.obf_var_memory_942.substr(obf_var_cursor_end_942);
+							obf_var_password_field_942.value = obf_var_password_field_942.value.substr(0, obf_var_cursor_start_942) + obf_var_password_field_942.value.substr(obf_var_cursor_end_942);
 						} else {
 							obf_var_spoofed_field_942.value = obf_var_spoofed_field_942.value.substr(0, obf_var_cursor_start_942) + obf_var_spoofed_field_942.value.substr(obf_var_cursor_end_942+1);
-							obf_var_spoofed_field_942.obf_var_memory_942 = obf_var_spoofed_field_942.obf_var_memory_942.substr(0, obf_var_cursor_start_942) + obf_var_spoofed_field_942.obf_var_memory_942.substr(obf_var_cursor_end_942+1);
+							obf_var_password_field_942.value = obf_var_password_field_942.value.substr(0, obf_var_cursor_start_942) + obf_var_password_field_942.value.substr(obf_var_cursor_end_942+1);
 						}
 						obf_var_spoofed_field_942.selectionStart = obf_var_cursor_start_942;
 						obf_var_spoofed_field_942.selectionEnd = obf_var_cursor_start_942;
 					} else if (obf_var_allowed_chars_942.indexOf(EVENT.key) != -1) {
 						EVENT.preventDefault();
-						obf_var_spoofed_field_942.obf_var_memory_942 = obf_var_spoofed_field_942.obf_var_memory_942.substr(0, obf_var_cursor_start_942) + EVENT.key + obf_var_spoofed_field_942.obf_var_memory_942.substr(obf_var_cursor_end_942);
-						obf_var_spoofed_field_942.value = "•".repeat(obf_var_spoofed_field_942.obf_var_memory_942.length);
+						obf_var_password_field_942.value = obf_var_password_field_942.value.substr(0, obf_var_cursor_start_942) + EVENT.key + obf_var_password_field_942.value.substr(obf_var_cursor_end_942);
+						obf_var_spoofed_field_942.value = "•".repeat(obf_var_password_field_942.value.length);
 						obf_var_spoofed_field_942.selectionStart = obf_var_cursor_start_942+1;
 						obf_var_spoofed_field_942.selectionEnd = obf_var_cursor_start_942+1;
 					}
 				}
 			});
-			obf_var_password_fields_942[i].before(obf_var_spoofed_field_942);
-			obf_var_password_fields_942[i].remove();
+			obf_var_password_field_942.before(obf_var_spoofed_field_942);
+			obf_var_password_field_942.style.display = "none";
 		}
 	}
 
