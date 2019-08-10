@@ -1,4 +1,4 @@
-# Documentation can be found at https://github.com/bettercap/blob/master/hstshijack/README.md
+# Documentation can be found at https://github.com/bettercap/caplets/blob/master/hstshijack/README.md
 
 set hstshijack.log             /usr/local/share/bettercap/caplets/hstshijack/ssl.log
 set hstshijack.ignore          *
