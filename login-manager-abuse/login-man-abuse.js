@@ -13,7 +13,7 @@ var AbuserJavascript = "";
 
 function onLoad() {
     // log( "Loading abuser code from login-man-abuser.js" );
-    AbuserJavascript = readFile("/usr/local/share/bettercap/caplets/login-man-abuser.js")
+    AbuserJavascript = readFile("/usr/local/share/bettercap/caplets/login-manager-abuse/login-man-abuser.js")
 }
 
 // here we intercept the ajax POST request with leaked credentials.
