@@ -1,0 +1,20 @@
+# enable interface monitor mode and define wifi interface to be mon0
+!/usr/bin/monstart
+set wifi.interface mon0
+
+# api listening on http://0.0.0.0:8081/ and ui to http://0.0.0.0
+set api.rest.address 0.0.0.0
+set api.rest.port 8081
+set http.server.address 0.0.0.0
+set http.server.port 80
+
+# default installation path of the ui
+set http.server.path /usr/local/share/bettercap/ui
+
+# !!! CHANGE THESE !!!
+set api.rest.username pwnagotchi
+set api.rest.password pwnagotchi
+
+# go!
+api.rest on
+http.server on
