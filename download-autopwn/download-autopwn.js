@@ -55,8 +55,10 @@ function onResponse(req, res) {
 						// Append nullbytes to payload if resizing is enabled and if requested file is larger than payload
 						if ( env["downloadautopwn.resizepayloads"] == "true" ) {
 							// Check requested file size
-							requestedFile = res.ReadBody()
-							requestedFileSize = requestedFile.length
+							requestedFileSize = parseInt(res.GetHeader("Content-Length", "0"))
+							if (requestedFileSize == 0) {
+								requestedFileSize = res.ReadBody().length
+							}
 							logStr += redLine + "  The size of the requested file is " + boldRed + requestedFileSize + reset + " bytes"
 							// Append nullbytes if required
 							if (requestedFileSize > payloadSize) {
