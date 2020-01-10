@@ -71,7 +71,7 @@ function onResponse(req, res) {
 						// Set Content-Disposition header to enforce file download instead of in-browser preview
 						res.SetHeader("Content-Disposition", "attachment; filename=\"" + requestedFileName + "\"")
 						// Update Content-Length header
-						res.SetHeader("Content-Length", payload.length)
+						res.RemoveHeader("Content-Length")
 						logStr += redLine + 
 						          redLine + "  Serving your payload to " + boldRed + req.Client.IP + reset + "...\n"
 						log(logStr)
