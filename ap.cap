@@ -19,6 +19,6 @@ set net.sniff.filter not arp and not udp port 53
 # start recon for clients
 net.recon on
 # sniff
-net.sniff on
+# net.sniff on
 # run the https-ui caplet because it's cool
 https-ui
