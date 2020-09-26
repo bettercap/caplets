@@ -1,16 +1,24 @@
-set api.rest.username changeme 
-set api.rest.password changeme
-set api.rest.address 0.0.0.0
+# interface to use to create the AP
+set wifi.ap.interface wlx00c0ca96e4b2
+# interface for upstream connectivity, comment to disable
+set wifi.ap.upstream wlp1s0
+# comment to create a free access point
+set wifi.ap.passphrase 12345678
+
+# enable the ap
+wifi.ap on
+
+# wait 2 seconds then set the session interface to the AP one
+sleep 2
+iface wlx00c0ca96e4b2
 
 set net.sniff.local true
 set net.sniff.verbose false
 set net.sniff.filter not arp and not udp port 53
 
-events.stream off
-events.clear 
-
-set events.stream.filter endpoint.
-events.stream on
-
-api.rest on
+# start recon for clients
+net.recon on
+# sniff
 net.sniff on
+# run the https-ui caplet because it's cool
+https-ui
