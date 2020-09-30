@@ -33,8 +33,10 @@ This module injects files with a JavaScript payload (<a href="./payloads/hijack.
 
 ### Scalable domain indexing (SSL log)
 
+<br>
+
 <p align="center">
-  <img width="250px" src="https://user-images.githubusercontent.com/29265684/94715357-b44c3800-0390-11eb-82f3-6948aeff27f2.png" />
+  <img width="420px" src="https://user-images.githubusercontent.com/29265684/94715357-b44c3800-0390-11eb-82f3-6948aeff27f2.png" />
 </p>
 
 If a host responds with an HTTPS redirect, bettercap will save this host in a list, and keep a log of (alphanumerically) ordered index ranges of the domains in this list, allowing it to scale by reducing a considerable amount of overhead for the proxy module.
