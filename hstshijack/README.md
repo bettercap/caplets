@@ -33,9 +33,13 @@ This module injects files with a JavaScript payload (<a href="./payloads/hijack.
 
 ### Scalable domain indexing (SSL log)
 
+<p align="center">
+  <img width="250px" src="https://user-images.githubusercontent.com/29265684/94715357-b44c3800-0390-11eb-82f3-6948aeff27f2.png" />
+</p>
+
 If a host responds with an HTTPS redirect, bettercap will save this host in a list, and keep a log of (alphanumerically) ordered index ranges of the domains in this list, allowing it to scale by reducing a considerable amount of overhead for the proxy module.
 
-Bettercap will try to spoof SSL connections between the client and said hosts, and will also send a HEAD request to each host that was discovered in an injected document, which we retrieve via callbacks from the hstshijack.js payload.
+Bettercap will try to spoof SSL connections between the client and these hosts, and it also sends a HEAD request to each host that was discovered in an injected document, which are retrieved via callbacks from the hstshijack.js payload.
 
 By default, this caplet will remap the index ranges of all domains that were found in the file that you assigned to the `hstshijack.ssl.domains` variable on launch (to ensure that it is still in the right format). You can skip this by setting the `hstshijack.ssl.check` variable value to `false`.
 
@@ -114,7 +118,7 @@ form.onsubmit = function() {
 
 The following POST request will be sniffed by bettercap, but not proxied (the request will be dropped). 
 
-Any instance of `obf_path_callback` will be replaced with the callback path that bettercap listens for (this can save time when writing JavaScript payloads).
+Any instance of `obf_path_callback` will be replaced with the callback path (see example above).
 
 ### Whitelisting callbacks
 
