@@ -1,11 +1,11 @@
 /*
-  Documentation can be found at https://github.com/bettercap/caplets/tree/master/hstshijack
-*/
+ * Documentation can be found at https://github.com/bettercap/caplets/tree/master/hstshijack
+ */
 
 var ssl = {
   "domains": [],
   "index": {},
-  "hierarchy": "-.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+  "hierarchy": "-.0123456789abcdefghijklmnopqrstuvwxyz"
 };
 
 var payload,
