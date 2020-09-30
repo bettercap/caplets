@@ -248,6 +248,7 @@ function getIndexRange(char) {
 
 /* Returns the index of a given domain within a given index range. */
 function getDomainIndex(domain, index_range) {
+  domain = domain.toLowerCase();
   if (
        index_range[0] == index_range[1]
     && domain === ssl.domains[index_range[0]]
@@ -267,6 +268,7 @@ function getDomainIndex(domain, index_range) {
 
 /* Index a new domain. */
 function indexDomain(domain) {
+  domain = domain.toLowerCase();
   first_char = domain.charAt(0);
   index_range = getIndexRange(first_char);
   if (getDomainIndex(domain, index_range) == -1) {
@@ -493,7 +495,6 @@ function configure() {
     }
   }
 
-  indexDomain("google.com")
   /* Ensure targeted hosts are in SSL log (no wildcards). */
   for (var a = 0; a < target_hosts.length; a++) {
     if (target_hosts[a].indexOf("*") === -1) {
@@ -603,7 +604,7 @@ function onRequest(req, res) {
     */
     log_debug(on_blue + "hstshijack" + reset + " SSL callback received from " + green + req.Client.IP + reset + " for " + bold + req.Query + reset + ".");
     queried_host = req.Query;
-    if (getDomainIndex(queried_host) == -1) {
+    if (getDomainIndex(queried_host, getIndexRange(queried_host.charAt(0))) == -1) {
       log_debug(on_blue + "hstshijack" + reset + " Learning unencrypted HTTP response from " + queried_host + " ...");
       req.Hostname = queried_host;
       req.Path     = "/";
@@ -752,7 +753,7 @@ function onRequest(req, res) {
     }
 
     /* Restore HTTPS scheme. */
-    if (getDomainIndex(req.Hostname) != -1) {
+    if (getDomainIndex(req.Hostname, getIndexRange(req.Hostname.charAt(0))) != -1) {
       /* Restore HTTPS scheme of request if domain is indexed. */
       if (req.Scheme != "https") {
         req.Scheme = "https";
@@ -797,8 +798,10 @@ function onResponse(req, res) {
   /* Remember HTTPS redirects. */
   location = res.GetHeader("Location", "");
   if (location.match(/^https:\/\//i)) {
-    host = location.replace(/(http)s:/i, "$1:").replace(/[:/?#].*/i, "");
-    indexDomain(host);
+    host = location.replace(/https:\/\/([^:/?#]*).*/i, "$1");
+    if (host != "") {
+      indexDomain(host);
+    }
   }
 
   /* Ignore this response if whitelisted. */
