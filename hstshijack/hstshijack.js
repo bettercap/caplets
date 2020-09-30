@@ -143,16 +143,13 @@ function toWholeRegexpSet(selector_string, replacement_string) {
   }
 }
 
-function saveIndex() {
-  if (ssl.domains.length > 0) {
-    writeFile(env["hstshijack.ssl.domains"], ssl.domains.join("\n"));
-  }
-  if (Object.keys(ssl.index).length > 0) {
-    writeFile(env["hstshijack.ssl.index"], JSON.stringify(ssl.index, null, 2));
-  }
+/* Saves the list of domains using SSL, as well as those domains' index ranges. */
+function saveSSLIndex() {
+  writeFile(env["hstshijack.ssl.domains"], ssl.domains.join("\n"));
+  writeFile(env["hstshijack.ssl.index"], JSON.stringify(ssl.index, null, 2));
 }
 
-/* Returns the amount of characters in identical prefixes. */
+/* Returns the amount of characters of an identical prefix of two given strings. */
 function getMatchingPrefixLength(string1, string2) {
   count = 0;
   if (string1.length > string2.length) {
@@ -175,38 +172,52 @@ function getMatchingPrefixLength(string1, string2) {
 
 /* Returns true if domain1 gets alphanumeric precendence over domain2. */
 function getsPrecedence(domain1, domain2) {
+console.log("checking if " + domain1 + " gets precedence over " + domain2)
   if (domain1.length > domain2.length) {
+    /* If the first given domain is longer than the second. */
     for (a = 0; a < domain2.length; a++) {
       rank1 = ssl.hierarchy.indexOf(domain1.charAt(a));
       rank2 = ssl.hierarchy.indexOf(domain2.charAt(a));
+console.log(rank1 + " > " +  rank2);
       if (rank1 > rank2) {
+console.log("no")
         return false;
       } else if (rank1 < rank2) {
+console.log("yes")
         return true;
       }
     }
+console.log("no")
     return false;
   } else {
+    /* If the second given domain is longer than the first. */
     for (a = 0; a < domain1.length; a++) {
       rank1 = ssl.hierarchy.indexOf(domain1.charAt(a));
       rank2 = ssl.hierarchy.indexOf(domain2.charAt(a));
+console.log(rank1 + " > " +  rank2);
       if (rank1 > rank2) {
+console.log("no")
         return false;
       } else if (rank1 < rank2) {
+console.log("yes")
         return true;
       }
     }
+console.log("yes")
     return true;
   }
 }
 
-/* Returns the first and last indices of an alphanumeric range of domains.
+/* Returns an array with the first and last index of an alphanumeric range of domains.
  * This is the range in which domains are/will be indexed. */
 function getIndexRange(char) {
+console.log("getting index range of " + char)
   if (index_range = ssl.index[char]) {
+console.log("found existing index range: " + index_range)
     /* Character is already indexed. */
     return index_range;
   } else {
+console.log("a")
     /* Character is not yet indexed. */
     indexed_chars = Object.keys(ssl.index).concat(char).sort();
     this_char_index = indexed_chars.indexOf(char);
@@ -214,42 +225,47 @@ function getIndexRange(char) {
          indexed_chars[this_char_index - 1]
       && indexed_chars[this_char_index + 1]
     ) {
+console.log("b")
       /* Will not be the first nor last indexed character. */
       return [
         ssl.index[indexed_chars[this_char_index + 1]][0],
         ssl.index[indexed_chars[this_char_index + 1]][0]
       ];
     } else if (indexed_chars[this_char_index + 1]) {
+console.log("c")
       /* Will be the first indexed character, but not the last. */
       return [
         0,
         ssl.index[indexed_chars[this_char_index + 1]][0]
       ];
     } else if (indexed_chars[this_char_index - 1]) {
+console.log("d")
       /* Will be the last indexed character, but not the first. */
       if (ssl.domains.length == 1) {
-        /* Will be the second and last indexed domain. */
+console.log("e")
+        /* Will be the second and last indexed character. */
         return [
           ssl.index[indexed_chars[this_char_index - 1]][1] + 1,
           1
         ];
       } else {
-        /* Will be the last but not the second indexed domain. */
+console.log("f")
+        /* Will be the last but not the second indexed character. */
         return [
           ssl.index[indexed_chars[this_char_index - 1]][1] + 1,
           ssl.domains.length
         ];
       }
     } else {
+console.log("g")
       /* Will be the first and last indexed character. */
       return [0, 0];
     }
   }
 }
 
-/* Returns index of given domain. */
-function getDomainIndex(domain) {
-  index_range = getIndexRange(domain.charAt(0));
+/* Returns the index of a given domain within a given index range. */
+function getDomainIndex(domain, index_range) {
   if (
        index_range[0] == index_range[1]
     && domain === ssl.domains[index_range[0]]
@@ -269,31 +285,34 @@ function getDomainIndex(domain) {
 
 /* Index a new domain. */
 function indexDomain(domain) {
-  if (getDomainIndex(domain) == -1) {
+console.log("indexing " + domain)
+  first_char = domain.charAt(0);
+  index_range = getIndexRange(first_char);
+  if (getDomainIndex(domain, index_range) == -1) {
+console.log("1")
     /* This domain is not indexed yet. */
     log_debug(on_blue + "hstshijack" + reset + " Indexing domain " + bold + domain + reset + " ...");
-    first_char = domain.charAt(0);
-    index_range = getIndexRange(first_char);
     indexed_chars = Object.keys(ssl.index);
     if (index_range[0] == index_range[1]) {
+console.log("2")
       /* This index range consists of only one index. */
       if (ssl.domains[index_range[0]]) {
+console.log("3")
         /* This index range contains one domain. */
         new_index = index_range[0];
-        for (a = index_range[0]; a < index_range[1] + 1; a++) {
-          if (!getsPrecedence(ssl.domains[a], domain)) {
-            new_index = a;
-            break;
-          }
+        if (getsPrecedence(ssl.domains[index_range[0]], domain)) {
+          new_index++;
         }
-        arr_ = ssl.domains.slice(0, a);
-        _arr = ssl.domains.slice(a, ssl.domains.length);
+        arr_ = ssl.domains.slice(0, new_index);
+        _arr = ssl.domains.slice(new_index, ssl.domains.length);
+console.log("concating " + arr_ + " + " + domain + " + " + _arr)
         ssl.domains = [].concat(arr_, [domain], _arr);
         ssl.index[first_char] = [
           index_range[0],
           index_range[1] + 1
         ];
       } else {
+console.log("4")
         /* This index range contains no domains. */
         ssl.domains.push(domain);
         ssl.index[first_char] = [
@@ -302,16 +321,19 @@ function indexDomain(domain) {
         ];
       }
     } else {
+console.log("5")
       /* This index range consists of multiple domains. */
       new_index = index_range[0];
-      for (a = index_range[0]; a < index_range[1] + 1; a++) {
-        if (!getsPrecedence(ssl.domains[a], domain)) {
-          new_index = a;
+      for (var a = index_range[0]; a < index_range[1] + 1; a++) {
+        if (!getsPrecedence(domain, ssl.domains[a])) {
+          new_index = a + 1;
+        } else {
           break;
         }
       }
-      arr_ = ssl.domains.slice(0, a);
-      _arr = ssl.domains.slice(a, ssl.domains.length);
+      arr_ = ssl.domains.slice(0, new_index);
+      _arr = ssl.domains.slice(new_index, ssl.domains.length);
+console.log("concating " + arr_ + " + " + domain + " + " + _arr)
       ssl.domains = [].concat(arr_, [domain], _arr);
       ssl.index[first_char] = [
         index_range[0],
@@ -324,11 +346,12 @@ function indexDomain(domain) {
       index_range = ssl.index[indexed_char];
       ssl.index[indexed_char] = [
         index_range[0] + 1,
-        index_range[0] + 1
+        index_range[1] + 1
       ];
     }
-    saveIndex();
+    saveSSLIndex();
   } else {
+console.log("6")
     /* This domain is already indexed. */
     log_debug(on_blue + "hstshijack" + reset + " Skipped already indexed domain " + bold + domain + reset);
   }
@@ -477,43 +500,25 @@ function configure() {
   if (all_domains.length == 0) {
     log_info(on_blue + "hstshijack" + reset + " No indexed domains were found, index will be reset.");
   } else {
-    if (ssl_index_check == "true") {
+    if (ssl_index_check != "false") {
       log_info(on_blue + "hstshijack" + reset + " Indexing SSL domains ...");
-      ssl.domains = all_domains
+      all_domains
         .sort()
         .filter(function(domain, index, arr){
           if (domain !== "" && arr.indexOf(domain) === index) {
-            first_char = domain.charAt(0);
-            if (ssl.index[first_char] === undefined) {
-              ssl.index[first_char] = [
-                index,
-                index
-              ];
-            }
-            if (
-                 !arr[index + 1]
-              || arr[index + 1].charAt(0) !== first_char
-            ) {
-              ssl.index[first_char] = [
-                ssl.index[first_char][0],
-                index
-              ];
-            }
-            return true;
+            indexDomain(domain);
           }
         });
-      log_info(on_blue + "hstshijack" + reset + " Indexed " + ssl.domains.length + " domains.");
     } else {
       ssl.domains = all_domains;
       index_file_contents = readFile(env["hstshijack.ssl.index"]);
       if (ssl.domains.length != 0 && index_file_contents == "") {
-        // throw error
+        log_fatal(on_blue + "hstshijack" + reset + " List of domains using SSL is not indexed. Please set your hstshijack.ssl.check value to true in your caplet.");
       }
       ssl.index = JSON.parse(index_file_contents);
       log_info(on_blue + "hstshijack" + reset + " Skipped SSL index check for " + all_domains +  ".");
     }
   }
-  saveIndex();
 
   indexDomain("google.com")
   /* Ensure targeted hosts are in SSL log (no wildcards). */
@@ -522,6 +527,9 @@ function configure() {
       indexDomain(target_hosts[a]);
     }
   }
+
+  saveSSLIndex();
+  log_info(on_blue + "hstshijack" + reset + " Indexed " + ssl.domains.length + " domains.");
 }
 
 function showConfig() {
@@ -572,7 +580,12 @@ function onCommand(cmd) {
     return true;
   }
   if (cmd == "hstshijack.ssl.domains") {
-    console.log("\n" + bold + "  Recorded domains with SSL (" + ssl.domains.length + ")" + reset + "\n\n    " + yellow + ssl.domains.join(reset + "\n    " + yellow) + reset + "\n");
+    if (ssl.domains.length > 20) {
+      log_string = ssl.domains.slice(0, 20).push("...").join(reset + "\n    " + yellow);
+      console.log("\n" + bold + "  Recorded domains with SSL (" + ssl.domains.length + ")" + reset + "\n\n    " + yellow + log_string + reset + "\n");
+    } else {
+      console.log("\n" + bold + "  Recorded domains with SSL (" + ssl.domains.length + ")" + reset + "\n\n    " + yellow + ssl.domains.join(reset + "\n    " + yellow) + reset + "\n");
+    }
     return true;
   }
   if (cmd == "hstshijack.ssl.index") {
