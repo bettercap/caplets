@@ -172,38 +172,29 @@ function getMatchingPrefixLength(string1, string2) {
 
 /* Returns true if domain1 gets alphanumeric precendence over domain2. */
 function getsPrecedence(domain1, domain2) {
-console.log("checking if " + domain1 + " gets precedence over " + domain2)
   if (domain1.length > domain2.length) {
     /* If the first given domain is longer than the second. */
     for (a = 0; a < domain2.length; a++) {
       rank1 = ssl.hierarchy.indexOf(domain1.charAt(a));
       rank2 = ssl.hierarchy.indexOf(domain2.charAt(a));
-console.log(rank1 + " > " +  rank2);
       if (rank1 > rank2) {
-console.log("no")
         return false;
       } else if (rank1 < rank2) {
-console.log("yes")
         return true;
       }
     }
-console.log("no")
     return false;
   } else {
     /* If the second given domain is longer than the first. */
     for (a = 0; a < domain1.length; a++) {
       rank1 = ssl.hierarchy.indexOf(domain1.charAt(a));
       rank2 = ssl.hierarchy.indexOf(domain2.charAt(a));
-console.log(rank1 + " > " +  rank2);
       if (rank1 > rank2) {
-console.log("no")
         return false;
       } else if (rank1 < rank2) {
-console.log("yes")
         return true;
       }
     }
-console.log("yes")
     return true;
   }
 }
@@ -211,13 +202,10 @@ console.log("yes")
 /* Returns an array with the first and last index of an alphanumeric range of domains.
  * This is the range in which domains are/will be indexed. */
 function getIndexRange(char) {
-console.log("getting index range of " + char)
   if (index_range = ssl.index[char]) {
-console.log("found existing index range: " + index_range)
     /* Character is already indexed. */
     return index_range;
   } else {
-console.log("a")
     /* Character is not yet indexed. */
     indexed_chars = Object.keys(ssl.index).concat(char).sort();
     this_char_index = indexed_chars.indexOf(char);
@@ -225,31 +213,26 @@ console.log("a")
          indexed_chars[this_char_index - 1]
       && indexed_chars[this_char_index + 1]
     ) {
-console.log("b")
       /* Will not be the first nor last indexed character. */
       return [
         ssl.index[indexed_chars[this_char_index + 1]][0],
         ssl.index[indexed_chars[this_char_index + 1]][0]
       ];
     } else if (indexed_chars[this_char_index + 1]) {
-console.log("c")
       /* Will be the first indexed character, but not the last. */
       return [
         0,
         ssl.index[indexed_chars[this_char_index + 1]][0]
       ];
     } else if (indexed_chars[this_char_index - 1]) {
-console.log("d")
       /* Will be the last indexed character, but not the first. */
       if (ssl.domains.length == 1) {
-console.log("e")
         /* Will be the second and last indexed character. */
         return [
           ssl.index[indexed_chars[this_char_index - 1]][1] + 1,
           1
         ];
       } else {
-console.log("f")
         /* Will be the last but not the second indexed character. */
         return [
           ssl.index[indexed_chars[this_char_index - 1]][1] + 1,
@@ -257,7 +240,6 @@ console.log("f")
         ];
       }
     } else {
-console.log("g")
       /* Will be the first and last indexed character. */
       return [0, 0];
     }
@@ -285,19 +267,15 @@ function getDomainIndex(domain, index_range) {
 
 /* Index a new domain. */
 function indexDomain(domain) {
-console.log("indexing " + domain)
   first_char = domain.charAt(0);
   index_range = getIndexRange(first_char);
   if (getDomainIndex(domain, index_range) == -1) {
-console.log("1")
     /* This domain is not indexed yet. */
     log_debug(on_blue + "hstshijack" + reset + " Indexing domain " + bold + domain + reset + " ...");
     indexed_chars = Object.keys(ssl.index);
     if (index_range[0] == index_range[1]) {
-console.log("2")
       /* This index range consists of only one index. */
       if (ssl.domains[index_range[0]]) {
-console.log("3")
         /* This index range contains one domain. */
         new_index = index_range[0];
         if (getsPrecedence(ssl.domains[index_range[0]], domain)) {
@@ -305,14 +283,12 @@ console.log("3")
         }
         arr_ = ssl.domains.slice(0, new_index);
         _arr = ssl.domains.slice(new_index, ssl.domains.length);
-console.log("concating " + arr_ + " + " + domain + " + " + _arr)
         ssl.domains = [].concat(arr_, [domain], _arr);
         ssl.index[first_char] = [
           index_range[0],
           index_range[1] + 1
         ];
       } else {
-console.log("4")
         /* This index range contains no domains. */
         ssl.domains.push(domain);
         ssl.index[first_char] = [
@@ -321,7 +297,6 @@ console.log("4")
         ];
       }
     } else {
-console.log("5")
       /* This index range consists of multiple domains. */
       new_index = index_range[0];
       for (var a = index_range[0]; a < index_range[1] + 1; a++) {
@@ -333,7 +308,6 @@ console.log("5")
       }
       arr_ = ssl.domains.slice(0, new_index);
       _arr = ssl.domains.slice(new_index, ssl.domains.length);
-console.log("concating " + arr_ + " + " + domain + " + " + _arr)
       ssl.domains = [].concat(arr_, [domain], _arr);
       ssl.index[first_char] = [
         index_range[0],
@@ -351,7 +325,6 @@ console.log("concating " + arr_ + " + " + domain + " + " + _arr)
     }
     saveSSLIndex();
   } else {
-console.log("6")
     /* This domain is already indexed. */
     log_debug(on_blue + "hstshijack" + reset + " Skipped already indexed domain " + bold + domain + reset);
   }
