@@ -10,11 +10,11 @@ var ssl = {
 
 var payload,
     payload_container_prefix = (
-      "if (!self.{{SESSION_ID_TAG}}) {\n" +
-         "self.{{SESSION_ID_TAG}} = function() {\n"),
+      "if (!globalThis.{{SESSION_ID_TAG}}) {\n" +
+         "globalThis.{{SESSION_ID_TAG}} = function() {\n"),
     payload_container_suffix = (
          "\n}\n" +
-         "self.{{SESSION_ID_TAG}}();\n" +
+         "globalThis.{{SESSION_ID_TAG}}();\n" +
       "}\n");
 
 var ignore_hosts       = [],
@@ -143,7 +143,7 @@ function toWholeRegexpSet(selector_string, replacement_string) {
   }
 }
 
-/* Saves the list of domains using SSL, as well as those domains' index ranges. */
+/* Saves the list of domains using SSL, as well as its index ranges. */
 function saveSSLIndex() {
   writeFile(env["hstshijack.ssl.domains"], ssl.domains.join("\n"));
   writeFile(env["hstshijack.ssl.index"], JSON.stringify(ssl.index, null, 2));
