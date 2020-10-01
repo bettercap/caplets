@@ -53,12 +53,12 @@ function randomFloat() {
 
 function randomString(length) {
   var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
-      buff  = "";
-  while (buff.length < length) {
+      buff  = new Array(length);
+  for (var a = 0; a < buff.length; a++) {
     index = parseInt(Math.random() * chars.length);
-    buff = buff + chars.charAt(index);
+    buff[a] = chars.charAt(index)
   }
-  return buff;
+  return buff.join("");
 }
 
 function toRegexp(selector_string, replacement_string) {
