@@ -52,6 +52,7 @@ function randomFloat() {
 }
 
 function randomString(length) {
+  length = parseInt(length);
   var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
       buff  = new Array(length);
   for (var a = 0; a < buff.length; a++) {
