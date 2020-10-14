@@ -27,9 +27,11 @@ set dns.spoof.all      true
 dns.spoof on
 ```
 
-### Core payload
+### <a href="./payloads/hijack.js">**hijack.js**</a> payload
 
-This module injects files with a JavaScript payload (<a href="./payloads/hijack.js">**hijack.js**</a>). This payload acts as a callback for bettercap, and takes care of hostname spoofing in the injected context (and document).
+This module injects files with a JavaScript payload (<a href="./payloads/hijack.js">**hijack.js**</a>). This payload acts as a callback for bettercap, takes care of hostname spoofing in attributes of injected documents, as well as XMLHttpRequest.
+
+Injecting this payload is essential for hostname spoofing.
 
 ### Scalable domain indexing (SSL log)
 
@@ -41,7 +43,7 @@ This module injects files with a JavaScript payload (<a href="./payloads/hijack.
 
 If a host responds with an HTTPS redirect, bettercap will save this host in a list, and keep a log of (alphanumerically) ordered index ranges of the domains in this list, allowing it to scale by reducing a considerable amount of overhead for the proxy module.
 
-Bettercap will try to spoof SSL connections between the client and these hosts, and it also sends a HEAD request to each host that was discovered in an injected document, which are retrieved via callbacks from the hstshijack.js payload.
+Bettercap will try to spoof SSL connections between the client and these hosts, and will also send a HEAD request to each host that was discovered in an injected document, and retrieved via a callback from the <a href="./payloads/hijack.js">**hijack.js**</a> payload.
 
 By default, this caplet will remap the index ranges of all domains that were found in the file that you assigned to the `hstshijack.ssl.domains` variable on launch (to ensure that it is still in the right format). You can skip this by setting the `hstshijack.ssl.check` variable value to `false`.
 
@@ -68,7 +70,7 @@ In the <a href="./hstshijack.cap">**caplet file**</a> you can block JavaScript f
 
 You can also inject your own scripts into files from your specified hosts by assigning them to the `hstshijack.payloads` variable.
 
-Custom payloads are assembled at launch, and wrapped inside a function which is defined as a property of the current JavaScript context (globalThis). This is done to ensure that your payload is only executed once on every document, even if injected multiple times. Individual payloads are not failsafe, so you must set your conditions/try and catch blocks yourself.
+Custom payloads are assembled at launch, executed synchronously, and wrapped inside a function that is defined as a property of the current JavaScript context (globalThis). This is done to ensure that your payload is only executed once per application, even if injected multiple times. Individual payloads are not failsafe, so you must set your conditions/try and catch blocks yourself.
 
 Example:
 
@@ -157,4 +159,3 @@ form.onsubmit = function() {
 When a request is sent as above, bettercap will stop spoofing connections between the sender and the requested host.
 
 If any resource from a spoofed host is requested that was previously whitelisted for that client, then that client will be redirected to the intended (unspoofed) host.
-
