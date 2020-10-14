@@ -129,7 +129,7 @@ function obf_func_hook_XMLHttpRequest() {
       obf_var_parsed_url[0] = obf_var_parsed_url[0].replace(/(http)s:\/\//i, "$1://");
     }
     if (obf_var_parsed_url[2] === ":443") {
-      obf_var_parsed_url[2] = obf_var_parsed_url[2].replace(":443", "");
+      obf_var_parsed_url[2] = "";
     }
     obf_var_hijacked_host = obf_func_hstshijack(obf_var_parsed_url[1]);
     obf_var_url = obf_var_parsed_url[0] +
@@ -174,7 +174,7 @@ function obf_func_hook_nodes() {
           obf_var_parsed_url[0] = obf_var_parsed_url[0].replace(/(http)s:\/\//i, "$1://");
         }
         if (obf_var_parsed_url[2] === ":443") {
-          obf_var_parsed_url[2] = obf_var_parsed_url[2].replace(":443", "");
+          obf_var_parsed_url[2] = "";
         }
         obf_var_hijacked_host = obf_func_hijack(obf_var_parsed_url[1]);
         obf_var_hijacked_url = obf_var_parsed_url[0] +
