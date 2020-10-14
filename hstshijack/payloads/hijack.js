@@ -54,6 +54,30 @@ function obf_func_toWholeRegexpSet(obf_var_selector_string, obf_var_replacement_
   }
 }
 
+function obf_func_parseURL(obf_var_url) {
+  obf_var_strippedURL = obf_var_url.replace(/^\s*(.*)\s*$/g, "$1");
+  obf_var_retval = ["","","","","",""];
+  if (obf_var_strippedURL.match(/^((?:\w+:)?\/\/).*$/i)) {
+    obf_var_retval[0] = obf_var_strippedURL.replace(/^((?:\w+:)?\/\/).*$/i, "$1");
+  }
+  if (obf_var_strippedURL.match(/^(?:(?:(?:\w+:)?\/\/)((?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{1,63}))(?:[:][1-9][0-9]{0,4})?)(?:[/][^/].*$|[/]$|[?#].*$|$)/i)) {
+    obf_var_retval[1] = obf_var_strippedURL.replace(/^(?:(?:(?:\w+:)?\/\/)((?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{1,63}))(?:[:][1-9][0-9]{0,4})?)(?:[/][^/].*$|[/]$|[?#].*$|$)/i, "$1");
+  }
+  if (obf_var_strippedURL.match(/^(?:(?:(?:\w+:)?\/\/)?(?:(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{1,63})))([:][1-9][0-9]{0,4}).*/i)) {
+    obf_var_retval[2] = obf_var_strippedURL.replace(/^(?:(?:(?:\w+:)?\/\/)?(?:(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{1,63})))([:][1-9][0-9]{0,4}).*$/i, "$1");
+  }
+  if (obf_var_strippedURL.match(/^(?:(?:\w+:)?\/\/(?:(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{1,63}))(?:[:][1-9][0-9]{0,4})?)?([/][^?#]*).*/i)) {
+    obf_var_retval[3] = obf_var_strippedURL.replace(/^(?:(?:\w+:)?\/\/)?[^/?#]*([/][^?#]*).*$/i, "$1");
+  }
+  if (obf_var_strippedURL.match(/^.*?([?][^#]*).*/i)) {
+    obf_var_retval[4] = obf_var_strippedURL.replace(/^.*?([?][^#]*).*$/i, "$1");
+  }
+  if (obf_var_strippedURL.match(/^[^#]*([#].*)/i)) {
+    obf_var_retval[5] = obf_var_strippedURL.replace(/^[^#]*([#].*)/i, "$1");
+  }
+  return obf_var_retval;
+}
+
 function obf_func_callback(obf_var_host) {
   for (
     obf_var_i = 0;
@@ -100,13 +124,20 @@ function obf_func_hook_XMLHttpRequest() {
     obf_var_username,
     obf_var_password
   ) {
-    obf_var_host = obf_var_url.replace(/^(?:[a-z]+:\/\/|[/]+)?([^:/?#]*).*/i, "$1");
-    obf_var_hijacked_host = obf_func_hstshijack(obf_var_host);
-    obf_var_path = obf_var_url.replace(/(?:[a-z]+:\/\/)?.*([:/?#].*)/i, "$1");
-    obf_var_url = obf_var_url
-      .replace(/^(http)s:\/\//i, "$1://")
-      .replace(obf_var_host, obf_var_hijacked_host)
-      .replace(/:443([^0-9]|$)/, "$1");
+    obf_var_parsed_url = obf_func_parseURL(obf_var_url);
+    if (obf_var_parsed_url[0].toLowerCase() === "https://") {
+      obf_var_parsed_url[0] = obf_var_parsed_url[0].replace(/(http)s:\/\//i, "$1://");
+    }
+    if (obf_var_parsed_url[2] === ":443") {
+      obf_var_parsed_url[2] = obf_var_parsed_url[2].replace(":443", "");
+    }
+    obf_var_hijacked_host = obf_func_hstshijack(obf_var_parsed_url[1]);
+    obf_var_url = obf_var_parsed_url[0] +
+      obf_var_hijacked_host +
+      obf_var_parsed_url[2] +
+      obf_var_parsed_url[3] +
+      obf_var_parsed_url[4] +
+      obf_var_parsed_url[5];
     return obf_func_open.apply(this, arguments);
   }
 }
@@ -137,11 +168,21 @@ function obf_func_hook_nodes() {
             : "";
           break;
       }
-      if (obf_var_url.match(/^(?:http[s]?:)?\/\/[^:/?#]+/i)) {
-        obf_var_host = obf_var_url.replace(/^(?:http[s]?:)?\/\/([^:/?#]+).*/i, "$1");
-        obf_var_path = obf_var_url.replace(/^(?:http[s]?:)?\/\/[^:/?#]+(.*)/i, "$1");
-        obf_var_hijacked_host = obf_func_hijack(obf_var_host);
-        obf_var_hijacked_url = "http://" + obf_var_hijacked_host + obf_var_path;
+      if (obf_var_url.match(/^\s*(?:http[s]?:)?\/\/[^:/?#]+/i)) {
+        obf_var_parsed_url = obf_func_parseURL(obf_var_url);
+        if (obf_var_parsed_url[0].toLowerCase() === "https://") {
+          obf_var_parsed_url[0] = obf_var_parsed_url[0].replace(/(http)s:\/\//i, "$1://");
+        }
+        if (obf_var_parsed_url[2] === ":443") {
+          obf_var_parsed_url[2] = obf_var_parsed_url[2].replace(":443", "");
+        }
+        obf_var_hijacked_host = obf_func_hijack(obf_var_parsed_url[1]);
+        obf_var_hijacked_url = obf_var_parsed_url[0] +
+          obf_var_hijacked_host +
+          obf_var_parsed_url[2] +
+          obf_var_parsed_url[3] +
+          obf_var_parsed_url[4] +
+          obf_var_parsed_url[5];
         switch (obf_var_node.tagName) {
           case "A":
             if (obf_var_node.href) {
@@ -164,7 +205,7 @@ function obf_func_hook_nodes() {
             }
             break;
         }
-        obf_func_callback(obf_var_host.toLowerCase());
+        obf_func_callback(obf_var_parsed_url[1].toLowerCase());
       }
     } catch(obf_var_ignore) {}
   });

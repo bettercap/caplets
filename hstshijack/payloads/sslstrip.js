@@ -27,23 +27,23 @@ function obf_func_hook_nodes() {
     try {
       switch (obf_var_node.tagName) {
         case "A":
-          if (obf_var_node.href && obf_var_node.href.match(/https/i)) {
-            obf_var_node.href = obf_var_node.href.replace(/(http)s/ig, "$1");
+          if (obf_var_node.href && obf_var_node.href.match(/^\s*https:/i)) {
+            obf_var_node.href = obf_var_node.href.replace(/(http)s/i, "$1");
           }
           break;
         case "IFRAME":
-          if (obf_var_node.src && obf_var_node.src.match(/https/i)) {
-            obf_var_node.src = obf_var_node.src.replace(/(http)s/ig, "$1");
+          if (obf_var_node.src && obf_var_node.src.match(/^\s*https:/i)) {
+            obf_var_node.src = obf_var_node.src.replace(/(http)s/i, "$1");
           }
           break;
         case "SCRIPT":
-          if (obf_var_node.src && obf_var_node.src.match(/https/i)) {
-            obf_var_node.src = obf_var_node.src.replace(/(http)s/ig, "$1");
+          if (obf_var_node.src && obf_var_node.src.match(/^\s*https:/i)) {
+            obf_var_node.src = obf_var_node.src.replace(/(http)s/i, "$1");
           }
           break;
         case "FORM":
-          if (obf_var_node.action && obf_var_node.action.match(/https/i)) {
-            obf_var_node.action = obf_var_node.action.replace(/(http)s/ig, "$1");
+          if (obf_var_node.action && obf_var_node.action.match(/^\s*https:/i)) {
+            obf_var_node.action = obf_var_node.action.replace(/(http)s/i, "$1");
           }
           break;
       }
