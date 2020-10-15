@@ -12,45 +12,33 @@ var obf_func_open = XMLHttpRequest.prototype.open,
     obf_var_XMLHttpRequest = new XMLHttpRequest(),
     obf_var_callback_log = [];
 
-function obf_func_toWholeRegexp(obf_var_selector_string, obf_var_replacement_string) {
-  obf_var_selector_string = obf_var_selector_string.replace(/\./g, "\\.");
-  obf_var_selector_string = obf_var_selector_string.replace(/\-/g, "\\-");
-  return [
-    new RegExp("^" + obf_var_selector_string + "$", "ig"),
-    obf_var_replacement_string
-  ];
-}
-
-function obf_func_toWholeWildcardRegexp(obf_var_selector_string, obf_var_replacement_string) {
-  obf_var_selector_string = obf_var_selector_string.replace(/\-/g, "\\-");
-  if (obf_var_selector_string.match(/^\*./)) {
-    obf_var_selector_string = obf_var_selector_string.replace(/^\*\./, "((?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?.)+)");
-    obf_var_selector_string = obf_var_selector_string.replace(/\./g, "\\.");
-    obf_var_replacement_string = obf_var_replacement_string.replace(/^\*\./, "");
-    return [
-      new RegExp("^" + obf_var_selector_string + "$", "ig"),
-      "$1" + obf_var_replacement_string
-    ];
-  } else if (obf_var_selector_string.match(/\.\*$/)) {
-    obf_var_selector_string = obf_var_selector_string.replace(/\.\*/g, "((?:.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+)");
-    obf_var_selector_string = obf_var_selector_string.replace(/\./g, "\\.");
-    obf_var_replacement_string = obf_var_replacement_string.replace(/\.\*$/, "");
-    return [
-      new RegExp(obf_var_selector_string, "ig"),
-      obf_var_replacement_string + "$1"
-    ];
-  }
-}
-
 function obf_func_toWholeRegexpSet(obf_var_selector_string, obf_var_replacement_string) {
   if (obf_var_selector_string.indexOf("*") != -1) {
-    return obf_func_toWholeWildcardRegexp(
-      obf_var_selector_string,
-      obf_var_replacement_string);
+    obf_var_selector_string = obf_var_selector_string.replace(/\-/g, "\\-");
+    if (obf_var_selector_string.match(/^\*./)) {
+      obf_var_selector_string = obf_var_selector_string.replace(/^\*\./, "((?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?.)+)");
+      obf_var_selector_string = obf_var_selector_string.replace(/\./g, "\\.");
+      obf_var_replacement_string = obf_var_replacement_string.replace(/^\*\./, "");
+      return [
+        new RegExp("^" + obf_var_selector_string + "$", "ig"),
+        "$1" + obf_var_replacement_string
+      ];
+    } else if (obf_var_selector_string.match(/\.\*$/)) {
+      obf_var_selector_string = obf_var_selector_string.replace(/\.\*/g, "((?:.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+)");
+      obf_var_selector_string = obf_var_selector_string.replace(/\./g, "\\.");
+      obf_var_replacement_string = obf_var_replacement_string.replace(/\.\*$/, "");
+      return [
+        new RegExp(obf_var_selector_string, "ig"),
+        obf_var_replacement_string + "$1"
+      ];
+    }
   } else {
-    return obf_func_toWholeRegexp(
-      obf_var_selector_string,
-      obf_var_replacement_string);
+    obf_var_selector_string = obf_var_selector_string.replace(/\./g, "\\.");
+    obf_var_selector_string = obf_var_selector_string.replace(/\-/g, "\\-");
+    return [
+      new RegExp("^" + obf_var_selector_string + "$", "ig"),
+      obf_var_replacement_string
+    ];
   }
 }
 
