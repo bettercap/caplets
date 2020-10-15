@@ -70,7 +70,7 @@ In the <a href="./hstshijack.cap">**caplet file**</a> you can block JavaScript f
 
 You can also inject your own scripts into files from your specified hosts by assigning them to the `hstshijack.payloads` variable.
 
-Custom payloads are assembled at launch, executed synchronously, and wrapped inside a function that is defined as a property of the current JavaScript context (globalThis). This is done to ensure that your payload is only executed once per application, even if injected multiple times. Individual payloads are not failsafe, so you must set your conditions/try and catch blocks yourself.
+Custom payloads are (optionally) obfuscated at launch, executed synchronously, and wrapped inside a function that is defined as a property of the current JavaScript context (globalThis). This is done to ensure that your payload is only executed once per application, even if injected multiple times. Individual payloads are not failsafe, so you must set your conditions/try and catch blocks yourself.
 
 Example:
 
