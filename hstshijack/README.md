@@ -29,9 +29,9 @@ dns.spoof on
 
 ### <a href="./payloads/hijack.js">**hijack.js**</a> payload
 
-This module injects files with a JavaScript payload (<a href="./payloads/hijack.js">**hijack.js**</a>). This payload acts as a callback for bettercap, takes care of hostname spoofing in attributes of injected documents, as well as XMLHttpRequest.
+This module injects files with a JavaScript payload (<a href="./payloads/hijack.js">**hijack.js**</a>). This payload acts as a callback for bettercap, and takes care of hostname spoofing in attributes of injected documents, as well as XMLHttpRequest.
 
-Injecting this payload is essential for hostname spoofing.
+Injecting <a href="./payloads/hijack.js">**hijack.js**</a> and <a href="./payloads/sslstrip.js">**sslstrip.js**</a> is essential for hostname spoofing.
 
 ### Scalable domain indexing (SSL log)
 
@@ -41,11 +41,11 @@ Injecting this payload is essential for hostname spoofing.
   <img width="420px" src="https://user-images.githubusercontent.com/29265684/94715357-b44c3800-0390-11eb-82f3-6948aeff27f2.png" />
 </p>
 
-If a host responds with an HTTPS redirect, bettercap will save this host in a list, and keep a log of (alphanumerically) ordered index ranges of the domains in this list, allowing it to scale by reducing a considerable amount of overhead for the proxy module.
+When hosts respond with an HTTPS redirect, bettercap will save their hostnames in a list and keep track of the index ranges of these hostnames sorted by each character's Unicode code point value, allowing the list to scale by reducing a considerable amount of overhead for the proxy module.
 
-Bettercap will try to spoof SSL connections between the client and these hosts, and will also send a HEAD request to each host that was discovered in an injected document, and retrieved via a callback from the <a href="./payloads/hijack.js">**hijack.js**</a> payload.
+By default, this caplet will remap the index ranges on launch of all the domains that were found in the file that you assigned to the `hstshijack.ssl.domains` variable (to ensure that it is still in the right format). You can skip this by setting the `hstshijack.ssl.check` variable value to `false`.
 
-By default, this caplet will remap the index ranges of all domains that were found in the file that you assigned to the `hstshijack.ssl.domains` variable on launch (to ensure that it is still in the right format). You can skip this by setting the `hstshijack.ssl.check` variable value to `false`.
+Bettercap will also send a HEAD request to unknown hosts that were discovered in the injected document and retrieved via a callback from the <a href="./payloads/hijack.js">**hijack.js**</a> payload. This is done to learn what hosts use HTTPS, ahead of time.
 
 Hostnames that you target with the `hstshijack.targets` variable are automatically logged and indexed.
 
@@ -78,7 +78,7 @@ Example:
 set hstshijack.payloads        *:/usr/local/share/bettercap/caplets/hstshijack/payloads/hijack.js,*:/usr/local/share/bettercap/caplets/hstshijack/payloads/sslstrip.js,*:/usr/local/share/bettercap/caplets/hstshijack/payloads/keylogger.js
 ```
 
-You should always inject the hstshijack.js and sslstrip.js payloads when spoofing hostnames.
+You should always inject the <a href="./payloads/hijack.js">**hijack.js**</a> and <a href="./payloads/sslstrip.js">**sslstrip.js**</a> payloads when spoofing hostnames.
 
 ### Obfuscation
 
