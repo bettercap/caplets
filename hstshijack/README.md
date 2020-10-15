@@ -29,9 +29,9 @@ dns.spoof on
 
 ### <a href="./payloads/hijack.js">**hijack.js**</a> payload
 
-This module injects files with a JavaScript payload (<a href="./payloads/hijack.js">**hijack.js**</a>). This payload acts as a callback for bettercap, and takes care of hostname spoofing in attributes of injected documents, as well as XMLHttpRequest.
+This module injects files with a JavaScript payload (<a href="./payloads/hijack.js">**hijack.js**</a>) which acts as a callback for bettercap, and takes care of hostname spoofing in attributes of injected documents, as well as XMLHttpRequest.
 
-Injecting <a href="./payloads/hijack.js">**hijack.js**</a> and <a href="./payloads/sslstrip.js">**sslstrip.js**</a> is essential for hostname spoofing.
+Injecting <a href="./payloads/hijack.js">**hijack.js**</a> is essential for hostname spoofing.
 
 ### Scalable domain indexing (SSL log)
 
@@ -78,7 +78,7 @@ Example:
 set hstshijack.payloads        *:/usr/local/share/bettercap/caplets/hstshijack/payloads/hijack.js,*:/usr/local/share/bettercap/caplets/hstshijack/payloads/sslstrip.js,*:/usr/local/share/bettercap/caplets/hstshijack/payloads/keylogger.js
 ```
 
-You should always inject the <a href="./payloads/hijack.js">**hijack.js**</a> and <a href="./payloads/sslstrip.js">**sslstrip.js**</a> payloads when spoofing hostnames.
+You should always inject the <a href="./payloads/hijack.js">**hijack.js**</a> payload when spoofing hostnames.
 
 ### Obfuscation
 
