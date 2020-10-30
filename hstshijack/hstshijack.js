@@ -864,8 +864,8 @@ function onResponse(req, res) {
 
       /* Prevent meta tag induced CSP restrictions. */
       res.Body = res.Body.replace(
-        / http-equiv=['"]?Content-Security-Policy['"]?/ig,
-        "");
+        / http-equiv=['"]?Content-Security-Policy['"]?([ />])/ig,
+        "$1");
 
       /* Block scripts. */
       for (a = 0; a < block_script_hosts.length; a++) {
