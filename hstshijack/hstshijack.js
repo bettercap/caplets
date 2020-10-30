@@ -857,7 +857,7 @@ function onResponse(req, res) {
 
     /* Spoof markup bodies. */
     if (
-         res.ContentType.match(/text[/](?:html|xml)|application[/](?:hta|xhtml[+]xml|xml)/i)
+         res.ContentType.match(/text[/](?:html|xml)|application[/](?:hta|xhtml[+]xml|xml)|\S+[/]\S+[+]xml/i)
       || req.Path.match(/[.](?:html|htm|xml|xhtml|xhtm|xht|hta)$/i)
     ) {
       res.ReadBody();
@@ -903,7 +903,7 @@ function onResponse(req, res) {
 
     /* Spoof JavaScript bodies. */
     if (
-         res.ContentType.match(/\w+[/]javascript/i)
+         res.ContentType.match(/\S+[/]javascript/i)
       || req.Path.match(/[.]js$/i)
     ) {
       res.ReadBody();
