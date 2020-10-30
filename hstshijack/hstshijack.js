@@ -873,8 +873,8 @@ function onResponse(req, res) {
              block_script_hosts[a] != "*"
           || req.Hostname.match(toWholeRegexpSet(block_script_hosts[a], "")[0])
         ) {
-          res.Body = res.Body.replace(/<script(?: [^>]*?)?>/ig, "<div style=\"display:none;\">");
-          res.Body = res.Body.replace(/<\/script>/ig, "</div>");
+          res.Body = res.Body.replace(/<script(\s|>)/ig, "<div style=\"display:none;\"$1");
+          res.Body = res.Body.replace(/<\/script(\s|>)/ig, "</div$1");
           log_debug(on_blue + "hstshijack" + reset + " Blocked inline script tags in a document from " + bold + req.Hostname + reset + ".");
           break;
         }
