@@ -66,7 +66,7 @@ function toRegexp(selector_string, replacement_string) {
   selector_string = selector_string.replace(/\./g, "\\.");
   selector_string = selector_string.replace(/\-/g, "\\-");
   return [
-    new RegExp("([^a-z0-9-.]|^)" + selector_string + "([^a-z0-9-.]|$)", "ig"),
+    new RegExp("(^|[^a-z0-9-.])" + selector_string + "($|[^a-z0-9-.])", "ig"),
     "$1" + replacement_string + "$2"
   ];
 }
@@ -126,7 +126,7 @@ function toWholeWildcardRegexp(selector_string, replacement_string) {
   }
 }
 
-/* Matches (^|[^a-zA-Z0-9-.])example.com($|[^a-zA-Z0-9-.]) */
+/* Matches /(^|[^a-z0-9-.])example\.com($|[^a-z0-9-.])/ig */
 function toRegexpSet(selector_string, replacement_string) {
   if (selector_string.indexOf("*") != -1) {
     return toWildcardRegexp(selector_string, replacement_string);
@@ -492,7 +492,7 @@ function configure() {
         log_fatal(on_blue + "hstshijack" + reset + " List of domains using SSL is not indexed. Please set your hstshijack.ssl.check value to true in your caplet.");
       }
       ssl.index = JSON.parse(index_file_contents);
-      log_info(on_blue + "hstshijack" + reset + " Skipped SSL index check for " + all_domains +  ".");
+      log_info(on_blue + "hstshijack" + reset + " Skipped SSL index check for " + all_domains.length + " domain(s).");
     }
   }
 
