@@ -870,7 +870,7 @@ function onResponse(req, res) {
       /* Block scripts. */
       for (a = 0; a < block_script_hosts.length; a++) {
         if (
-             block_script_hosts[a] != "*"
+             block_script_hosts[a] === "*"
           || req.Hostname.match(toWholeRegexpSet(block_script_hosts[a], "")[0])
         ) {
           res.Body = res.Body.replace(/<script(\s|>)/ig, "<div style=\"display:none;\"$1");
@@ -911,7 +911,7 @@ function onResponse(req, res) {
       /* Block scripts. */
       for (a = 0; a < block_script_hosts.length; a++) {
         if (
-             block_script_hosts[a] != "*"
+             block_script_hosts[a] === "*"
           || req.Hostname.match(toWholeRegexpSet(block_script_hosts[a], "")[0])
         ) {
           res.Body = "";
