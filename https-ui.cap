@@ -10,7 +10,7 @@ set https.server.key ~/.bettercap-https.key.pem
 set api.rest.certificate ~/.bettercap-https.cert.pem
 set api.rest.key ~/.bettercap-https.key.pem 
 # default installation path of the ui
-set https.server.path /usr/local/share/bettercap/ui
+set https.server.path /usr/share/bettercap/ui
 
 # !!! CHANGE THESE !!!
 set api.rest.username user
