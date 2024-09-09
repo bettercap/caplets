@@ -39,7 +39,7 @@ Injecting <a href="./payloads/hijack.js">**hijack.js**</a> is essential for host
 <br>
 
 <p align="center">
-  <img width="420px" src="https://github.com/user-attachments/assets/43f7888f-ad82-4d51-a61f-88fda24970e3" alt="Indexed domains that use HTTPS" />
+  <img width="380px" src="https://github.com/user-attachments/assets/a419acb3-28b4-4927-a596-c96ab6c2552e" alt="Indexed domains that use HTTPS" />
 </p>
 
 When hosts respond with an HTTPS redirect, bettercap will save their hostname in lists that are sorted by domain prefixes, allowing the list to scale by reducing a considerable amount of overhead for the proxy module.
