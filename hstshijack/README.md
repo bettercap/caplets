@@ -17,7 +17,8 @@ set hstshijack.ssl.check       true
 #set hstshijack.blockscripts    example.com,*.example.com
 set hstshijack.obfuscate       true
 set hstshijack.payloads        *:/usr/local/share/bettercap/caplets/hstshijack/payloads/hijack.js,*:/usr/local/share/bettercap/caplets/hstshijack/payloads/sslstrip.js,*:/usr/local/share/bettercap/caplets/hstshijack/payloads/keylogger.js
-#set hstshijack.ignore          *
+set hstshijack.whitelist       /usr/local/share/bettercap/caplets/hstshijack/whitelist.json
+set hstshijack.ignore          captive.apple.com,connectivitycheck.gstatic.com,detectportal.firefox.com,www.msftconnecttest.com
 
 set http.proxy.script  /usr/local/share/bettercap/caplets/hstshijack/hstshijack.js
 http.proxy on
@@ -38,12 +39,12 @@ Injecting <a href="./payloads/hijack.js">**hijack.js**</a> is essential for host
 <br>
 
 <p align="center">
-  <img width="420px" src="https://user-images.githubusercontent.com/29265684/94715357-b44c3800-0390-11eb-82f3-6948aeff27f2.png" />
+  <img width="420px" src="https://github.com/user-attachments/assets/43f7888f-ad82-4d51-a61f-88fda24970e3" alt="Indexed domains that use HTTPS" />
 </p>
 
-When hosts respond with an HTTPS redirect, bettercap will save their hostnames in a list and keep track of the index ranges of these hostnames sorted by each character's Unicode code point value, allowing the list to scale by reducing a considerable amount of overhead for the proxy module.
+When hosts respond with an HTTPS redirect, bettercap will save their hostname in lists that are sorted by domain prefixes, allowing the list to scale by reducing a considerable amount of overhead for the proxy module.
 
-By default, this caplet will remap the index ranges on launch of all the domains that were found in the file that you assigned to the `hstshijack.ssl.domains` variable (to ensure that it is still in the right format). You can skip this by setting the `hstshijack.ssl.check` variable value to `false`.
+By default, this caplet will remap these lists of domains that were found in the file that you assigned to the `hstshijack.ssl.domains` variable on launch (to ensure that it is still in the right format). You can skip this by setting the `hstshijack.ssl.check` variable to `false`.
 
 Bettercap will also send a HEAD request to unknown hosts that were discovered in the injected document and retrieved via a callback from the <a href="./payloads/hijack.js">**hijack.js**</a> payload. This is done to learn what hosts use HTTPS, ahead of time.
 
