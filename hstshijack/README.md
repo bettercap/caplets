@@ -20,6 +20,8 @@ set hstshijack.payloads        *:/usr/local/share/bettercap/caplets/hstshijack/p
 set hstshijack.whitelist       /usr/local/share/bettercap/caplets/hstshijack/whitelist.json
 set hstshijack.ignore          captive.apple.com,connectivitycheck.gstatic.com,detectportal.firefox.com,www.msftconnecttest.com
 
+net.recon on
+
 set http.proxy.script  /usr/local/share/bettercap/caplets/hstshijack/hstshijack.js
 http.proxy on
 
