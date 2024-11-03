@@ -233,7 +233,7 @@ function getsPrecedence(domain1, domain2) {
   }
 }
 
-/* Returns the index of a given domain within a given index range. */
+/* Returns the index of a given domain. */
 function getDomainIndex(domain) {
   domain = domain.toLowerCase();
   for (a = 0; a !== ssl.prefixes.length; a++) {
