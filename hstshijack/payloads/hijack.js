@@ -17,12 +17,22 @@
     obf_var_regex_four = /\./g,
     obf_var_regex_five = /^\*\./,
     obf_var_regex_six = /\.\*$/,
-    obf_var_regex_seven = /\.\*/g;
+    obf_var_regex_seven = /\.\*/g,
+    obf_var_regex_eight = /^((?:[a-z0-9.+-]{1,256}[:])(?:[/][/])?|(?:[a-z0-9.+-]{1,256}[:])?[/][/])?.*$/i,
+    obf_var_regex_nine = /^((?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.){1,63}(?:[a-z]{1,63})|(?:25[0-5]|2[0-4][0-9]|[1][0-9][0-9]|[1-9]?[0-9])\.(?:25[0-5]|2[0-4][0-9]|[1][0-9][0-9]|[1-9]?[0-9])\.(?:25[0-5]|2[0-4][0-9]|[1][0-9][0-9]|[1-9]?[0-9])\.(?:25[0-5]|2[0-4][0-9]|[1][0-9][0-9]|[1-9]?[0-9]))?.*$/i,
+    obf_var_regex_ten = /^([:](?:6553[0-5]|655[0-2][0-9]|65[0-4][0-9][0-9]|6[0-4][0-9][0-9][0-9]|[0-5][0-9][0-9][0-9][0-9]|[1-9][0-9]{0,3}))?.*$/i,
+    obf_var_regex_eleven = /^([^?#]{1,2048})?.*$/i,
+    obf_var_regex_twelve = /^([?][^#]{0,2048})?.*$/i,
+    obf_var_regex_thirteen = /^\s*(.*)\s*$/g;
 
   var obf_func_open = XMLHttpRequest.prototype.open,
       obf_var_XMLHttpRequest = new XMLHttpRequest(),
       obf_func_fetch = globalThis.fetch,
       obf_var_callback_log = [];
+
+  function obf_func_trimLeadingAndTrailingWhitespaces(obf_var_str) {
+    return obf_var_str.replace(obf_var_regex_thirteen, "$1");
+  }
 
   function obf_func_toWholeRegexpSet(obf_var_selector_string, obf_var_replacement_string) {
     if (obf_var_selector_string.indexOf("*") != -1) {
@@ -55,26 +65,38 @@
   }
 
   function obf_func_parseURL(obf_var_url) {
-    var obf_var_strippedURL = obf_var_url.replace(/^\s*(.*)\s*$/g, "$1"),
-        obf_var_retval = ["","","","","",""];
-    if (obf_var_strippedURL.match(/^((?:\w+:)?\/\/).*$/i)) {
-      obf_var_retval[0] = obf_var_strippedURL.replace(/^((?:\w+:)?\/\/).*$/i, "$1");
+    var obf_var_sliceLength = 0;
+    var obf_var_strippedURL = obf_func_trimLeadingAndTrailingWhitespaces(obf_var_url);
+    var obf_var_retval = ["","","","","",""];
+    /* obf_protocol */
+    obf_var_retval[0] = obf_var_strippedURL.replace(obf_var_regex_eight, "$1");
+    var obf_var_protocol = obf_var_retval[0].toLowerCase();
+    if (obf_var_protocol.length !== 0) {
+      if (
+        obf_var_protocol === "about:"
+        || obf_var_protocol === "data:"
+        || obf_var_protocol === "file:"
+        || obf_var_protocol === "geo:"
+        || obf_var_protocol === "javascript:"
+        || obf_var_protocol === "tel:"
+      ) {
+        obf_var_retval[3] = obf_var_strippedURL.slice(obf_var_retval[0].length);
+        return obf_var_retval;
+      }
+      /* obf_host */
+      obf_var_retval[1] = obf_var_strippedURL.slice(obf_var_retval[0].length).replace(obf_var_regex_nine, "$1");
     }
-    if (obf_var_strippedURL.match(/^(?:(?:(?:\w+:)?\/\/)((?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{1,63}))(?:[:][1-9][0-9]{0,4})?)(?:[/][^/].*$|[/]$|[?#].*$|$)/i)) {
-      obf_var_retval[1] = obf_var_strippedURL.replace(/^(?:(?:(?:\w+:)?\/\/)((?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{1,63}))(?:[:][1-9][0-9]{0,4})?)(?:[/][^/].*$|[/]$|[?#].*$|$)/i, "$1");
-    }
-    if (obf_var_strippedURL.match(/^(?:(?:(?:\w+:)?\/\/)?(?:(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{1,63})))([:][1-9][0-9]{0,4}).*/i)) {
-      obf_var_retval[2] = obf_var_strippedURL.replace(/^(?:(?:(?:\w+:)?\/\/)?(?:(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{1,63})))([:][1-9][0-9]{0,4}).*$/i, "$1");
-    }
-    if (obf_var_strippedURL.match(/^(?:(?:\w+:)?\/\/(?:(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{1,63}))(?:[:][1-9][0-9]{0,4})?)?([/][^?#]*).*/i)) {
-      obf_var_retval[3] = obf_var_strippedURL.replace(/^(?:(?:\w+:)?\/\/)?[^/?#]*([/][^?#]*).*$/i, "$1");
-    }
-    if (obf_var_strippedURL.match(/^.*?([?][^#]*).*/i)) {
-      obf_var_retval[4] = obf_var_strippedURL.replace(/^.*?([?][^#]*).*$/i, "$1");
-    }
-    if (obf_var_strippedURL.match(/^[^#]*([#].*)/i)) {
-      obf_var_retval[5] = obf_var_strippedURL.replace(/^[^#]*([#].*)/i, "$1");
-    }
+    /* obf_port */
+    obf_var_sliceLength = obf_var_retval[0].length + obf_var_retval[1].length;
+    obf_var_retval[2] = obf_var_strippedURL.slice(obf_var_sliceLength).replace(obf_var_regex_ten, "$1");
+    /* obf_path */
+    obf_var_sliceLength = obf_var_sliceLength + obf_var_retval[2].length;
+    obf_var_retval[3] = obf_var_strippedURL.slice(obf_var_sliceLength).replace(obf_var_regex_eleven, "$1");
+    /* obf_search */
+    obf_var_sliceLength = obf_var_sliceLength + obf_var_retval[3].length;
+    obf_var_retval[4] = obf_var_strippedURL.slice(obf_var_sliceLength).replace(obf_var_regex_twelve, "$1");
+    /* obf_hash */
+    obf_var_retval[5] = obf_var_strippedURL.slice(obf_var_sliceLength + obf_var_retval[4].length);
     return obf_var_retval;
   }
 
