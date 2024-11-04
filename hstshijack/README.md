@@ -32,7 +32,7 @@ dns.spoof on
 
 ### <a href="./payloads/hijack.js">**hijack.js**</a> payload
 
-This module injects files with a JavaScript payload (<a href="./payloads/hijack.js">**hijack.js**</a>) which acts as a callback for bettercap, and takes care of hostname spoofing in attributes of injected documents, as well as XMLHttpRequest.
+This module injects files with a JavaScript payload (<a href="./payloads/hijack.js">**hijack.js**</a>) which acts as a callback for bettercap, and takes care of hostname spoofing in attributes of injected documents, as well as fetch and XMLHttpRequest.
 
 Injecting <a href="./payloads/hijack.js">**hijack.js**</a> is essential for hostname spoofing.
 
