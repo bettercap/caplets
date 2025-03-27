@@ -3,8 +3,12 @@ set api.rest.address 127.0.0.1
 set api.rest.port 8081
 set http.server.address 127.0.0.1
 set http.server.port 80
+
 # default installation path of the ui
 set http.server.path /usr/local/share/bettercap/ui
+
+# !!! Use this if on Termux: !!!
+# set https.server.path /data/data/com.termux/files/usr/local/share/bettercap/ui
 
 # !!! CHANGE THESE !!!
 set api.rest.username user
