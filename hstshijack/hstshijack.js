@@ -387,14 +387,14 @@ function configure() {
       log_fatal(on_blue + "hstshijack" + reset + " Could not read a payload (got " + payload_path + ").");
     } else {
       payload = payload
-        .replace(/obf_var_target_hosts/g, varname_target_hosts)
-        .replace(/obf_var_replacement_hosts/g, varname_replacement_hosts)
-        .replace(/obf_path_callback/g, callback_path)
-        .replace(/obf_path_ssl_index/g, ssl_index_path)
-        .replace(/obf_path_whitelist/g, whitelist_path);
+        .replace(/obf_hstshijack_var_target_hosts/g, varname_target_hosts)
+        .replace(/obf_hstshijack_var_replacement_hosts/g, varname_replacement_hosts)
+        .replace(/obf_hstshijack_path_callback/g, callback_path)
+        .replace(/obf_hstshijack_path_ssl_index/g, ssl_index_path)
+        .replace(/obf_hstshijack_path_whitelist/g, whitelist_path);
 
       if (obfuscate) {
-        obfuscation_variables = payload.match(/obf_[a-z0-9_]*/ig) || [];
+        obfuscation_variables = payload.match(/obf_hstshijack_[a-z0-9_]*/ig) || [];
         for (b = 0; b < obfuscation_variables.length; b++) {
           if (obfuscation_variables.indexOf(obfuscation_variables[b]) === b) {
             regexp = new RegExp(obfuscation_variables[b], "g");
