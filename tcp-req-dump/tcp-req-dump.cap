@@ -8,7 +8,7 @@
 # we'll use this proxy script to dump requests
 set tcp.proxy.script tcp-req-dump.js
 set tcp.port 80
-# example.com
+# example.com, victim server
 set tcp.address 93.184.216.34
 set tcp.proxy.port 8080
 
