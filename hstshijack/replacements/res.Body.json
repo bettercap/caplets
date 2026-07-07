@@ -1,0 +1,50 @@
+{
+	"html": {
+		"*": [
+			["(['\"`](?:http|ws)|sourceMappingURL=http)s", "ig", "$1"],
+			["((?:['\"`](?:(?:http|ws)://|//)?|sourceMappingURL=http://)[a-z0-9-.]+)[.]com([^a-z0-9-.]|$)", "ig", "$1.corn$2"],
+			["((?:['\"`](?:(?:http|ws)://|//)?|sourceMappingURL=http://)[a-z0-9-.]+)[.]net([^a-z0-9-.]|$)", "ig", "$1.nel$2"],
+			["((?:['\"`](?:(?:http|ws)://|//)?|sourceMappingURL=http://)[a-z0-9-.]{0,253})clarity[.]ms([^a-z0-9-.]|$)", "ig", "$1clarity.ns$2"],
+			["((?:['\"`](?:(?:http|ws)://|//)?|sourceMappingURL=http://)[a-z0-9-.]+)[.]nl([^a-z0-9-.]|$)", "ig", "$1.ni$2"],
+			["((?:['\"`](?:(?:http|ws)://|//)?|sourceMappingURL=http://)[a-z0-9-.]+)[.]me([^a-z0-9-.]|$)", "ig", "$1.rne$2"],
+			["((?:['\"`](?:(?:http|ws)://|//)?|sourceMappingURL=http://)[a-z0-9-.]+)[.]google([^a-z0-9-.]|$)", "ig", "$1.googl$2"],
+			["((?:['\"`](?:(?:http|ws)://|//)?|sourceMappingURL=http://)[a-z0-9-.]+)[.]cn([^a-z0-9-.]|$)", "ig", "$1.ch$2"],
+			[" http-equiv=['\"]?content-security-policy(?:-report-only)?['\"]?([ />])", "ig", "$1"],
+			[" integrity=['\"][^'\"]+['\"]([ />])", "ig", "$1"],
+			[" nonce=[\"][^\"]+['\"]([ />])", "ig", "$1"]
+		],
+		"home.nest.com": [
+			["document.domain = ", "g", "//"]
+		]
+	},
+	"javascript": {
+		"*": [
+			["((?:['\"`]|sourceMappingURL=)(?:http|ws))s", "ig", "$1"],
+			["((?:['\"`](?:(?:http|ws)://|//)?|sourceMappingURL=http://)[a-z0-9-.]+)[.]com([^a-z0-9-.]|$)", "ig", "$1.corn$2"],
+			["((?:['\"`](?:(?:http|ws)://|//)?|sourceMappingURL=http://)[a-z0-9-.]+)[.]net([^a-z0-9-.]|$)", "ig", "$1.nel$2"],
+			["((?:['\"`](?:(?:http|ws)://|//)?|sourceMappingURL=http://)[a-z0-9-.]{0,253})clarity[.]ms([^a-z0-9-.]|$)", "ig", "$1clarity.ns$2"],
+			["((?:['\"`](?:(?:http|ws)://|//)?|sourceMappingURL=http://)[a-z0-9-.]+)[.]nl([^a-z0-9-.]|$)", "ig", "$1.ni$2"],
+			["((?:['\"`](?:(?:http|ws)://|//)?|sourceMappingURL=http://)[a-z0-9-.]+)[.]me([^a-z0-9-.]|$)", "ig", "$1.rne$2"],
+			["((?:['\"`](?:(?:http|ws)://|//)?|sourceMappingURL=http://)[a-z0-9-.]+)[.]google([^a-z0-9-.]|$)", "ig", "$1.googl$2"],
+			["((?:['\"`](?:(?:http|ws)://|//)?|sourceMappingURL=http://)[a-z0-9-.]+)[.]cn([^a-z0-9-.]|$)", "ig", "$1.ch$2"]
+		],
+		"apis.google.com": [
+			["(V=function\\(a\\)\\{)", "g", "$1if(1)return;"]
+		],
+		"home.nest.com": [
+			["(ensureSafe:function\\(e\\)\\{)", "g", "$1if(1)return;"]
+		]
+	},
+	"json": {
+		"*": [
+			["(\"(?:http|ws))s", "ig", "$1"],
+			["(\"(?:(?:http|ws)://|//)?[a-z0-9-.]+)[.]com([^a-z0-9-.]|$)", "ig", "$1.corn$2"],
+			["(\"(?:(?:http|ws)://|//)?[a-z0-9-.]+)[.]net([^a-z0-9-.]|$)", "ig", "$1.nel$2"],
+			["(\"(?:(?:http|ws)://|//)?[a-z0-9-.]{0,253})clarity[.]ms([^a-z0-9-.]|$)", "ig", "$1clarity.ns$2"],
+			["(\"(?:(?:http|ws)://|//)?[a-z0-9-.]+)[.]nl([^a-z0-9-.]|$)", "ig", "$1.ni$2"],
+			["(\"(?:(?:http|ws)://|//)?[a-z0-9-.]+)[.]me([^a-z0-9-.]|$)", "ig", "$1.rne$2"],
+			["(\"(?:(?:http|ws)://|//)?[a-z0-9-.]+)[.]google([^a-z0-9-.]|$)", "ig", "$1.googl$2"],
+			["(\"(?:(?:http|ws)://|//)?[a-z0-9-.]+)[.]cn([^a-z0-9-.]|$)", "ig", "$1.ch$2"]
+		]
+	}
+}

